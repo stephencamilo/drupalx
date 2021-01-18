@@ -20,8 +20,8 @@ class ClassyTemplatesIdenticalToStableTest extends UnitTestCase {
    *   The template file to test.
    */
   public function testStableTemplatesIdenticalToClassy($template) {
-    $stable_template = $this->root . '/core/themes/stable/templates' . $template;
-    $classy_template = $this->root . '/core/themes/classy/templates' . $template;
+    $stable_template = $this->root . '/core/frontend/themes/stable/templates' . $template;
+    $classy_template = $this->root . '/core/frontend/themes/classy/templates' . $template;
     $this->assertFileExists($stable_template);
     $this->assertFileExists($classy_template);
     $this->assertSame(md5_file($stable_template), md5_file($classy_template), 'The templates should have the same checksums.');

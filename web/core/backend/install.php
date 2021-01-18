@@ -8,7 +8,7 @@
 use Drupal\Component\Utility\OpCodeCache;
 
 // Change the directory to the Drupal root.
-// chdir('..');
+chdir('../..');
 // Store the Drupal root path.
 $root_path = realpath('');
 
@@ -44,5 +44,5 @@ if (OpCodeCache::isEnabled() && !ini_get('opcache.save_comments')) {
 }
 
 // Start the installer.
-require_once $root_path . '/core/includes/install.core.inc';
+require_once $root_path . '/core/backend/includes/install.core.inc';
 install_drupal($class_loader);

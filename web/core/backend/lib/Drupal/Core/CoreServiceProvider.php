@@ -33,7 +33,7 @@ use Symfony\Component\DependencyInjection\Compiler\PassConfig;
  * ServiceProvider class for mandatory core services.
  *
  * This is where Drupal core registers all of its compiler passes.
- * The service definitions themselves are in core/core.services.yml with a
+ * The service definitions themselves are in core/backend/core.services.yml with a
  * few, documented exceptions (typically, install requirements).
  *
  * Modules wishing to register services to the container should use

@@ -275,11 +275,11 @@ class CKEditorTest extends KernelTestBase {
     // Enable the Bartik theme, which specifies a CKEditor stylesheet.
     \Drupal::service('theme_installer')->install(['bartik']);
     $this->config('system.theme')->set('default', 'bartik')->save();
-    $expected[] = file_url_transform_relative(file_create_url('core/themes/bartik/css/base/elements.css')) . $query_string;
-    $expected[] = file_url_transform_relative(file_create_url('core/themes/bartik/css/components/captions.css')) . $query_string;
-    $expected[] = file_url_transform_relative(file_create_url('core/themes/bartik/css/components/table.css')) . $query_string;
-    $expected[] = file_url_transform_relative(file_create_url('core/themes/bartik/css/components/text-formatted.css')) . $query_string;
-    $expected[] = file_url_transform_relative(file_create_url('core/themes/bartik/css/classy/components/media-embed-error.css')) . $query_string;
+    $expected[] = file_url_transform_relative(file_create_url('core/frontend/themes/bartik/css/base/elements.css')) . $query_string;
+    $expected[] = file_url_transform_relative(file_create_url('core/frontend/themes/bartik/css/components/captions.css')) . $query_string;
+    $expected[] = file_url_transform_relative(file_create_url('core/frontend/themes/bartik/css/components/table.css')) . $query_string;
+    $expected[] = file_url_transform_relative(file_create_url('core/frontend/themes/bartik/css/components/text-formatted.css')) . $query_string;
+    $expected[] = file_url_transform_relative(file_create_url('core/frontend/themes/bartik/css/classy/components/media-embed-error.css')) . $query_string;
     $this->assertIdentical($expected, $this->ckeditor->buildContentsCssJSSetting($editor), '"contentsCss" configuration part of JS settings built correctly while a theme providing a CKEditor stylesheet exists.');
   }
 

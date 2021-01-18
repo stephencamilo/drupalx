@@ -1252,9 +1252,9 @@ function hook_theme($existing, $type, $theme, $path) {
  * @code
  * $theme_registry['block_content_add_list'] = array (
  *   'template' => 'block-content-add-list',
- *   'path' => 'core/themes/seven/templates',
+ *   'path' => 'core/frontend/themes/seven/templates',
  *   'type' => 'theme_engine',
- *   'theme path' => 'core/themes/seven',
+ *   'theme path' => 'core/frontend/themes/seven',
  *   'includes' => array (
  *     0 => 'core/modules/block_content/block_content.pages.inc',
  *   ),

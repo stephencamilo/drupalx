@@ -33,7 +33,7 @@ class DiscoverServiceProvidersTest extends UnitTestCase {
 
     $expect = [
       'app' => [
-        'core' => 'core/core.services.yml',
+        'core' => 'core/backend/core.services.yml',
       ],
       'site' => [
         __DIR__ . '/fixtures/custom.yml',
@@ -55,7 +55,7 @@ class DiscoverServiceProvidersTest extends UnitTestCase {
 
     $expect = [
       'app' => [
-        'core' => 'core/core.services.yml',
+        'core' => 'core/backend/core.services.yml',
       ],
       'site' => [],
     ];

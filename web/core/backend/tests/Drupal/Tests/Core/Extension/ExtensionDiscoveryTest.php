@@ -58,7 +58,7 @@ class ExtensionDiscoveryTest extends UnitTestCase {
     $extension_expected->origin = 'core';
     $this->assertEquals($extension_expected, $extensions_by_type['module']['system'], 'system');
 
-    $extension_expected = new Extension($root, 'theme_engine', 'core/themes/engines/twig/twig.info.yml', 'twig.engine');
+    $extension_expected = new Extension($root, 'theme_engine', 'core/frontend/themes/engines/twig/twig.info.yml', 'twig.engine');
     $extension_expected->subpath = 'themes/engines/twig';
     $extension_expected->origin = 'core';
     $this->assertEquals($extension_expected, $extensions_by_type['theme_engine']['twig'], 'twig');
@@ -129,7 +129,7 @@ class ExtensionDiscoveryTest extends UnitTestCase {
       'core/modules/user/user.info.yml' => [],
       'profiles/other_profile/modules/other_profile_nested_module/other_profile_nested_module.info.yml' => [],
       'core/modules/system/system.info.yml' => [],
-      'core/themes/seven/seven.info.yml' => [
+      'core/frontend/themes/seven/seven.info.yml' => [
         'type' => 'theme',
       ],
       // Override the core instance of the 'seven' theme.
@@ -140,7 +140,7 @@ class ExtensionDiscoveryTest extends UnitTestCase {
       'modules/poorly_placed_theme/poorly_placed_theme.info.yml' => [
         'type' => 'theme',
       ],
-      'core/themes/engines/twig/twig.info.yml' => [
+      'core/frontend/themes/engines/twig/twig.info.yml' => [
         'type' => 'theme_engine',
       ],
     ];
@@ -160,7 +160,7 @@ class ExtensionDiscoveryTest extends UnitTestCase {
     }
 
     $content_by_file['core/modules/system/system.module'] = '<?php';
-    $content_by_file['core/themes/engines/twig/twig.engine'] = '<?php';
+    $content_by_file['core/frontend/themes/engines/twig/twig.engine'] = '<?php';
 
     foreach ($content_by_file as $file => $content) {
       $pieces = explode('/', $file);

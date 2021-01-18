@@ -52,7 +52,7 @@ class InstallerTest extends InstallerTestBase {
   protected function setUpLanguage() {
     // Test that \Drupal\Core\Render\BareHtmlPageRenderer adds assets and
     // metatags as expected to the first page of the installer.
-    $this->assertRaw("core/themes/seven/css/components/buttons.css");
+    $this->assertRaw("core/frontend/themes/seven/css/components/buttons.css");
     $this->assertRaw('<meta charset="utf-8" />');
 
     // Assert that the expected title is present.

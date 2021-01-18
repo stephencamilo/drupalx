@@ -117,7 +117,7 @@ class StableLibraryOverrideTest extends KernelTestBase {
 
           // Adjust the module asset paths to correspond with the Stable folder
           // structure.
-          $expected_path = str_replace("core/modules/$extension/css/", "core/themes/stable/css/$extension/", $expected_path);
+          $expected_path = str_replace("core/modules/$extension/css/", "core/frontend/themes/stable/css/$extension/", $expected_path);
           $assert_path = str_replace("core/modules/$extension/", '', $clean_path);
 
           $this->assertEqual($expected_path, $stable_path, "$assert_path from the $extension/$library_name library is overridden in Stable.");

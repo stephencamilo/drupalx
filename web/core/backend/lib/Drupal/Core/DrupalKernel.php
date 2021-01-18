@@ -557,14 +557,14 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    * {@inheritdoc}
    */
   public function loadLegacyIncludes() {
-    require_once $this->root . '/core/includes/common.inc';
-    require_once $this->root . '/core/includes/module.inc';
-    require_once $this->root . '/core/includes/theme.inc';
-    require_once $this->root . '/core/includes/menu.inc';
-    require_once $this->root . '/core/includes/file.inc';
-    require_once $this->root . '/core/includes/form.inc';
-    require_once $this->root . '/core/includes/errors.inc';
-    require_once $this->root . '/core/includes/schema.inc';
+    require_once $this->root . '/backend/includes/common.inc';
+    require_once $this->root . '/backend/includes/module.inc';
+    require_once $this->root . '/backend/includes/theme.inc';
+    require_once $this->root . '/backend/includes/menu.inc';
+    require_once $this->root . '/backend/includes/file.inc';
+    require_once $this->root . '/backend/includes/form.inc';
+    require_once $this->root . '/backend/includes/errors.inc';
+    require_once $this->root . '/backend/includes/schema.inc';
   }
 
   /**
@@ -613,7 +613,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       'app' => [],
       'site' => [],
     ];
-    $this->serviceYamls['app']['core'] = 'core/core.services.yml';
+    $this->serviceYamls['app']['core'] = 'core/backend/core.services.yml';
     $this->serviceProviderClasses['app']['core'] = 'Drupal\Core\CoreServiceProvider';
 
     // Retrieve enabled modules and register their namespaces.
@@ -1220,7 +1220,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     // - Entity
     // - Plugin
     foreach (['Core', 'Component'] as $parent_directory) {
-      $path = 'core/lib/Drupal/' . $parent_directory;
+      $path = 'backend/lib/Drupal/' . $parent_directory;
       $parent_namespace = 'Drupal\\' . $parent_directory;
       foreach (new \DirectoryIterator($this->root . '/' . $path) as $component) {
         /** @var $component \DirectoryIterator */

@@ -161,7 +161,7 @@ class ThemeInitialization implements ThemeInitializationInterface {
     }
 
     // Always include Twig as the default theme engine.
-    include_once $this->root . '/core/themes/engines/twig/twig.engine';
+    include_once $this->root . '/core/frontend/themes/engines/twig/twig.engine';
   }
 
   /**

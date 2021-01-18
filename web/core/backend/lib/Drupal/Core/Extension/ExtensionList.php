@@ -486,7 +486,7 @@ abstract class ExtensionList {
    *
    * while a theme 'bar' may be located in any of the following four places:
    *
-   * - core/themes/bar/bar.info.yml
+   * - core/frontend/themes/bar/bar.info.yml
    * - themes/bar/bar.info.yml
    * - sites/all/themes/bar/bar.info.yml
    * - sites/example.com/themes/bar/bar.info.yml

@@ -26,6 +26,7 @@ web/sites/simpletest
 .editorconfig
 .gitattributes
 .ht.router.php
+.idea
 example.gitignore
 load.php
 vendor

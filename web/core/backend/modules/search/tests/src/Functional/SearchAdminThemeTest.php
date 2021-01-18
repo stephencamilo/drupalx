@@ -96,10 +96,10 @@ class SearchAdminThemeTest extends BrowserTestBase {
    */
   protected function assertAdminTheme($is_admin) {
     if ($is_admin) {
-      $this->assertRaw('core/themes/' . $this->adminTheme);
+      $this->assertRaw('core/frontend/themes/' . $this->adminTheme);
     }
     else {
-      $this->assertNoRaw('core/themes/' . $this->adminTheme);
+      $this->assertNoRaw('core/frontend/themes/' . $this->adminTheme);
     }
   }
 

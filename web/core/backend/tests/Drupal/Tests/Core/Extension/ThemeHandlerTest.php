@@ -80,7 +80,7 @@ class ThemeHandlerTest extends UnitTestCase {
     $this->themeList->expects($this->at(1))
       ->method('getList')
       ->will($this->returnValue([
-        'seven' => new Extension($this->root, 'theme', 'core/themes/seven/seven.info.yml', 'seven.theme'),
+        'seven' => new Extension($this->root, 'theme', 'core/frontend/themes/seven/seven.info.yml', 'seven.theme'),
       ]));
 
     $theme_data = $this->themeHandler->rebuildThemeData();
@@ -90,8 +90,8 @@ class ThemeHandlerTest extends UnitTestCase {
     // Ensure some basic properties.
     $this->assertInstanceOf('Drupal\Core\Extension\Extension', $info);
     $this->assertEquals('seven', $info->getName());
-    $this->assertEquals('core/themes/seven/seven.info.yml', $info->getPathname());
-    $this->assertEquals('core/themes/seven/seven.theme', $info->getExtensionPathname());
+    $this->assertEquals('core/frontend/themes/seven/seven.info.yml', $info->getPathname());
+    $this->assertEquals('core/frontend/themes/seven/seven.theme', $info->getExtensionPathname());
 
   }
 

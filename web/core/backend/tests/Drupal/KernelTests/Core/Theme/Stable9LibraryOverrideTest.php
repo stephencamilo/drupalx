@@ -118,8 +118,8 @@ class Stable9LibraryOverrideTest extends KernelTestBase {
           // Adjust the module asset paths to correspond with the Stable 9
           // folder structure.
           $replacements = [
-            "core/modules/$extension/css/" => "core/themes/stable9/css/$extension/",
-            "core/modules/$extension/layouts/" => "core/themes/stable9/layouts/$extension/",
+            "core/modules/$extension/css/" => "core/frontend/themes/stable9/css/$extension/",
+            "core/modules/$extension/layouts/" => "core/frontend/themes/stable9/layouts/$extension/",
           ];
           $expected_path = strtr($expected_path, $replacements);
           $assert_path = str_replace("core/modules/$extension/", '', $clean_path);

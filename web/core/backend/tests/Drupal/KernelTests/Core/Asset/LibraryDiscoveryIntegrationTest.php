@@ -55,11 +55,11 @@ class LibraryDiscoveryIntegrationTest extends KernelTestBase {
   public function testLibrariesOverride() {
     // Assert some classy libraries that will be overridden or removed.
     $this->activateTheme('classy');
-    $this->assertAssetInLibrary('core/themes/classy/css/components/button.css', 'classy', 'base', 'css');
-    $this->assertAssetInLibrary('core/themes/classy/css/components/collapse-processed.css', 'classy', 'base', 'css');
-    $this->assertAssetInLibrary('core/themes/classy/css/components/container-inline.css', 'classy', 'base', 'css');
-    $this->assertAssetInLibrary('core/themes/classy/css/components/details.css', 'classy', 'base', 'css');
-    $this->assertAssetInLibrary('core/themes/classy/css/components/dialog.css', 'classy', 'dialog', 'css');
+    $this->assertAssetInLibrary('core/frontend/themes/classy/css/components/button.css', 'classy', 'base', 'css');
+    $this->assertAssetInLibrary('core/frontend/themes/classy/css/components/collapse-processed.css', 'classy', 'base', 'css');
+    $this->assertAssetInLibrary('core/frontend/themes/classy/css/components/container-inline.css', 'classy', 'base', 'css');
+    $this->assertAssetInLibrary('core/frontend/themes/classy/css/components/details.css', 'classy', 'base', 'css');
+    $this->assertAssetInLibrary('core/frontend/themes/classy/css/components/dialog.css', 'classy', 'dialog', 'css');
 
     // Confirmatory assert on core library to be removed.
     $this->assertNotEmpty($this->libraryDiscovery->getLibraryByName('core', 'drupal.progress'), 'Confirmatory test on "core/drupal.progress"');
@@ -71,11 +71,11 @@ class LibraryDiscoveryIntegrationTest extends KernelTestBase {
     $this->assertEqual($this->libraryDiscovery->getLibraryByName('core', 'drupal.collapse'), $this->libraryDiscovery->getLibraryByName('test_theme', 'collapse'), 'Entire library correctly overridden.');
 
     // Assert that classy library assets were correctly overridden or removed.
-    $this->assertNoAssetInLibrary('core/themes/classy/css/components/button.css', 'classy', 'base', 'css');
-    $this->assertNoAssetInLibrary('core/themes/classy/css/components/collapse-processed.css', 'classy', 'base', 'css');
-    $this->assertNoAssetInLibrary('core/themes/classy/css/components/container-inline.css', 'classy', 'base', 'css');
-    $this->assertNoAssetInLibrary('core/themes/classy/css/components/details.css', 'classy', 'base', 'css');
-    $this->assertNoAssetInLibrary('core/themes/classy/css/components/dialog.css', 'classy', 'dialog', 'css');
+    $this->assertNoAssetInLibrary('core/frontend/themes/classy/css/components/button.css', 'classy', 'base', 'css');
+    $this->assertNoAssetInLibrary('core/frontend/themes/classy/css/components/collapse-processed.css', 'classy', 'base', 'css');
+    $this->assertNoAssetInLibrary('core/frontend/themes/classy/css/components/container-inline.css', 'classy', 'base', 'css');
+    $this->assertNoAssetInLibrary('core/frontend/themes/classy/css/components/details.css', 'classy', 'base', 'css');
+    $this->assertNoAssetInLibrary('core/frontend/themes/classy/css/components/dialog.css', 'classy', 'dialog', 'css');
 
     $this->assertAssetInLibrary('core/modules/system/tests/themes/test_theme/css/my-button.css', 'classy', 'base', 'css');
     $this->assertAssetInLibrary('core/modules/system/tests/themes/test_theme/css/my-collapse-processed.css', 'classy', 'base', 'css');

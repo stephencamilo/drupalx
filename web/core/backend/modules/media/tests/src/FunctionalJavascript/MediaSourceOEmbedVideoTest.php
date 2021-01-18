@@ -177,7 +177,7 @@ class MediaSourceOEmbedVideoTest extends MediaSourceTestBase {
     // 'view media' permission.
     $this->drupalGet('media/oembed', ['query' => $query]);
     $assert_session->pageTextContains('By the power of Grayskull, Vimeo works!');
-    $this->assertRaw('core/themes/stable/templates/content/media-oembed-iframe.html.twig');
+    $this->assertRaw('core/frontend/themes/stable/templates/content/media-oembed-iframe.html.twig');
     $this->assertNoRaw('core/modules/media/templates/media-oembed-iframe.html.twig');
 
     // Test themes not inheriting from stable.
@@ -185,7 +185,7 @@ class MediaSourceOEmbedVideoTest extends MediaSourceTestBase {
     $this->config('system.theme')->set('default', 'stark')->save();
     $this->drupalGet('media/oembed', ['query' => $query]);
     $assert_session->pageTextContains('By the power of Grayskull, Vimeo works!');
-    $this->assertNoRaw('core/themes/stable/templates/content/media-oembed-iframe.html.twig');
+    $this->assertNoRaw('core/frontend/themes/stable/templates/content/media-oembed-iframe.html.twig');
     $this->assertRaw('core/modules/media/templates/media-oembed-iframe.html.twig');
 
     // Remove the 'view media' permission to test that this restricts access.
