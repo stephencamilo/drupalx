@@ -18,6 +18,7 @@ alt text: 'Screenshot of Olivero, Drupal front-end theme.'
 package: Core
 version: VERSION
 experimental: true
+core_version_requirement: ^8 || ^9
 libraries:
   - olivero/global-styling
 regions:

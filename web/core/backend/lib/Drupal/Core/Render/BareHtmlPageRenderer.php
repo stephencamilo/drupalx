@@ -62,6 +62,7 @@ class BareHtmlPageRenderer implements BareHtmlPageRendererInterface {
 
     // Add the bare minimum of attachments from the system module and the
     // current maintenance theme.
+    $system = \Drupal::moduleHandler()->moduleExists('system');
     system_page_attachments($html['page']);
     $this->renderer->renderRoot($html);
 
@@ -73,4 +74,98 @@ class BareHtmlPageRenderer implements BareHtmlPageRendererInterface {
     return $response;
   }
 
+}
+
+/**
+ * Implements hook_page_attachments().
+ *
+ * @see template_preprocess_maintenance_page()
+ * @see \Drupal\Core\EventSubscriber\ActiveLinkResponseFilter
+ */
+function system_page_attachments(array &$page) {
+  // Ensure the same CSS is loaded in template_preprocess_maintenance_page().
+  $page['#attached']['library'][] = 'system/base';
+  if (\Drupal::service('router.admin_context')->isAdminRoute()) {
+    $page['#attached']['library'][] = 'system/admin';
+  }
+
+  // Attach libraries used by this theme.
+  $active_theme = \Drupal::theme()->getActiveTheme();
+  foreach ($active_theme->getLibraries() as $library) {
+    $page['#attached']['library'][] = $library;
+  }
+
+  // Attach favicon.
+  if (theme_get_setting('features.favicon')) {
+    $favicon = theme_get_setting('favicon.url');
+    $type = theme_get_setting('favicon.mimetype');
+    $page['#attached']['html_head_link'][][] = [
+      'rel' => 'shortcut icon',
+      'href' => UrlHelper::stripDangerousProtocols($favicon),
+      'type' => $type,
+    ];
+  }
+
+  // Get the major Drupal version.
+  list($version,) = explode('.', \Drupal::VERSION);
+
+  // Attach default meta tags.
+  $meta_default = [
+    // Make sure the Content-Type comes first because the IE browser may be
+    // vulnerable to XSS via encoding attacks from any content that comes
+    // before this META tag, such as a TITLE tag.
+    'system_meta_content_type' => [
+      '#tag' => 'meta',
+      '#attributes' => [
+        'charset' => 'utf-8',
+      ],
+      // Security: This always has to be output first.
+      '#weight' => -1000,
+    ],
+    // Show Drupal and the major version number in the META GENERATOR tag.
+    'system_meta_generator' => [
+      '#type' => 'html_tag',
+      '#tag' => 'meta',
+      '#attributes' => [
+        'name' => 'Generator',
+        'content' => 'Drupal ' . $version . ' (https://www.drupal.org)',
+      ],
+    ],
+    // Attach default mobile meta tags for responsive design.
+    'MobileOptimized' => [
+      '#tag' => 'meta',
+      '#attributes' => [
+        'name' => 'MobileOptimized',
+        'content' => 'width',
+      ],
+    ],
+    'HandheldFriendly' => [
+      '#tag' => 'meta',
+      '#attributes' => [
+        'name' => 'HandheldFriendly',
+        'content' => 'true',
+      ],
+    ],
+    'viewport' => [
+      '#tag' => 'meta',
+      '#attributes' => [
+        'name' => 'viewport',
+        'content' => 'width=device-width, initial-scale=1.0',
+      ],
+    ],
+  ];
+  foreach ($meta_default as $key => $value) {
+    $page['#attached']['html_head'][] = [$value, $key];
+  }
+
+  // Handle setting the "active" class on links by:
+  // - loading the active-link library if the current user is authenticated;
+  // - applying a response filter if the current user is anonymous.
+  // @see \Drupal\Core\Link
+  // @see \Drupal\Core\Utility\LinkGenerator::generate()
+  // @see template_preprocess_links()
+  // @see \Drupal\Core\EventSubscriber\ActiveLinkResponseFilter
+  if (\Drupal::currentUser()->isAuthenticated()) {
+    $page['#attached']['library'][] = 'core/drupal.active-link';
+  }
 }

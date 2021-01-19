@@ -118,7 +118,7 @@ function locale_test_locale_translation_projects_alter(&$projects) {
         'info' => [
           'name' => 'Locale test',
           'interface translation project' => 'locale_test',
-          'interface translation server pattern' => 'core/modules/locale/tests/test.%language.po',
+          'interface translation server pattern' => 'core/backend/modules/locale/tests/test.%language.po',
           'package' => 'Other',
           'version' => NULL,
           'project' => 'locale_test',

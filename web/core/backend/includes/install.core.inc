@@ -465,7 +465,7 @@ function install_begin_request($class_loader, &$install_state) {
   // rebuild, prime the drupal_get_filename() static cache with the system
   // module's location.
   // @todo Remove as part of https://www.drupal.org/node/2186491
-  drupal_get_filename('module', 'system', 'core/modules/system/system.info.yml');
+  drupal_get_filename('module', 'system', 'core/backend/modules/system/system.info.yml');
 
   // Use the language from profile configuration if available.
   if (!empty($install_state['config_install_path']) && $install_state['config']['system.site']) {
@@ -487,7 +487,7 @@ function install_begin_request($class_loader, &$install_state) {
   // Override the module list with a minimal set of modules.
   $module_handler = \Drupal::moduleHandler();
   if (!$module_handler->moduleExists('system')) {
-    $module_handler->addModule('system', 'core/modules/system');
+    $module_handler->addModule('system', 'core/backend/modules/system');
   }
   if ($profile && !$module_handler->moduleExists($profile)) {
     $module_handler->addProfile($profile, $install_state['profiles'][$profile]->getPath());
@@ -1098,7 +1098,7 @@ function install_base_system(&$install_state) {
   // Prime the drupal_get_filename() static cache with the user module's
   // exact location.
   // @todo Remove as part of https://www.drupal.org/node/2186491
-  drupal_get_filename('module', 'user', 'core/modules/user/user.info.yml');
+  drupal_get_filename('module', 'user', 'core/backend/modules/user/user.info.yml');
 
   // Install the User module so that installing from configuration works and to
   // ensure the anonymous user is created with a langcode of 'en'.

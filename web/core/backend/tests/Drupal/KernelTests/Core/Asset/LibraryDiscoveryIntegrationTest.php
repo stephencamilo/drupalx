@@ -77,8 +77,8 @@ class LibraryDiscoveryIntegrationTest extends KernelTestBase {
     $this->assertNoAssetInLibrary('core/frontend/themes/classy/css/components/details.css', 'classy', 'base', 'css');
     $this->assertNoAssetInLibrary('core/frontend/themes/classy/css/components/dialog.css', 'classy', 'dialog', 'css');
 
-    $this->assertAssetInLibrary('core/modules/system/tests/themes/test_theme/css/my-button.css', 'classy', 'base', 'css');
-    $this->assertAssetInLibrary('core/modules/system/tests/themes/test_theme/css/my-collapse-processed.css', 'classy', 'base', 'css');
+    $this->assertAssetInLibrary('core/backend/modules/system/tests/themes/test_theme/css/my-button.css', 'classy', 'base', 'css');
+    $this->assertAssetInLibrary('core/backend/modules/system/tests/themes/test_theme/css/my-collapse-processed.css', 'classy', 'base', 'css');
     $this->assertAssetInLibrary('themes/my_theme/css/my-container-inline.css', 'classy', 'base', 'css');
     $this->assertAssetInLibrary('themes/my_theme/css/my-details.css', 'classy', 'base', 'css');
 
@@ -88,7 +88,7 @@ class LibraryDiscoveryIntegrationTest extends KernelTestBase {
     // Assert that overridden library asset still retains attributes.
     $library = $this->libraryDiscovery->getLibraryByName('core', 'jquery');
     foreach ($library['js'] as $definition) {
-      if ($definition['data'] == 'core/modules/system/tests/themes/test_theme/js/collapse.js') {
+      if ($definition['data'] == 'core/backend/modules/system/tests/themes/test_theme/js/collapse.js') {
         $this->assertTrue($definition['minified']);
         $this->assertSame(-20, $definition['weight'], 'Previous attributes retained');
         break;
@@ -163,7 +163,7 @@ class LibraryDiscoveryIntegrationTest extends KernelTestBase {
     // Assert that libraries-override specified in the base theme still applies
     // in the sub theme.
     $this->assertNoAssetInLibrary('core/misc/dialog/dialog.js', 'core', 'drupal.dialog', 'js');
-    $this->assertAssetInLibrary('core/modules/system/tests/themes/test_basetheme/css/farbtastic.css', 'core', 'jquery.farbtastic', 'css');
+    $this->assertAssetInLibrary('core/backend/modules/system/tests/themes/test_basetheme/css/farbtastic.css', 'core', 'jquery.farbtastic', 'css');
   }
 
   /**
@@ -172,23 +172,23 @@ class LibraryDiscoveryIntegrationTest extends KernelTestBase {
   public function testLibrariesExtend() {
     // Activate classy themes and verify the libraries are not extended.
     $this->activateTheme('classy');
-    $this->assertNoAssetInLibrary('core/modules/system/tests/themes/test_theme_libraries_extend/css/extend_1.css', 'classy', 'book-navigation', 'css');
-    $this->assertNoAssetInLibrary('core/modules/system/tests/themes/test_theme_libraries_extend/js/extend_1.js', 'classy', 'book-navigation', 'js');
-    $this->assertNoAssetInLibrary('core/modules/system/tests/themes/test_theme_libraries_extend/css/extend_2.css', 'classy', 'book-navigation', 'css');
+    $this->assertNoAssetInLibrary('core/backend/modules/system/tests/themes/test_theme_libraries_extend/css/extend_1.css', 'classy', 'book-navigation', 'css');
+    $this->assertNoAssetInLibrary('core/backend/modules/system/tests/themes/test_theme_libraries_extend/js/extend_1.js', 'classy', 'book-navigation', 'js');
+    $this->assertNoAssetInLibrary('core/backend/modules/system/tests/themes/test_theme_libraries_extend/css/extend_2.css', 'classy', 'book-navigation', 'css');
 
     // Activate the theme that extends the book-navigation library in classy.
     $this->activateTheme('test_theme_libraries_extend');
-    $this->assertAssetInLibrary('core/modules/system/tests/themes/test_theme_libraries_extend/css/extend_1.css', 'classy', 'book-navigation', 'css');
-    $this->assertAssetInLibrary('core/modules/system/tests/themes/test_theme_libraries_extend/js/extend_1.js', 'classy', 'book-navigation', 'js');
-    $this->assertAssetInLibrary('core/modules/system/tests/themes/test_theme_libraries_extend/css/extend_2.css', 'classy', 'book-navigation', 'css');
+    $this->assertAssetInLibrary('core/backend/modules/system/tests/themes/test_theme_libraries_extend/css/extend_1.css', 'classy', 'book-navigation', 'css');
+    $this->assertAssetInLibrary('core/backend/modules/system/tests/themes/test_theme_libraries_extend/js/extend_1.js', 'classy', 'book-navigation', 'js');
+    $this->assertAssetInLibrary('core/backend/modules/system/tests/themes/test_theme_libraries_extend/css/extend_2.css', 'classy', 'book-navigation', 'css');
 
     // Activate a sub theme and confirm that it inherits the library assets
     // extended in the base theme as well as its own.
-    $this->assertNoAssetInLibrary('core/modules/system/tests/themes/test_basetheme/css/base-libraries-extend.css', 'classy', 'base', 'css');
-    $this->assertNoAssetInLibrary('core/modules/system/tests/themes/test_subtheme/css/sub-libraries-extend.css', 'classy', 'base', 'css');
+    $this->assertNoAssetInLibrary('core/backend/modules/system/tests/themes/test_basetheme/css/base-libraries-extend.css', 'classy', 'base', 'css');
+    $this->assertNoAssetInLibrary('core/backend/modules/system/tests/themes/test_subtheme/css/sub-libraries-extend.css', 'classy', 'base', 'css');
     $this->activateTheme('test_subtheme');
-    $this->assertAssetInLibrary('core/modules/system/tests/themes/test_basetheme/css/base-libraries-extend.css', 'classy', 'base', 'css');
-    $this->assertAssetInLibrary('core/modules/system/tests/themes/test_subtheme/css/sub-libraries-extend.css', 'classy', 'base', 'css');
+    $this->assertAssetInLibrary('core/backend/modules/system/tests/themes/test_basetheme/css/base-libraries-extend.css', 'classy', 'base', 'css');
+    $this->assertAssetInLibrary('core/backend/modules/system/tests/themes/test_subtheme/css/sub-libraries-extend.css', 'classy', 'base', 'css');
 
     // Activate test theme that extends with a non-existent library. An
     // exception should be thrown.

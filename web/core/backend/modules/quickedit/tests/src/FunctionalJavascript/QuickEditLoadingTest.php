@@ -128,8 +128,8 @@ class QuickEditLoadingTest extends WebDriverTestBase {
     $this->drupalGet('node/1');
 
     // Library and in-place editors.
-    $this->assertNoRaw('core/modules/quickedit/js/quickedit.js');
-    $this->assertNoRaw('core/modules/quickedit/js/editors/formEditor.js');
+    $this->assertNoRaw('core/backend/modules/quickedit/js/quickedit.js');
+    $this->assertNoRaw('core/backend/modules/quickedit/js/editors/formEditor.js');
 
     // HTML annotation and title class do not exist for users without
     // permission to in-place edit.

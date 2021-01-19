@@ -7,7 +7,7 @@ use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 /**
  * Tests views creation wizard.
  *
- * @see core/modules/views_ui/js/views-admin.js
+ * @see core/backend/modules/views_ui/js/views-admin.js
  * @group views_ui
  */
 class ViewsWizardTest extends WebDriverTestBase {

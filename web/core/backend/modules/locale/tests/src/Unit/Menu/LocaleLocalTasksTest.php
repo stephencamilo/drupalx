@@ -16,7 +16,7 @@ class LocaleLocalTasksTest extends LocalTaskIntegrationTestBase {
    */
   protected function setUp(): void {
     $this->directoryList = [
-      'locale' => 'core/modules/locale',
+      'locale' => 'core/backend/modules/locale',
     ];
     parent::setUp();
   }

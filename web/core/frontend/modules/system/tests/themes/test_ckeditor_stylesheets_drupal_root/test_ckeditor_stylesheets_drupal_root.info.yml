@@ -6,4 +6,4 @@ version: VERSION
 base theme: false
 
 ckeditor_stylesheets:
-  - /core/modules/system/tests/themes/test_ckeditor_stylesheets_drupal_root/css/yokotsoko.css
+  - /core/backend/modules/system/tests/themes/test_ckeditor_stylesheets_drupal_root/css/yokotsoko.css

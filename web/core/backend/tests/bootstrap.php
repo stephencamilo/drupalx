@@ -49,7 +49,7 @@ function drupal_phpunit_contrib_extension_directory_roots($root = NULL) {
     $root = dirname(__DIR__, 2);
   }
   $paths = [
-    $root . '/core/modules',
+    $root . '/core/backend/modules',
     $root . '/core/profiles',
     $root . '/modules',
     $root . '/profiles',

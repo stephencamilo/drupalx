@@ -13,8 +13,8 @@ class ShortcutLocalTasksTest extends LocalTaskIntegrationTestBase {
 
   protected function setUp(): void {
     $this->directoryList = [
-      'shortcut' => 'core/modules/shortcut',
-      'user' => 'core/modules/user',
+      'shortcut' => 'core/backend/modules/shortcut',
+      'user' => 'core/backend/modules/user',
     ];
     parent::setUp();
   }

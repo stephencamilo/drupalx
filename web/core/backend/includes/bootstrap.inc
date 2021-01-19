@@ -134,7 +134,7 @@ define('DRUPAL_ROOT', dirname(__DIR__, 2));
  * configuration. For example, a module 'foo' may legally be located
  * in any of these three places:
  *
- * core/modules/foo/foo.info.yml
+ * core/backend/modules/foo/foo.info.yml
  * modules/foo/foo.info.yml
  * sites/example.com/modules/foo/foo.info.yml
  *

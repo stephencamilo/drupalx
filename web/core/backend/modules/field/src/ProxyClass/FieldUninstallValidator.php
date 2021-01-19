@@ -2,7 +2,7 @@
 // @codingStandardsIgnoreFile
 
 /**
- * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\field\FieldUninstallValidator' "core/modules/field/src".
+ * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\field\FieldUninstallValidator' "core/backend/modules/field/src".
  */
 
 namespace Drupal\field\ProxyClass {

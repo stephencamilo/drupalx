@@ -2,7 +2,7 @@
 // @codingStandardsIgnoreFile
 
 /**
- * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\views_ui\ParamConverter\ViewUIConverter' "core/modules/views_ui/src".
+ * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\views_ui\ParamConverter\ViewUIConverter' "core/backend/modules/views_ui/src".
  */
 
 namespace Drupal\views_ui\ProxyClass\ParamConverter {

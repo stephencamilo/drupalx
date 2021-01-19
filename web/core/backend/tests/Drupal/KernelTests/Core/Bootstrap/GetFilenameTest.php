@@ -31,7 +31,7 @@ class GetFilenameTest extends KernelTestBase {
    */
   public function testDrupalGetFilename() {
     // Retrieving the location of a module.
-    $this->assertIdentical(drupal_get_filename('module', 'system'), 'core/modules/system/system.info.yml');
+    $this->assertIdentical(drupal_get_filename('module', 'system'), 'core/backend/modules/system/system.info.yml');
 
     // Retrieving the location of a theme.
     \Drupal::service('theme_installer')->install(['stark']);

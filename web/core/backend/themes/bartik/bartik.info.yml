@@ -17,6 +17,7 @@ base theme: false
 description: 'A flexible, recolorable theme with many regions and a responsive, mobile-first layout.'
 package: Core
 version: VERSION
+core_version_requirement: ^8 || ^9
 libraries:
   - bartik/classy.base
   - bartik/classy.messages

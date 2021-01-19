@@ -38,7 +38,7 @@ class TestRunnerKernel extends DrupalKernel {
       'system' => 0,
     ];
     $this->moduleData = [
-      'system' => new Extension($this->root, 'module', 'core/modules/system/system.info.yml', 'system.module'),
+      'system' => new Extension($this->root, 'module', 'core/backend/modules/system/system.info.yml', 'system.module'),
     ];
     // In order to support Simpletest in Drupal 9 conditionally include the
     // module.

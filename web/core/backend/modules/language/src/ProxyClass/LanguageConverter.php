@@ -2,7 +2,7 @@
 // @codingStandardsIgnoreFile
 
 /**
- * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\language\LanguageConverter' "core/modules/language/src".
+ * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\language\LanguageConverter' "core/backend/modules/language/src".
  */
 
 namespace Drupal\language\ProxyClass {

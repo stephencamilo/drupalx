@@ -98,7 +98,7 @@ class RegistryTest extends UnitTestCase {
   public function testGetRegistryForModule() {
     $test_theme = new ActiveTheme([
       'name' => 'test_theme',
-      'path' => 'core/modules/system/tests/themes/test_theme/test_theme.info.yml',
+      'path' => 'core/backend/modules/system/tests/themes/test_theme/test_theme.info.yml',
       'engine' => 'twig',
       'owner' => 'twig',
       'stylesheets_remove' => [],
@@ -127,7 +127,7 @@ class RegistryTest extends UnitTestCase {
       ->willReturnOnConsecutiveCalls($test_theme, $test_stable);
 
     // Include the module and theme files so that hook_theme can be called.
-    include_once $this->root . '/core/modules/system/tests/modules/theme_test/theme_test.module';
+    include_once $this->root . '/core/backend/modules/system/tests/modules/theme_test/theme_test.module';
     include_once $this->root . '/core/tests/fixtures/test_stable/test_stable.theme';
     $this->moduleHandler->expects($this->exactly(2))
       ->method('getImplementations')
@@ -479,7 +479,7 @@ class RegistryTest extends UnitTestCase {
       ->method('getPath')
       ->willReturnCallback(function ($module) {
         if ($module == 'theme_test') {
-          return 'core/modules/system/tests/modules/theme_test';
+          return 'core/backend/modules/system/tests/modules/theme_test';
         }
       });
     $this->registry->setThemeManager($this->themeManager);
