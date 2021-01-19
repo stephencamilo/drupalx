@@ -27,6 +27,8 @@ web/sites/simpletest
 .gitattributes
 .ht.router.php
 .idea
+.idea/
+.idea/*
 example.gitignore
 load.php
 vendor
