@@ -21,6 +21,7 @@ class InfoParser extends InfoParserDynamic {
     if (!isset(static::$parsedInfos[$filename])) {
       static::$parsedInfos[$filename] = parent::parse($filename);
     }
+    var_dump(static::$parsedInfos[$filename]);
     return static::$parsedInfos[$filename];
   }
 

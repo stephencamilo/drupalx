@@ -148,7 +148,7 @@ abstract class ExtensionList {
    * @return \Drupal\Core\Extension\ExtensionDiscovery
    */
   protected function getExtensionDiscovery() {
-    return new ExtensionDiscovery($this->root);
+    return new ExtensionDiscovery($this->root.'/backend');
   }
 
   /**

@@ -68,6 +68,8 @@ function _drupal_maintenance_theme() {
   $theme_handler = \Drupal::service('theme_handler');
   if (empty($themes) || !isset($themes[$custom_theme])) {
     $themes = \Drupal::service('extension.list.theme')->getList();
+    var_dump($themes);
+    var_dump(\Drupal::service('extension.list.theme'));
     $theme_handler->addTheme($themes[$custom_theme]);
   }
 
