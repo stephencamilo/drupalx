@@ -2,7 +2,7 @@
 // @codingStandardsIgnoreFile
 
 /**
- * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\filter\FilterUninstallValidator' "core/modules/filter/src".
+ * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\filter\FilterUninstallValidator' "core/backend/modules/filter/src".
  */
 
 namespace Drupal\filter\ProxyClass {

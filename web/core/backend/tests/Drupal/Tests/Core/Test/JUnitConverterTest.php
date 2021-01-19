@@ -59,8 +59,8 @@ class JUnitConverterTest extends UnitTestCase {
     $junit = <<<EOD
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="Drupal\Tests\simpletest\Unit\TestDiscoveryTest" file="/Users/paul/projects/drupal/core/modules/simpletest/tests/src/Unit/TestDiscoveryTest.php" tests="3" assertions="5" errors="0" failures="0" skipped="0" time="0.215539">
-    <testcase name="testGetTestClasses" class="Drupal\Tests\simpletest\Unit\TestDiscoveryTest" classname="Drupal.Tests.simpletest.Unit.TestDiscoveryTest" file="/Users/paul/projects/drupal/core/modules/simpletest/tests/src/Unit/TestDiscoveryTest.php" line="108" assertions="2" time="0.100787"/>
+  <testsuite name="Drupal\Tests\simpletest\Unit\TestDiscoveryTest" file="/Users/paul/projects/drupal/core/backend/modules/simpletest/tests/src/Unit/TestDiscoveryTest.php" tests="3" assertions="5" errors="0" failures="0" skipped="0" time="0.215539">
+    <testcase name="testGetTestClasses" class="Drupal\Tests\simpletest\Unit\TestDiscoveryTest" classname="Drupal.Tests.simpletest.Unit.TestDiscoveryTest" file="/Users/paul/projects/drupal/core/backend/modules/simpletest/tests/src/Unit/TestDiscoveryTest.php" line="108" assertions="2" time="0.100787"/>
   </testsuite>
 </testsuites>
 EOD;
@@ -73,7 +73,7 @@ EOD;
         'message_group' => 'Other',
         'function' => 'Drupal\Tests\simpletest\Unit\TestDiscoveryTest->testGetTestClasses()',
         'line' => 108,
-        'file' => '/Users/paul/projects/drupal/core/modules/simpletest/tests/src/Unit/TestDiscoveryTest.php',
+        'file' => '/Users/paul/projects/drupal/core/backend/modules/simpletest/tests/src/Unit/TestDiscoveryTest.php',
       ],
     ];
     $this->assertEquals($simpletest, JUnitConverter::xmlElementToRows(23, new \SimpleXMLElement($junit)));
@@ -84,7 +84,7 @@ EOD;
    */
   public function testConvertTestCaseToSimpletestRow() {
     $junit = <<<EOD
-    <testcase name="testGetTestClasses" class="Drupal\Tests\simpletest\Unit\TestDiscoveryTest" classname="Drupal.Tests.simpletest.Unit.TestDiscoveryTest" file="/Users/paul/projects/drupal/core/modules/simpletest/tests/src/Unit/TestDiscoveryTest.php" line="108" assertions="2" time="0.100787"/>
+    <testcase name="testGetTestClasses" class="Drupal\Tests\simpletest\Unit\TestDiscoveryTest" classname="Drupal.Tests.simpletest.Unit.TestDiscoveryTest" file="/Users/paul/projects/drupal/core/backend/modules/simpletest/tests/src/Unit/TestDiscoveryTest.php" line="108" assertions="2" time="0.100787"/>
 EOD;
     $simpletest = [
       'test_id' => 23,
@@ -94,7 +94,7 @@ EOD;
       'message_group' => 'Other',
       'function' => 'Drupal\Tests\simpletest\Unit\TestDiscoveryTest->testGetTestClasses()',
       'line' => 108,
-      'file' => '/Users/paul/projects/drupal/core/modules/simpletest/tests/src/Unit/TestDiscoveryTest.php',
+      'file' => '/Users/paul/projects/drupal/core/backend/modules/simpletest/tests/src/Unit/TestDiscoveryTest.php',
     ];
     $this->assertEquals($simpletest, JUnitConverter::convertTestCaseToSimpletestRow(23, new \SimpleXMLElement($junit)));
   }

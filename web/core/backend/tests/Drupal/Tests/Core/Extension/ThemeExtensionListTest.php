@@ -31,8 +31,8 @@ class ThemeExtensionListTest extends UnitTestCase {
     $extension_discovery
       ->scan('theme')
       ->willReturn([
-        'test_subtheme'  => new Extension($this->root, 'theme', 'core/modules/system/tests/themes/test_subtheme/test_subtheme.info.yml', 'test_subtheme.info.yml'),
-        'test_basetheme' => new Extension($this->root, 'theme', 'core/modules/system/tests/themes/test_basetheme/test_basetheme.info.yml', 'test_basetheme.info.yml'),
+        'test_subtheme'  => new Extension($this->root, 'theme', 'core/backend/modules/system/tests/themes/test_subtheme/test_subtheme.info.yml', 'test_subtheme.info.yml'),
+        'test_basetheme' => new Extension($this->root, 'theme', 'core/backend/modules/system/tests/themes/test_basetheme/test_basetheme.info.yml', 'test_basetheme.info.yml'),
       ]);
     $extension_discovery
       ->scan('theme_engine')
@@ -43,8 +43,8 @@ class ThemeExtensionListTest extends UnitTestCase {
     // Verify that info parser is called with the specified paths.
     $argument_condition = function ($path) {
       return in_array($path, [
-        'core/modules/system/tests/themes/test_subtheme/test_subtheme.info.yml',
-        'core/modules/system/tests/themes/test_basetheme/test_basetheme.info.yml',
+        'core/backend/modules/system/tests/themes/test_subtheme/test_subtheme.info.yml',
+        'core/backend/modules/system/tests/themes/test_basetheme/test_basetheme.info.yml',
         'core/frontend/themes/engines/twig/twig.info.yml',
       ], TRUE);
     };

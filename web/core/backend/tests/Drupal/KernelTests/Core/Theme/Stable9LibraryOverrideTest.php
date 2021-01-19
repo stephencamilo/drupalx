@@ -111,18 +111,18 @@ class Stable9LibraryOverrideTest extends KernelTestBase {
           // Make core/misc assets look like they are coming from a "core"
           // module.
           $replacements = [
-            'core/misc/' => "core/modules/core/css/",
+            'core/misc/' => "core/backend/modules/core/css/",
           ];
           $expected_path = strtr($clean_path, $replacements);
 
           // Adjust the module asset paths to correspond with the Stable 9
           // folder structure.
           $replacements = [
-            "core/modules/$extension/css/" => "core/frontend/themes/stable9/css/$extension/",
-            "core/modules/$extension/layouts/" => "core/frontend/themes/stable9/layouts/$extension/",
+            "core/backend/modules/$extension/css/" => "core/frontend/themes/stable9/css/$extension/",
+            "core/backend/modules/$extension/layouts/" => "core/frontend/themes/stable9/layouts/$extension/",
           ];
           $expected_path = strtr($expected_path, $replacements);
-          $assert_path = str_replace("core/modules/$extension/", '', $clean_path);
+          $assert_path = str_replace("core/backend/modules/$extension/", '', $clean_path);
 
           $this->assertEqual($expected_path, $stable_path, "$assert_path from the $extension/$library_name library is overridden in Stable 9.");
           $this->assertFileExists("{$this->root}/$clean_path");

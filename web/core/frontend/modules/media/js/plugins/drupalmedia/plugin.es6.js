@@ -202,7 +202,7 @@
             // content creator has enabled caption: this makes the server-side
             // text filter render a caption, allowing the placeholder-rendering
             // CSS to work.
-            // @see core/modules/filter/css/filter.caption.css
+            // @see core/backend/modules/filter/css/filter.caption.css
             // @see ckeditor_ckeditor_css_alter()
             if (!this.data.hasCaption && this.oldData.hasCaption) {
               delete this.data.attributes['data-caption'];
@@ -256,7 +256,7 @@
           // Now that the caption is available in the DOM, make it editable.
           if (this.initEditable('caption', this.definition.editables.caption)) {
             const captionEditable = this.editables.caption;
-            // @see core/modules/filter/css/filter.caption.css
+            // @see core/backend/modules/filter/css/filter.caption.css
             // @see ckeditor_ckeditor_css_alter()
             captionEditable.setAttribute(
               'data-placeholder',
@@ -281,8 +281,8 @@
             // with no content. Remove this <br> if it is the only thing in the
             // caption. Our placeholder support requires the element to be
             // entirely empty.
-            // @see core/modules/filter/css/filter.caption.css
-            // @see core/modules/ckeditor/js/plugins/drupalimagecaption/plugin.es6.js
+            // @see core/backend/modules/filter/css/filter.caption.css
+            // @see core/backend/modules/ckeditor/js/plugins/drupalimagecaption/plugin.es6.js
             if (
               captionEditable.$.childNodes.length === 1 &&
               captionEditable.$.childNodes.item(0).nodeName === 'BR'

@@ -26,7 +26,7 @@ class SystemLocalTasksTest extends LocalTaskIntegrationTestBase {
     parent::setUp();
 
     $this->directoryList = [
-      'system' => 'core/modules/system',
+      'system' => 'core/backend/modules/system',
     ];
 
     $this->themeHandler = $this->createMock('Drupal\Core\Extension\ThemeHandlerInterface');

@@ -13,8 +13,8 @@ class BookLocalTasksTest extends LocalTaskIntegrationTestBase {
 
   protected function setUp(): void {
     $this->directoryList = [
-      'book' => 'core/modules/book',
-      'node' => 'core/modules/node',
+      'book' => 'core/backend/modules/book',
+      'node' => 'core/backend/modules/node',
     ];
     parent::setUp();
   }

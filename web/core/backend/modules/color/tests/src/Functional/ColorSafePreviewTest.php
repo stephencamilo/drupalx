@@ -50,7 +50,7 @@ class ColorSafePreviewTest extends BrowserTestBase {
     $this->drupalLogin($this->bigUser);
 
     // Markup is being printed from an HTML file located in:
-    // core/modules/color/tests/modules/color_test/themes/color_test_theme/color/preview.html
+    // core/backend/modules/color/tests/modules/color_test/themes/color_test_theme/color/preview.html
     $url = Url::fromRoute('system.theme_settings_theme', ['theme' => 'color_test_theme']);
     $this->drupalGet($url);
     $this->assertText('TEST COLOR PREVIEW');

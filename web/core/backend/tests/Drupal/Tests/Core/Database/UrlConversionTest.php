@@ -137,7 +137,7 @@ class UrlConversionTest extends UnitTestCase {
           'database' => 'test_database',
           'port' => 3306,
           'namespace' => 'Drupal\driver_test\Driver\Database\DrivertestMysql',
-          'autoload' => 'core/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestMysql/',
+          'autoload' => 'core/backend/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestMysql/',
         ],
       ],
       'MySQL contrib test driver with prefix' => [
@@ -154,7 +154,7 @@ class UrlConversionTest extends UnitTestCase {
           ],
           'port' => 3306,
           'namespace' => 'Drupal\driver_test\Driver\Database\DrivertestMysql',
-          'autoload' => 'core/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestMysql/',
+          'autoload' => 'core/backend/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestMysql/',
         ],
       ],
       'PostgreSQL contrib test driver without prefix' => [
@@ -168,7 +168,7 @@ class UrlConversionTest extends UnitTestCase {
           'database' => 'test_database',
           'port' => 5432,
           'namespace' => 'Drupal\driver_test\Driver\Database\DrivertestPgsql',
-          'autoload' => 'core/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestPgsql/',
+          'autoload' => 'core/backend/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestPgsql/',
         ],
       ],
       'PostgreSQL contrib test driver with prefix' => [
@@ -185,7 +185,7 @@ class UrlConversionTest extends UnitTestCase {
           ],
           'port' => 5432,
           'namespace' => 'Drupal\driver_test\Driver\Database\DrivertestPgsql',
-          'autoload' => 'core/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestPgsql/',
+          'autoload' => 'core/backend/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestPgsql/',
         ],
       ],
       'MySql with a custom query parameter' => [
@@ -301,7 +301,7 @@ class UrlConversionTest extends UnitTestCase {
       'port' => '3306',
       'driver' => 'DrivertestMysql',
       'namespace' => 'Drupal\\driver_test\\Driver\\Database\\DrivertestMysql',
-      'autoload' => 'core/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestMysql/',
+      'autoload' => 'core/backend/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestMysql/',
     ];
     $expected_url5 = 'DrivertestMysql://test_user:test_pass@test_host:3306/test_database?module=driver_test';
 
@@ -314,7 +314,7 @@ class UrlConversionTest extends UnitTestCase {
       'port' => '3306',
       'driver' => 'DrivertestMysql',
       'namespace' => 'Drupal\\driver_test\\Driver\\Database\\DrivertestMysql',
-      'autoload' => 'core/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestMysql/',
+      'autoload' => 'core/backend/modules/system/tests/modules/driver_test/src/Driver/Database/DrivertestMysql/',
     ];
     $expected_url6 = 'DrivertestMysql://test_user:test_pass@test_host:3306/test_database?module=driver_test#pre';
 
@@ -327,7 +327,7 @@ class UrlConversionTest extends UnitTestCase {
       'port' => '5432',
       'driver' => 'DrivertestPgsql',
       'namespace' => 'Drupal\\driver_test\\Driver\\Database\\DrivertestPgsql',
-      'autoload' => 'core/modules/system/tests/modules/driver_test/src/Driver/Database/drivertestpqsql/',
+      'autoload' => 'core/backend/modules/system/tests/modules/driver_test/src/Driver/Database/drivertestpqsql/',
     ];
     $expected_url7 = 'DrivertestPgsql://test_user:test_pass@test_host:5432/test_database?module=driver_test';
 
@@ -340,7 +340,7 @@ class UrlConversionTest extends UnitTestCase {
       'port' => '5432',
       'driver' => 'DrivertestPgsql',
       'namespace' => 'Drupal\\driver_test\\Driver\\Database\\DrivertestPgsql',
-      'autoload' => 'core/modules/system/tests/modules/driver_test/src/Driver/Database/drivertestpqsql/',
+      'autoload' => 'core/backend/modules/system/tests/modules/driver_test/src/Driver/Database/drivertestpqsql/',
     ];
     $expected_url8 = 'DrivertestPgsql://test_user:test_pass@test_host:5432/test_database?module=driver_test#pre';
 

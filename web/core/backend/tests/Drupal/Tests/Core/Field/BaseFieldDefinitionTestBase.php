@@ -71,7 +71,7 @@ abstract class BaseFieldDefinitionTestBase extends UnitTestCase {
    * @return array
    *   A one-dimensional array containing the following strings:
    *   - The module name.
-   *   - The module directory, e.g. DRUPAL_CORE . 'core/modules/path'.
+   *   - The module directory, e.g. DRUPAL_CORE . 'core/backend/modules/path'.
    */
   abstract protected function getModuleAndPath();
 

@@ -2,7 +2,7 @@
 // @codingStandardsIgnoreFile
 
 /**
- * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\forum\ForumUninstallValidator' "core/modules/forum/src".
+ * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\forum\ForumUninstallValidator' "core/backend/modules/forum/src".
  */
 
 namespace Drupal\forum\ProxyClass {

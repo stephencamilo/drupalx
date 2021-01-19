@@ -84,8 +84,8 @@ class UpdateManagerUpdateTest extends UpdateTestBase {
    *   - '1.1' instead of '1.1-core_compatibility'.
    *   - '1.1-alpha1' instead of '1.1-alpha1-core_compatibility'.
    *   Delete the files:
-   *   - core/modules/update/tests/modules/update_test/drupal.1.1-alpha1-core_compatibility.xml
-   *   - core/modules/update/tests/modules/update_test/drupal.1.1-core_compatibility.xml
+   *   - core/backend/modules/update/tests/modules/update_test/drupal.1.1-alpha1-core_compatibility.xml
+   *   - core/backend/modules/update/tests/modules/update_test/drupal.1.1-core_compatibility.xml
    *
    * @return array[]
    *   Test data.

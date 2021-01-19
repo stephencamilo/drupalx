@@ -12,7 +12,7 @@ use Drupal\Tests\Core\Menu\LocalTaskIntegrationTestBase;
 class TaxonomyLocalTasksTest extends LocalTaskIntegrationTestBase {
 
   protected function setUp(): void {
-    $this->directoryList = ['taxonomy' => 'core/modules/taxonomy'];
+    $this->directoryList = ['taxonomy' => 'core/backend/modules/taxonomy'];
     parent::setUp();
   }
 

@@ -13,7 +13,7 @@ class LanguageLocalTasksTest extends LocalTaskIntegrationTestBase {
 
   protected function setUp(): void {
     $this->directoryList = [
-      'language' => 'core/modules/language',
+      'language' => 'core/backend/modules/language',
     ];
     parent::setUp();
   }

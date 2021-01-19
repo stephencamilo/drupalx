@@ -18,7 +18,7 @@ $autoloader = require_once 'autoload.php';
 // Change to HTTPS.
 $_SERVER['HTTPS'] = 'on';
 foreach ($_SERVER as &$value) {
-  $value = str_replace('core/modules/system/tests/https.php', 'index.php', $value);
+  $value = str_replace('core/backend/modules/system/tests/https.php', 'index.php', $value);
   $value = str_replace('http://', 'https://', $value);
 }
 

@@ -454,7 +454,7 @@ function node_theme_suggestions_node(array $variables) {
  * Default template: node.html.twig.
  *
  * Most themes use their own copy of node.html.twig. The default is located
- * inside "/core/modules/node/templates/node.html.twig". Look in there for the
+ * inside "/core/backend/modules/node/templates/node.html.twig". Look in there for the
  * full list of variables.
  *
  * By default this function performs special preprocessing of some base fields

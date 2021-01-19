@@ -479,7 +479,7 @@ abstract class ExtensionList {
    * depending on a site's configuration. For example, a module 'foo' may
    * legally be located in any of these four places:
    *
-   * - core/modules/foo/foo.info.yml
+   * - core/backend/modules/foo/foo.info.yml
    * - modules/foo/foo.info.yml
    * - sites/all/modules/foo/foo.info.yml
    * - sites/example.com/modules/foo/foo.info.yml
@@ -551,7 +551,8 @@ abstract class ExtensionList {
    *   The extension info array.
    */
   protected function createExtensionInfo(Extension $extension) {
-    $info = $this->infoParser->parse($extension->getPathname());
+    //@todo make it variable.
+    $info = $this->infoParser->parse('/var/www/html/web/core/backend/'.$extension->getPathname());
 
     // Add the info file modification time, so it becomes available for
     // contributed extensions to use for ordering extension lists.

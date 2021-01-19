@@ -196,8 +196,8 @@ class CKEditorIntegrationTest extends WebDriverTestBase {
     // Assert that a request to the `media.filter.preview` route that does not
     // result in a 200 response (due to server error or network error) is
     // handled in the JavaScript by displaying the expected error message.
-    // @see core/modules/media/js/media_embed_ckeditor.theme.js
-    // @see core/modules/media/js/plugins/drupalmedia/plugin.js
+    // @see core/backend/modules/media/js/media_embed_ckeditor.theme.js
+    // @see core/backend/modules/media/js/plugins/drupalmedia/plugin.js
     $this->container->get('state')->set('test_media_filter_controller_throw_error', TRUE);
     $this->drupalGet($this->host->toUrl('edit-form'));
     $this->waitForEditor();
@@ -223,7 +223,7 @@ class CKEditorIntegrationTest extends WebDriverTestBase {
     // classes to test the twi template is working properly and picking up our
     // extra class.
     // @see \Drupal\media\Plugin\Filter\MediaEmbed::renderMissingMediaIndicator()
-    // @see core/modules/media/templates/media-embed-error.html.twig
+    // @see core/backend/modules/media/templates/media-embed-error.html.twig
     // @see media_test_ckeditor_preprocess_media_embed_error()
     $original_value = $this->host->body->value;
     $this->host->body->value = str_replace($this->media->uuid(), 'invalid_uuid', $original_value);

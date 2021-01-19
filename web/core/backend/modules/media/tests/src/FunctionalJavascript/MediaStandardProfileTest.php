@@ -200,7 +200,7 @@ class MediaStandardProfileTest extends MediaJavascriptTestBase {
 
     // Create a media item.
     $image_media_name = 'example_1.jpeg';
-    $page->attachFileToField("files[{$source_field_id}_0]", $this->root . '/core/modules/media/tests/fixtures/' . $image_media_name);
+    $page->attachFileToField("files[{$source_field_id}_0]", $this->root . '/core/backend/modules/media/tests/fixtures/' . $image_media_name);
     $result = $assert_session->waitForButton('Remove');
     $this->assertNotEmpty($result);
     $page->fillField("{$source_field_id}[0][alt]", 'Image Alt Text 1');
@@ -250,7 +250,7 @@ class MediaStandardProfileTest extends MediaJavascriptTestBase {
     $result = $assert_session->waitForField("files[{$source_field_id}_0]");
     $this->assertNotEmpty($result);
     $image_media_name_updated = 'example_2.jpeg';
-    $page->attachFileToField("files[{$source_field_id}_0]", $this->root . '/core/modules/media/tests/fixtures/' . $image_media_name_updated);
+    $page->attachFileToField("files[{$source_field_id}_0]", $this->root . '/core/backend/modules/media/tests/fixtures/' . $image_media_name_updated);
     $result = $assert_session->waitForButton('Remove');
     $this->assertNotEmpty($result);
     $page->fillField("{$source_field_id}[0][alt]", 'Image Alt Text 2');

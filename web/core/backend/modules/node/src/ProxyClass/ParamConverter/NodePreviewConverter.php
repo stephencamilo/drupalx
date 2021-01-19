@@ -2,7 +2,7 @@
 // @codingStandardsIgnoreFile
 
 /**
- * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\node\ParamConverter\NodePreviewConverter' "core/modules/node/src".
+ * This file was generated via php core/scripts/generate-proxy-class.php 'Drupal\node\ParamConverter\NodePreviewConverter' "core/backend/modules/node/src".
  */
 
 namespace Drupal\node\ProxyClass\ParamConverter {

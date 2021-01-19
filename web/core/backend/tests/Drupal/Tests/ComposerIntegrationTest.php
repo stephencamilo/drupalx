@@ -87,7 +87,7 @@ class ComposerIntegrationTest extends UnitTestCase {
    */
   public function testAllModulesReplaced() {
     // Assemble a path to core modules.
-    $module_path = $this->root . '/core/modules';
+    $module_path = $this->root . '/core/backend/modules';
 
     // Grab the 'replace' section of the core composer.json file.
     $json = json_decode(file_get_contents($this->root . '/core/composer.json'));
