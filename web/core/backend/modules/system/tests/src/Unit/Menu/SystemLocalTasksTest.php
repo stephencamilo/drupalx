@@ -26,12 +26,12 @@ class SystemLocalTasksTest extends LocalTaskIntegrationTestBase {
     parent::setUp();
 
     $this->directoryList = [
-      'system' => 'core/backend/modules/system',
+      'system' => 'core/modules/system',
     ];
 
     $this->themeHandler = $this->createMock('Drupal\Core\Extension\ThemeHandlerInterface');
 
-    $theme = new Extension($this->root, 'theme', 'core/frontend/themes/bartik', 'bartik.info.yml');
+    $theme = new Extension($this->root, 'theme', 'core/themes/bartik', 'bartik.info.yml');
     $theme->status = 1;
     $theme->info = ['name' => 'bartik'];
     $this->themeHandler->expects($this->any())

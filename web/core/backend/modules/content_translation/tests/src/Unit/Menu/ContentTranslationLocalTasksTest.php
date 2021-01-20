@@ -13,8 +13,8 @@ class ContentTranslationLocalTasksTest extends LocalTaskIntegrationTestBase {
 
   protected function setUp(): void {
     $this->directoryList = [
-      'content_translation' => 'core/backend/modules/content_translation',
-      'node' => 'core/backend/modules/node',
+      'content_translation' => 'core/modules/content_translation',
+      'node' => 'core/modules/node',
     ];
     parent::setUp();
 

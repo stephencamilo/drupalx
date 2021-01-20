@@ -24,7 +24,7 @@ class SystemListingTest extends KernelTestBase {
       // copy in the profile directory takes precedence.
       'drupal_system_listing_compatible_test' => [
         'core/profiles/testing/modules',
-        'core/backend/modules/system/tests/modules',
+        'core/modules/system/tests/modules',
       ],
     ];
 

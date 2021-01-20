@@ -60,7 +60,7 @@ class DefaultPluginManagerTest extends UnitTestCase {
     ];
 
     $this->namespaces = new \ArrayObject();
-    $this->namespaces['Drupal\plugin_test'] = $this->root . '/core/backend/modules/system/tests/modules/plugin_test/src';
+    $this->namespaces['Drupal\plugin_test'] = $this->root . '/core/modules/system/tests/modules/plugin_test/src';
   }
 
   /**

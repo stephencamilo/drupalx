@@ -93,7 +93,7 @@ class Stable9TemplateOverrideTest extends KernelTestBase {
           continue;
         }
 
-        $this->assertEquals('core/frontend/themes/stable9', $info['theme path'], $info['template'] . '.html.twig overridden in Stable 9.');
+        $this->assertEquals('core/themes/stable9', $info['theme path'], $info['template'] . '.html.twig overridden in Stable 9.');
       }
     }
   }

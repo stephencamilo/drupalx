@@ -81,7 +81,7 @@ interface ModuleHandlerInterface {
    * @param string $name
    *   The module name; e.g., 'node'.
    * @param string $path
-   *   The module path; e.g., 'core/backend/modules/node'.
+   *   The module path; e.g., 'core/modules/node'.
    */
   public function addModule($name, $path);
 

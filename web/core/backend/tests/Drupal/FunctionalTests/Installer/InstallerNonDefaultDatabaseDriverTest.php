@@ -59,7 +59,7 @@ class InstallerNonDefaultDatabaseDriverTest extends InstallerTestBase {
     $contents = file_get_contents($this->container->getParameter('app.root') . '/' . $this->siteDirectory . '/settings.php');
     $this->assertStringContainsString("'namespace' => 'Drupal\\\\driver_test\\\\Driver\\\\Database\\\\{$this->testDriverName}',", $contents);
     $this->assertStringContainsString("'driver' => '{$this->testDriverName}',", $contents);
-    $this->assertStringContainsString("'autoload' => 'core/backend/modules/system/tests/modules/driver_test/src/Driver/Database/{$this->testDriverName}/',", $contents);
+    $this->assertStringContainsString("'autoload' => 'core/modules/system/tests/modules/driver_test/src/Driver/Database/{$this->testDriverName}/',", $contents);
   }
 
 }

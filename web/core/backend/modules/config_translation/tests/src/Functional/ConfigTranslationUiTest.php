@@ -479,7 +479,7 @@ class ConfigTranslationUiTest extends BrowserTestBase {
       $this->assertText($label);
 
       // Make sure that the date library is added.
-      $this->assertRaw('core/backend/modules/system/js/system.date.js');
+      $this->assertRaw('core/modules/system/js/system.date.js');
 
       // Update translatable fields.
       $edit = [

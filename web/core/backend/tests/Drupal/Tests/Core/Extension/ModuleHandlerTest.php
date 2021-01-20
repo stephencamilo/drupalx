@@ -502,8 +502,8 @@ class ModuleHandlerTest extends UnitTestCase {
   public function testGetModuleDirectories() {
     $module_handler = $this->getModuleHandler();
     $module_handler->setModuleList([]);
-    $module_handler->addModule('node', 'core/backend/modules/node');
-    $this->assertEquals(['node' => $this->root . '/core/backend/modules/node'], $module_handler->getModuleDirectories());
+    $module_handler->addModule('node', 'core/modules/node');
+    $this->assertEquals(['node' => $this->root . '/core/modules/node'], $module_handler->getModuleDirectories());
   }
 
 }

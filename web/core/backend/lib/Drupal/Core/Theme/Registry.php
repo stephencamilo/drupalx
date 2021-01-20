@@ -68,7 +68,7 @@ class Registry implements DestructableInterface {
    *   In case of a theme template file:
    *   - path: The path to the template file to use. Defaults to the
    *     subdirectory 'templates' of the path of the extension implementing
-   *     hook_theme(); e.g., 'core/backend/modules/node/templates' for Node module.
+   *     hook_theme(); e.g., 'core/modules/node/templates' for Node module.
    *   - template: The basename of the template file to use, without extension
    *     (as the extension is specific to the theme engine). The template file
    *     is in the directory defined by 'path'.

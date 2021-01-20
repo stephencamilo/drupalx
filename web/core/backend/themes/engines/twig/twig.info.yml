@@ -2,4 +2,3 @@ type: theme_engine
 name: Twig
 version: VERSION
 package: Core
-core_version_requirement: ^8 || ^9

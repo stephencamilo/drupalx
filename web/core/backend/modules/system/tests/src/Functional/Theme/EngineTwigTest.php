@@ -133,7 +133,7 @@ class EngineTwigTest extends BrowserTestBase {
    */
   public function testTwigFileUrls() {
     $this->drupalGet('/twig-theme-test/file-url');
-    $filepath = file_url_transform_relative(file_create_url('core/backend/modules/system/tests/modules/twig_theme_test/twig_theme_test.js'));
+    $filepath = file_url_transform_relative(file_create_url('core/modules/system/tests/modules/twig_theme_test/twig_theme_test.js'));
     $this->assertRaw('<div>file_url: ' . $filepath . '</div>');
   }
 

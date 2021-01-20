@@ -112,7 +112,7 @@ abstract class InstallerTestBase extends BrowserTestBase {
     // Set up a minimal container (required by BrowserTestBase). Set cookie and
     // server information so that XDebug works.
     // @see install_begin_request()
-    $request = Request::create($GLOBALS['base_url'] . '/core/backend/install.php', 'GET', [], $_COOKIE, [], $_SERVER);
+    $request = Request::create($GLOBALS['base_url'] . '/core/install.php', 'GET', [], $_COOKIE, [], $_SERVER);
     $this->container = new ContainerBuilder();
     $request_stack = new RequestStack();
     $request_stack->push($request);
@@ -209,7 +209,7 @@ abstract class InstallerTestBase extends BrowserTestBase {
    * Visits the interactive installer.
    */
   protected function visitInstaller() {
-    $this->drupalGet($GLOBALS['base_url'] . '/core/backend/install.php');
+    $this->drupalGet($GLOBALS['base_url'] . '/core/install.php');
   }
 
   /**

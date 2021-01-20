@@ -18,7 +18,6 @@ alt text: 'Screenshot of Claro, Drupal administration theme.'
 package: Core
 version: VERSION
 experimental: true
-core_version_requirement: ^8 || ^9
 libraries:
   - core/drupal.message
   - core/normalize

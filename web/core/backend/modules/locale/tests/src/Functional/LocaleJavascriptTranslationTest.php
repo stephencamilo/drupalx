@@ -151,7 +151,7 @@ class LocaleJavascriptTranslationTest extends BrowserTestBase {
       ->getStrings([
         'source' => 'Show description',
         'type' => 'javascript',
-        'name' => 'core/backend/modules/locale/locale.admin.js',
+        'name' => 'core/modules/locale/locale.admin.js',
       ]);
     $string = $strings[0];
 

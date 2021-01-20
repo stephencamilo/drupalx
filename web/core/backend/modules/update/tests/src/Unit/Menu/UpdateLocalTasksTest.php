@@ -12,7 +12,7 @@ use Drupal\Tests\Core\Menu\LocalTaskIntegrationTestBase;
 class UpdateLocalTasksTest extends LocalTaskIntegrationTestBase {
 
   protected function setUp(): void {
-    $this->directoryList = ['update' => 'core/backend/modules/update'];
+    $this->directoryList = ['update' => 'core/modules/update'];
     parent::setUp();
   }
 

@@ -8,7 +8,7 @@ use Drupal\KernelTests\KernelTestBase;
 /**
  * Tests InfoParser class and exception.
  *
- * Files for this test are stored in core/backend/modules/system/tests/fixtures and end
+ * Files for this test are stored in core/modules/system/tests/fixtures and end
  * with .info.txt instead of info.yml in order not to be considered as real
  * extensions.
  *
@@ -24,7 +24,7 @@ class UpdaterTest extends KernelTestBase {
   public function testGetProjectTitleWithChild() {
     // Get the project title from its directory. If it can't find the title
     // it will choose the first project title in the directory.
-    $directory = $this->root . '/core/backend/modules/system/tests/modules/module_handler_test_multiple';
+    $directory = $this->root . '/core/modules/system/tests/modules/module_handler_test_multiple';
     $title = Updater::getProjectTitle($directory);
     $this->assertEqual('module handler test multiple', $title);
   }

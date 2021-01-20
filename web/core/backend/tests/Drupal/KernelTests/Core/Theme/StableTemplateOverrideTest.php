@@ -91,7 +91,7 @@ class StableTemplateOverrideTest extends KernelTestBase {
           continue;
         }
 
-        $this->assertEquals('core/frontend/themes/stable', $info['theme path'], $info['template'] . '.html.twig overridden in Stable.');
+        $this->assertEquals('core/themes/stable', $info['theme path'], $info['template'] . '.html.twig overridden in Stable.');
       }
     }
   }

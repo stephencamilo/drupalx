@@ -150,7 +150,7 @@ class HtaccessTest extends BrowserTestBase {
    * Tests that SVGZ files are served with Content-Encoding: gzip.
    */
   public function testSvgzContentEncoding() {
-    $this->drupalGet('core/backend/modules/system/tests/logo.svgz');
+    $this->drupalGet('core/modules/system/tests/logo.svgz');
     $this->assertSession()->statusCodeEquals(200);
 
     // Use x-encoded-content-encoding because of Content-Encoding responses

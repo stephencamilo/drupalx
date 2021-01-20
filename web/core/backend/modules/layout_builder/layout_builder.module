@@ -49,7 +49,7 @@ function layout_builder_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.layout_builder':
       $output = '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('Layout Builder allows you to use layouts to customize how content, custom blocks, and other <a href=":field_help" title="Field module help, with background on content entities">content entities</a> are displayed.', [':field_help' => Url::fromRoute('help.page', ['name' => 'field'])->toString()]) . '</p>';
-      $output .= '<p>' . t('For more information, see the <a href=":layout-builder-documentation">online documentation for the Layout Builder module</a>.', [':layout-builder-documentation' => 'https://www.drupal.org/docs/8/core/backend/modules/layout-builder']) . '</p>';
+      $output .= '<p>' . t('For more information, see the <a href=":layout-builder-documentation">online documentation for the Layout Builder module</a>.', [':layout-builder-documentation' => 'https://www.drupal.org/docs/8/core/modules/layout-builder']) . '</p>';
       $output .= '<h3>' . t('Uses') . '</h3>';
       $output .= '<dl>';
       $output .= '<dt>' . t('Default layouts') . '</dt>';
@@ -59,7 +59,7 @@ function layout_builder_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<dt>' . t('User permissions') . '</dt>';
       $output .= '<dd>' . t('The Layout Builder module makes a number of permissions available, which can be set by role on the <a href=":permissions">permissions page</a>. For more information, see the <a href=":layout-builder-permissions">Configuring Layout Builder permissions</a> online documentation.', [
         ':permissions' => Url::fromRoute('user.admin_permissions', [], ['fragment' => 'module-layout_builder'])->toString(),
-        ':layout-builder-permissions' => 'https://www.drupal.org/docs/8/core/backend/modules/layout-builder/configuring-layout-builder-permissions',
+        ':layout-builder-permissions' => 'https://www.drupal.org/docs/8/core/modules/layout-builder/configuring-layout-builder-permissions',
       ]) . '</dd>';
       $output .= '</dl>';
       return $output;
@@ -396,7 +396,7 @@ function layout_builder_preprocess_language_content_settings_table(&$variables) 
         'label' => $row['data'][1]['data']['field'],
         'description' => [
           '#type' => 'container',
-          '#markup' => t('<strong>Warning</strong>: Layout Builder does not support translating layouts. (<a href="https://www.drupal.org/docs/8/core/backend/modules/layout-builder/layout-builder-and-content-translation">online documentation</a>)'),
+          '#markup' => t('<strong>Warning</strong>: Layout Builder does not support translating layouts. (<a href="https://www.drupal.org/docs/8/core/modules/layout-builder/layout-builder-and-content-translation">online documentation</a>)'),
           '#attributes' => [
             'class' => ['layout-builder-translation-warning'],
           ],

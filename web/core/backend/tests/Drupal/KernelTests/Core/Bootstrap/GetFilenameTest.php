@@ -31,14 +31,14 @@ class GetFilenameTest extends KernelTestBase {
    */
   public function testDrupalGetFilename() {
     // Retrieving the location of a module.
-    $this->assertIdentical(drupal_get_filename('module', 'system'), 'core/backend/modules/system/system.info.yml');
+    $this->assertIdentical(drupal_get_filename('module', 'system'), 'core/modules/system/system.info.yml');
 
     // Retrieving the location of a theme.
     \Drupal::service('theme_installer')->install(['stark']);
-    $this->assertIdentical(drupal_get_filename('theme', 'stark'), 'core/frontend/themes/stark/stark.info.yml');
+    $this->assertIdentical(drupal_get_filename('theme', 'stark'), 'core/themes/stark/stark.info.yml');
 
     // Retrieving the location of a theme engine.
-    $this->assertIdentical(drupal_get_filename('theme_engine', 'twig'), 'core/frontend/themes/engines/twig/twig.info.yml');
+    $this->assertIdentical(drupal_get_filename('theme_engine', 'twig'), 'core/themes/engines/twig/twig.info.yml');
 
     // Retrieving the location of a profile. Profiles are a special case with
     // a fixed location and naming.

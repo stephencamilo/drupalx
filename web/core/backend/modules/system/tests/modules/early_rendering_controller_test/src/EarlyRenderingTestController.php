@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
  * each of which exist solely for test cases in EarlyRenderingControllerTest;
  * see that test for documentation.
  *
- * @see core/backend/modules/early_rendering_controller_test/early_rendering_controller_test.routing.yml
+ * @see core/modules/early_rendering_controller_test/early_rendering_controller_test.routing.yml
  * @see \Drupal\system\Tests\Common\EarlyRenderingControllerTest::testEarlyRendering()
  */
 class EarlyRenderingTestController extends ControllerBase {

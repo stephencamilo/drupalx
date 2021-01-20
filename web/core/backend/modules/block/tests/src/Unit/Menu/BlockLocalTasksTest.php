@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 class BlockLocalTasksTest extends LocalTaskIntegrationTestBase {
 
   protected function setUp(): void {
-    $this->directoryList = ['block' => 'core/backend/modules/block'];
+    $this->directoryList = ['block' => 'core/modules/block'];
     parent::setUp();
 
     $config_factory = $this->getConfigFactoryStub([

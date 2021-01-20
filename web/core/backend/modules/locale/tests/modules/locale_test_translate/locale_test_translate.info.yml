@@ -5,4 +5,4 @@ package: Testing
 version: '1.3'
 hidden: true
 'interface translation project': locale_test_translate
-'interface translation server pattern': core/backend/modules/locale/tests/test.%language.po
+'interface translation server pattern': core/modules/locale/tests/test.%language.po

@@ -257,7 +257,7 @@
 
           // Protected; keys of the widget data to be sent to the Drupal dialog.
           // Append to the values defined by the drupalimage plugin.
-          // @see core/backend/modules/ckeditor/js/plugins/drupalimage/plugin.js
+          // @see core/modules/ckeditor/js/plugins/drupalimage/plugin.js
           CKEDITOR.tools.extend(widgetDefinition._mapDataToDialog, {
             align: 'data-align',
             'data-caption': 'data-caption',

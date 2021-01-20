@@ -335,7 +335,7 @@ class ExtensionDiscovery {
     // The result of this multisort can be depicted like the following matrix,
     // whereas the first integer is the weight of the originating directory and
     // the second is the weight of the originating installation profile:
-    // 0   core/backend/modules/node/node.module
+    // 0   core/modules/node/node.module
     // 1 0 profiles/parent_profile/modules/parent_module/parent_module.module
     // 1 1 core/profiles/testing/modules/compatible_test/compatible_test.module
     // 2   sites/all/modules/common/common.module

@@ -62,7 +62,7 @@ class InstallerExistingSettingsTest extends InstallerTestBase {
     $this->drupalGet($GLOBALS['base_url']);
     // Ensure no database tables have been created yet.
     $this->assertSame([], Database::getConnection()->schema()->findTables('%'));
-    $this->assertSession()->addressEquals($GLOBALS['base_url'] . '/core/backend/install.php');
+    $this->assertSession()->addressEquals($GLOBALS['base_url'] . '/core/install.php');
   }
 
   /**

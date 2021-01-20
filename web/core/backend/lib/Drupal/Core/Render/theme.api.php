@@ -60,7 +60,7 @@
  * @endcode
  * Given this definition, the template file with the default implementation is
  * search-result.html.twig, which can be found in the
- * core/backend/modules/search/templates directory, and the variables for rendering are
+ * core/modules/search/templates directory, and the variables for rendering are
  * the search result and the plugin ID. In addition, there is a function
  * template_preprocess_search_result(), located in file search.pages.inc, which
  * preprocesses the information from the input variables so that it can be
@@ -1252,11 +1252,11 @@ function hook_theme($existing, $type, $theme, $path) {
  * @code
  * $theme_registry['block_content_add_list'] = array (
  *   'template' => 'block-content-add-list',
- *   'path' => 'core/frontend/themes/seven/templates',
+ *   'path' => 'core/themes/seven/templates',
  *   'type' => 'theme_engine',
- *   'theme path' => 'core/frontend/themes/seven',
+ *   'theme path' => 'core/themes/seven',
  *   'includes' => array (
- *     0 => 'core/backend/modules/block_content/block_content.pages.inc',
+ *     0 => 'core/modules/block_content/block_content.pages.inc',
  *   ),
  *   'variables' => array (
  *     'content' => NULL,

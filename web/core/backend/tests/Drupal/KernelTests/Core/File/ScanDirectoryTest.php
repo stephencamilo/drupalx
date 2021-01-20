@@ -171,20 +171,20 @@ class ScanDirectoryTest extends FileTestBase {
    * @covers ::scanDirectory
    */
   public function testIgnoreDirectories() {
-    $files = $this->fileSystem->scanDirectory('core/backend/modules/system/tests/fixtures/IgnoreDirectories', '/\.txt$/');
+    $files = $this->fileSystem->scanDirectory('core/modules/system/tests/fixtures/IgnoreDirectories', '/\.txt$/');
     $this->assertCount(2, $files, '2 text files found when not ignoring directories.');
 
     $this->setSetting('file_scan_ignore_directories', ['frontend_framework']);
-    $files = $this->fileSystem->scanDirectory('core/backend/modules/system/tests/fixtures/IgnoreDirectories', '/\.txt$/');
+    $files = $this->fileSystem->scanDirectory('core/modules/system/tests/fixtures/IgnoreDirectories', '/\.txt$/');
     $this->assertCount(1, $files, '1 text files found when ignoring directories called "frontend_framework".');
 
     // Ensure that the directories in file_scan_ignore_directories are escaped
     // using preg_quote.
     $this->setSetting('file_scan_ignore_directories', ['frontend.*']);
-    $files = $this->fileSystem->scanDirectory('core/backend/modules/system/tests/fixtures/IgnoreDirectories', '/\.txt$/');
+    $files = $this->fileSystem->scanDirectory('core/modules/system/tests/fixtures/IgnoreDirectories', '/\.txt$/');
     $this->assertCount(2, $files, '2 text files found when ignoring a directory that is not there.');
 
-    $files = $this->fileSystem->scanDirectory('core/backend/modules/system/tests/fixtures/IgnoreDirectories', '/\.txt$/', ['nomask' => '/^something_thing_else$/']);
+    $files = $this->fileSystem->scanDirectory('core/modules/system/tests/fixtures/IgnoreDirectories', '/\.txt$/', ['nomask' => '/^something_thing_else$/']);
     $this->assertCount(2, $files, '2 text files found when an "nomask" option is passed in.');
   }
 

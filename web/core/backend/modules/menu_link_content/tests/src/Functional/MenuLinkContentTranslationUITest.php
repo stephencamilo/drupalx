@@ -99,10 +99,10 @@ class MenuLinkContentTranslationUITest extends ContentTranslationUITestBase {
     $this->drupalPostForm('admin/appearance', $edit, 'Save configuration');
     // Check that edit uses the admin theme.
     $this->drupalGet('admin/structure/menu/item/' . $entityId . '/edit');
-    $this->assertRaw('core/frontend/themes/seven/css/base/elements.css');
+    $this->assertRaw('core/themes/seven/css/base/elements.css');
     // Check that translation uses admin theme as well.
     $this->drupalGet('admin/structure/menu/item/' . $entityId . '/edit/translations');
-    $this->assertRaw('core/frontend/themes/seven/css/base/elements.css');
+    $this->assertRaw('core/themes/seven/css/base/elements.css');
   }
 
   /**

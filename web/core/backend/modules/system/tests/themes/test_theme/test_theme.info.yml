@@ -37,7 +37,7 @@ libraries-override:
   system/base:
     css:
       component:
-        /core/frontend/themes/stable/css/system/components/js.module.css: false
+        /core/themes/stable/css/system/components/js.module.css: false
   # It works for JS as well.
   core/jquery:
     js:
@@ -46,12 +46,12 @@ libraries-override:
   core/drupal.dropbutton:
     css:
       component:
-        /core/frontend/themes/stable/css/core/dropbutton/dropbutton.css: /themes/my_theme/css/dropbutton.css
+        /core/themes/stable/css/core/dropbutton/dropbutton.css: /themes/my_theme/css/dropbutton.css
   # Use stream wrappers.
   core/drupal.vertical-tabs:
     css:
       component:
-        /core/frontend/themes/stable/css/core/vertical-tabs.css: public://my_css/vertical-tabs.css
+        /core/themes/stable/css/core/vertical-tabs.css: public://my_css/vertical-tabs.css
   # Use a protocol-relative URI.
   core/jquery.ui:
     css:

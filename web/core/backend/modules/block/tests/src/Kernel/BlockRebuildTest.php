@@ -39,7 +39,7 @@ class BlockRebuildTest extends KernelTestBase {
 
     // @todo Once block_rebuild() is refactored to auto-loadable code, remove
     //   this require statement.
-    require_once static::getDrupalRoot() . '/core/backend/modules/block/block.module';
+    require_once static::getDrupalRoot() . '/core/modules/block/block.module';
   }
 
   /**

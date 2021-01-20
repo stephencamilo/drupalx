@@ -7,7 +7,7 @@ use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 /**
  * Tests the JavaScript filtering on the Views listing page.
  *
- * @see core/backend/modules/views_ui/js/views_ui.listing.js
+ * @see core/modules/views_ui/js/views_ui.listing.js
  * @group views_ui
  */
 class ViewsListingTest extends WebDriverTestBase {

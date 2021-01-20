@@ -43,7 +43,7 @@ function media_library_help($route_name, RouteMatchInterface $route_match) {
       ]) . '</p>';
       $output .= '<p>' . t('To learn more about media management, begin by reviewing the <a href=":media-help">documentation for the Media module</a>. For more information about the media library and related functionality, see the <a href=":media-library-handbook">online documentation for the Media Library module</a>.', [
         ':media-help' => Url::fromRoute('help.page', ['name' => 'media'])->toString(),
-        ':media-library-handbook' => 'https://www.drupal.org/docs/8/core/backend/modules/media-library-module',
+        ':media-library-handbook' => 'https://www.drupal.org/docs/8/core/modules/media-library-module',
       ]) . '</p>';
       $output .= '<h3>' . t('Selection dialog') . '</h3>';
       $output .= '<p>' . t('When selecting media for an entity reference field or a text editor, Media Library opens a modal dialog to help users easily find and select media. The modal dialog can toggle between a grid-style and table-style interface, and new media items can be uploaded directly into it.') . '</p>';

@@ -46,7 +46,7 @@ class ClaroPreRender implements TrustedCallbackInterface {
       if ($upload_is_accessible) {
         // Change widget title. This is the same title that is used by the
         // multiple file widget.
-        // @see https://git.drupalcode.org/project/drupal/blob/ade7b950a1/core/backend/modules/file/src/Plugin/Field/FieldWidget/FileWidget.php#L192
+        // @see https://git.drupalcode.org/project/drupal/blob/ade7b950a1/core/modules/file/src/Plugin/Field/FieldWidget/FileWidget.php#L192
         $element['#title'] = t('Add a new file');
       }
       else {

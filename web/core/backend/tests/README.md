@@ -129,7 +129,7 @@ tests/src/Nightwatch/Pages
 ```
 
 It's helpful to follow existing patterns for test placement, so for the action
-module they would go in `core/backend/modules/action/tests/src/Nightwatch`.
+module they would go in `core/modules/action/tests/src/Nightwatch`.
 The Nightwatch configuration, as well as global tests, commands, and assertions
 which span many modules/systems, are located in `core/tests/Drupal/Nightwatch`.
 

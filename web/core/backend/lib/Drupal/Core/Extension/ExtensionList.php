@@ -148,7 +148,7 @@ abstract class ExtensionList {
    * @return \Drupal\Core\Extension\ExtensionDiscovery
    */
   protected function getExtensionDiscovery() {
-    return new ExtensionDiscovery($this->root.'/backend');
+    return new ExtensionDiscovery($this->root);
   }
 
   /**
@@ -479,14 +479,14 @@ abstract class ExtensionList {
    * depending on a site's configuration. For example, a module 'foo' may
    * legally be located in any of these four places:
    *
-   * - core/backend/modules/foo/foo.info.yml
+   * - core/modules/foo/foo.info.yml
    * - modules/foo/foo.info.yml
    * - sites/all/modules/foo/foo.info.yml
    * - sites/example.com/modules/foo/foo.info.yml
    *
    * while a theme 'bar' may be located in any of the following four places:
    *
-   * - core/frontend/themes/bar/bar.info.yml
+   * - core/themes/bar/bar.info.yml
    * - themes/bar/bar.info.yml
    * - sites/all/themes/bar/bar.info.yml
    * - sites/example.com/themes/bar/bar.info.yml
@@ -551,8 +551,7 @@ abstract class ExtensionList {
    *   The extension info array.
    */
   protected function createExtensionInfo(Extension $extension) {
-    //@todo make it variable.
-    $info = $this->infoParser->parse('/var/www/html/web/core/backend/'.$extension->getPathname());
+    $info = $this->infoParser->parse($extension->getPathname());
 
     // Add the info file modification time, so it becomes available for
     // contributed extensions to use for ordering extension lists.

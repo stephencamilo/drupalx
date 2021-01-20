@@ -44,8 +44,8 @@ class ModuleHandlerTest extends KernelTestBase {
 
     // Test the fixed list feature.
     $fixed_list = [
-      'system' => 'core/backend/modules/system/system.module',
-      'menu' => 'core/backend/modules/menu/menu.module',
+      'system' => 'core/modules/system/system.module',
+      'menu' => 'core/modules/menu/menu.module',
     ];
     $this->moduleHandler()->setModuleList($fixed_list);
     $new_module_list = array_combine(array_keys($fixed_list), array_keys($fixed_list));

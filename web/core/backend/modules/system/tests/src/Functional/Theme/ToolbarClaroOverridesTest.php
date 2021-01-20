@@ -53,17 +53,17 @@ class ToolbarClaroOverridesTest extends BrowserTestBase {
    */
   public function testClaroAssets() {
     $default_stylesheets = [
-      'core/backend/modules/toolbar/css/toolbar.module.css',
-      'core/backend/modules/toolbar/css/toolbar.menu.css',
-      'core/backend/modules/toolbar/css/toolbar.theme.css',
-      'core/backend/modules/toolbar/css/toolbar.icons.theme.css',
+      'core/modules/toolbar/css/toolbar.module.css',
+      'core/modules/toolbar/css/toolbar.menu.css',
+      'core/modules/toolbar/css/toolbar.theme.css',
+      'core/modules/toolbar/css/toolbar.icons.theme.css',
     ];
 
     $claro_stylesheets = [
-      'core/frontend/themes/claro/css/components/toolbar.module.css',
-      'core/frontend/themes/claro/css/state/toolbar.menu.css',
-      'core/frontend/themes/claro/css/theme/toolbar.theme.css',
-      'core/frontend/themes/claro/css/theme/toolbar.icons.theme.css',
+      'core/themes/claro/css/components/toolbar.module.css',
+      'core/themes/claro/css/state/toolbar.menu.css',
+      'core/themes/claro/css/theme/toolbar.theme.css',
+      'core/themes/claro/css/theme/toolbar.icons.theme.css',
     ];
 
     $this->config('system.theme')->set('admin', 'stark')->save();

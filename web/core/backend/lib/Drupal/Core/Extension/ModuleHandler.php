@@ -208,7 +208,7 @@ class ModuleHandler implements ModuleHandlerInterface {
    * @param string $name
    *   The module name; e.g., 'node'.
    * @param string $path
-   *   The module path; e.g., 'core/backend/modules/node'.
+   *   The module path; e.g., 'core/modules/node'.
    */
   protected function add($type, $name, $path) {
     $pathname = "$path/$name.info.yml";

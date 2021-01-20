@@ -87,7 +87,7 @@ class RegistryLegacyTest extends UnitTestCase {
     $this->expectDeprecation('Unsilenced deprecation: Theme functions are deprecated in drupal:8.0.0 and are removed from drupal:10.0.0. Use Twig templates instead of theme_theme_test(). See https://www.drupal.org/node/1831138');
     $test_theme = new ActiveTheme([
       'name' => 'test_legacy_theme',
-      'path' => 'core/backend/modules/system/tests/themes/test_legacy_theme/test_legacy_theme.info.yml',
+      'path' => 'core/modules/system/tests/themes/test_legacy_theme/test_legacy_theme.info.yml',
       'engine' => 'twig',
       'owner' => 'twig',
       'stylesheets_remove' => [],
@@ -103,7 +103,7 @@ class RegistryLegacyTest extends UnitTestCase {
       ->willReturn($test_theme);
 
     // Include the module and theme files so that hook_theme can be called.
-    include_once $this->root . '/core/backend/modules/system/tests/modules/theme_legacy_test/theme_legacy_test.module';
+    include_once $this->root . '/core/modules/system/tests/modules/theme_legacy_test/theme_legacy_test.module';
     $this->moduleHandler->expects($this->once())
       ->method('getImplementations')
       ->with('theme')
@@ -125,7 +125,7 @@ class RegistryLegacyTest extends UnitTestCase {
 
     $info = $registry['theme_test_function_suggestions'];
     $this->assertEquals('module', $info['type']);
-    $this->assertEquals('core/backend/modules/system/tests/modules/theme_legacy_test', $info['theme path']);
+    $this->assertEquals('core/modules/system/tests/modules/theme_legacy_test', $info['theme path']);
     $this->assertEquals('theme_theme_test_function_suggestions', $info['function']);
     $this->assertEquals([], $info['variables']);
   }
@@ -139,7 +139,7 @@ class RegistryLegacyTest extends UnitTestCase {
       ->method('getPath')
       ->willReturnCallback(function ($module) {
         if ($module == 'theme_legacy_test') {
-          return 'core/backend/modules/system/tests/modules/theme_legacy_test';
+          return 'core/modules/system/tests/modules/theme_legacy_test';
         }
       });
     $this->registry->setThemeManager($this->themeManager);

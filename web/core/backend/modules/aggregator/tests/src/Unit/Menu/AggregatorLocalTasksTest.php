@@ -15,7 +15,7 @@ class AggregatorLocalTasksTest extends LocalTaskIntegrationTestBase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
-    $this->directoryList = ['aggregator' => 'core/backend/modules/aggregator'];
+    $this->directoryList = ['aggregator' => 'core/modules/aggregator'];
     parent::setUp();
   }
 

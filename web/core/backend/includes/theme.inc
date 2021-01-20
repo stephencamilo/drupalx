@@ -189,7 +189,7 @@ function drupal_find_theme_functions($cache, $prefixes) {
  *   The existing cache of theme hooks to test against.
  * @param $extension
  *   The extension that these templates will have.
- * @param $'path'
+ * @param $path
  *   The path to search.
  */
 function drupal_find_theme_templates($cache, $extension, $path) {

@@ -82,7 +82,7 @@ class MediaDisplayTest extends MediaJavascriptTestBase {
     // elements configured on their displays are the expected ones.
     $this->drupalGet('media/add/image');
     $image_media_name = 'example_1.jpeg';
-    $page->attachFileToField('files[field_media_image_0]', $this->root . '/core/backend/modules/media/tests/fixtures/' . $image_media_name);
+    $page->attachFileToField('files[field_media_image_0]', $this->root . '/core/modules/media/tests/fixtures/' . $image_media_name);
     $result = $assert_session->waitForButton('Remove');
     $this->assertNotEmpty($result);
     $page->fillField('field_media_image[0][alt]', 'Image Alt Text 1');

@@ -20,7 +20,7 @@ class Extension {
   protected $type;
 
   /**
-   * The relative pathname of the extension (e.g., 'core/backend/modules/node/node.info.yml').
+   * The relative pathname of the extension (e.g., 'core/modules/node/node.info.yml').
    *
    * @var string
    */
@@ -58,7 +58,7 @@ class Extension {
    *   The type of the extension; e.g., 'module'.
    * @param string $pathname
    *   The relative path and filename of the extension's info file; e.g.,
-   *   'core/backend/modules/node/node.info.yml'.
+   *   'core/modules/node/node.info.yml'.
    * @param string $filename
    *   (optional) The filename of the main extension file; e.g., 'node.module'.
    */

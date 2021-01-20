@@ -267,7 +267,7 @@ class SessionHttpsTest extends BrowserTestBase {
    *   URL prepared for the https.php mock front controller.
    */
   protected function httpsUrl($url) {
-    return 'core/backend/modules/system/tests/https.php/' . $url;
+    return 'core/modules/system/tests/https.php/' . $url;
   }
 
   /**
@@ -280,7 +280,7 @@ class SessionHttpsTest extends BrowserTestBase {
    *   URL prepared for the http.php mock front controller.
    */
   protected function httpUrl($url) {
-    return 'core/backend/modules/system/tests/http.php/' . $url;
+    return 'core/modules/system/tests/http.php/' . $url;
   }
 
   /**

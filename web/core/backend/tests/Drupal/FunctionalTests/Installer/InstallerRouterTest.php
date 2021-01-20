@@ -58,8 +58,8 @@ class InstallerRouterTest extends InstallerTestBase {
     // - router_installer_test_modules_installed()
     // - install_finished()
     $this->assertSame(3, \Drupal::service('core.performance.test.recorder')->getCount('event', RoutingEvents::FINISHED));
-    $this->assertStringEndsWith('/core/backend/install.php/router_installer_test/test1', \Drupal::state()->get('router_installer_test_modules_installed'));
-    $this->assertStringEndsWith('/core/backend/install.php/router_test/test1', \Drupal::state()->get('router_test_install'));
+    $this->assertStringEndsWith('/core/install.php/router_installer_test/test1', \Drupal::state()->get('router_installer_test_modules_installed'));
+    $this->assertStringEndsWith('/core/install.php/router_test/test1', \Drupal::state()->get('router_test_install'));
   }
 
 }

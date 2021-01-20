@@ -108,7 +108,6 @@ class InfoParserDynamic implements InfoParserInterface {
         $parsed_info['version'] = \Drupal::VERSION;
       }
     }
-
     return $parsed_info;
   }
 

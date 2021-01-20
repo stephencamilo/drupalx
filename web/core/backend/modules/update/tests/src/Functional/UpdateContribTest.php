@@ -584,8 +584,8 @@ class UpdateContribTest extends UpdateTestBase {
     //   - '1.1' instead of '1.1-core_compatibility'.
     //   - '1.1-alpha1' instead of '1.1-alpha1-core_compatibility'.
     //   Delete the files:
-    //   - core/backend/modules/update/tests/modules/update_test/drupal.1.1-alpha1-core_compatibility.xml
-    //   - core/backend/modules/update/tests/modules/update_test/drupal.1.1-core_compatibility.xml
+    //   - core/modules/update/tests/modules/update_test/drupal.1.1-alpha1-core_compatibility.xml
+    //   - core/modules/update/tests/modules/update_test/drupal.1.1-core_compatibility.xml
     $this->refreshUpdateStatus(['drupal' => '1.1-core_compatibility', 'aaa_update_test' => '8.x-1.2']);
     $this->assertCoreCompatibilityMessage('8.x-1.2', '8.0.0 to 8.1.1', 'Recommended version:');
     $this->assertCoreCompatibilityMessage('8.x-1.3-beta1', '8.0.0, 8.1.1', 'Latest version:');

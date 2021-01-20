@@ -43,7 +43,7 @@ class GenerateProxyClassCommand extends Command {
       ])
       ->setDescription('Dumps a generated proxy class into its appropriate namespace.')
       ->addUsage('\'Drupal\Core\Batch\BatchStorage\' "core/lib/Drupal/Core"')
-      ->addUsage('\'Drupal\block\BlockRepository\' "core/backend/modules/block/src"')
+      ->addUsage('\'Drupal\block\BlockRepository\' "core/modules/block/src"')
       ->addUsage('\'Drupal\mymodule\MyClass\' "modules/contrib/mymodule/src"');
   }
 

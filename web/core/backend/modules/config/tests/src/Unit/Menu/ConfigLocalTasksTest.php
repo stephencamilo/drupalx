@@ -12,7 +12,7 @@ use Drupal\Tests\Core\Menu\LocalTaskIntegrationTestBase;
 class ConfigLocalTasksTest extends LocalTaskIntegrationTestBase {
 
   protected function setUp(): void {
-    $this->directoryList = ['config' => 'core/backend/modules/config'];
+    $this->directoryList = ['config' => 'core/modules/config'];
     parent::setUp();
   }
 

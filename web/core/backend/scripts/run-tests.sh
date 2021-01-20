@@ -281,7 +281,7 @@ All arguments are long options.
 
   --file      Run tests identified by specific file names, instead of group names.
               Specify the path and the extension
-              (i.e. 'core/backend/modules/user/user.test'). This argument must be last
+              (i.e. 'core/modules/user/user.test'). This argument must be last
               on the command line.
 
   --types

@@ -257,7 +257,7 @@ class TestDiscovery {
    *   For example: 'Drupal\\node\\Tests\\'
    * @param string $path
    *   The directory path to scan.
-   *   For example: '/path/to/drupal/core/backend/modules/node/tests/src'
+   *   For example: '/path/to/drupal/core/modules/node/tests/src'
    *
    * @return array
    *   An associative array whose keys are fully-qualified class names and whose

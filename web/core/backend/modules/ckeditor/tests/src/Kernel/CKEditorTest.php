@@ -93,8 +93,8 @@ class CKEditorTest extends KernelTestBase {
       'language' => 'en',
       'stylesSet' => FALSE,
       'drupalExternalPlugins' => [
-        'drupalimage' => file_url_transform_relative(file_create_url('core/backend/modules/ckeditor/js/plugins/drupalimage/plugin.js')),
-        'drupallink' => file_url_transform_relative(file_create_url('core/backend/modules/ckeditor/js/plugins/drupallink/plugin.js')),
+        'drupalimage' => file_url_transform_relative(file_create_url('core/modules/ckeditor/js/plugins/drupalimage/plugin.js')),
+        'drupallink' => file_url_transform_relative(file_create_url('core/modules/ckeditor/js/plugins/drupallink/plugin.js')),
       ],
     ];
     $this->assertEquals($expected_config, $this->ckeditor->getJSSettings($editor), 'Generated JS settings are correct for default configuration.');
@@ -114,9 +114,9 @@ class CKEditorTest extends KernelTestBase {
     $expected_config['toolbar'][0]['items'][] = 'Format';
     $expected_config['format_tags'] = 'p;h2;h3;h4;h5;h6';
     $expected_config['extraPlugins'] .= ',llama_contextual,llama_contextual_and_button';
-    $expected_config['drupalExternalPlugins']['llama_contextual'] = file_url_transform_relative(file_create_url('core/backend/modules/ckeditor/tests/modules/js/llama_contextual.js'));
-    $expected_config['drupalExternalPlugins']['llama_contextual_and_button'] = file_url_transform_relative(file_create_url('core/backend/modules/ckeditor/tests/modules/js/llama_contextual_and_button.js'));
-    $expected_config['contentsCss'][] = file_url_transform_relative(file_create_url('core/backend/modules/ckeditor/tests/modules/ckeditor_test.css')) . $query_string;
+    $expected_config['drupalExternalPlugins']['llama_contextual'] = file_url_transform_relative(file_create_url('core/modules/ckeditor/tests/modules/js/llama_contextual.js'));
+    $expected_config['drupalExternalPlugins']['llama_contextual_and_button'] = file_url_transform_relative(file_create_url('core/modules/ckeditor/tests/modules/js/llama_contextual_and_button.js'));
+    $expected_config['contentsCss'][] = file_url_transform_relative(file_create_url('core/modules/ckeditor/tests/modules/ckeditor_test.css')) . $query_string;
     $this->assertEquals($expected_config, $this->ckeditor->getJSSettings($editor), 'Generated JS settings are correct for customized configuration.');
 
     // Change the allowed HTML tags; the "allowedContent" and "format_tags"
@@ -275,11 +275,11 @@ class CKEditorTest extends KernelTestBase {
     // Enable the Bartik theme, which specifies a CKEditor stylesheet.
     \Drupal::service('theme_installer')->install(['bartik']);
     $this->config('system.theme')->set('default', 'bartik')->save();
-    $expected[] = file_url_transform_relative(file_create_url('core/frontend/themes/bartik/css/base/elements.css')) . $query_string;
-    $expected[] = file_url_transform_relative(file_create_url('core/frontend/themes/bartik/css/components/captions.css')) . $query_string;
-    $expected[] = file_url_transform_relative(file_create_url('core/frontend/themes/bartik/css/components/table.css')) . $query_string;
-    $expected[] = file_url_transform_relative(file_create_url('core/frontend/themes/bartik/css/components/text-formatted.css')) . $query_string;
-    $expected[] = file_url_transform_relative(file_create_url('core/frontend/themes/bartik/css/classy/components/media-embed-error.css')) . $query_string;
+    $expected[] = file_url_transform_relative(file_create_url('core/themes/bartik/css/base/elements.css')) . $query_string;
+    $expected[] = file_url_transform_relative(file_create_url('core/themes/bartik/css/components/captions.css')) . $query_string;
+    $expected[] = file_url_transform_relative(file_create_url('core/themes/bartik/css/components/table.css')) . $query_string;
+    $expected[] = file_url_transform_relative(file_create_url('core/themes/bartik/css/components/text-formatted.css')) . $query_string;
+    $expected[] = file_url_transform_relative(file_create_url('core/themes/bartik/css/classy/components/media-embed-error.css')) . $query_string;
     $this->assertIdentical($expected, $this->ckeditor->buildContentsCssJSSetting($editor), '"contentsCss" configuration part of JS settings built correctly while a theme providing a CKEditor stylesheet exists.');
   }
 
@@ -504,8 +504,8 @@ class CKEditorTest extends KernelTestBase {
   protected function getDefaultContentsCssConfig() {
     $query_string = '?0=';
     return [
-      file_url_transform_relative(file_create_url('core/backend/modules/ckeditor/css/ckeditor-iframe.css')) . $query_string,
-      file_url_transform_relative(file_create_url('core/backend/modules/system/css/components/align.module.css')) . $query_string,
+      file_url_transform_relative(file_create_url('core/modules/ckeditor/css/ckeditor-iframe.css')) . $query_string,
+      file_url_transform_relative(file_create_url('core/modules/system/css/components/align.module.css')) . $query_string,
     ];
   }
 

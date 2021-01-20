@@ -69,7 +69,7 @@ class FilterHtml extends FilterBase {
    */
   public function setConfiguration(array $configuration) {
     if (isset($configuration['settings']['allowed_html'])) {
-      // The javascript in core/backend/modules/filter/filter.filter_html.admin.js
+      // The javascript in core/modules/filter/filter.filter_html.admin.js
       // removes new lines and double spaces so, for consistency when javascript
       // is disabled, remove them.
       $configuration['settings']['allowed_html'] = preg_replace('/\s+/', ' ', $configuration['settings']['allowed_html']);

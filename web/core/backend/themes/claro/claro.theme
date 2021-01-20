@@ -1638,7 +1638,7 @@ function claro_preprocess_toolbar(&$variables, $hook, $info) {
 function claro_system_module_invoked_library_info_alter(&$libraries, $extension) {
   if ($extension === 'toolbar') {
     $claro_info = \Drupal::service('theme_handler')->listInfo()['claro']->info;
-    $path_prefix = '/core/frontend/themes/claro/';
+    $path_prefix = '/core/themes/claro/';
     $claro_toolbar_overrides = $claro_info['libraries-override']['toolbar/toolbar'];
     foreach ($claro_toolbar_overrides['css'] as $concern => $overrides) {
       foreach ($claro_toolbar_overrides['css'][$concern] as $key => $value) {
@@ -1669,7 +1669,7 @@ function claro_system_module_invoked_library_info_alter(&$libraries, $extension)
 function claro_system_module_invoked_theme_registry_alter(array &$theme_registry) {
   foreach (['toolbar', 'menu__toolbar'] as $registry_item) {
     if (isset($theme_registry[$registry_item])) {
-      $theme_registry[$registry_item]['path'] = 'core/frontend/themes/claro/templates/navigation';
+      $theme_registry[$registry_item]['path'] = 'core/themes/claro/templates/navigation';
     }
   }
 }

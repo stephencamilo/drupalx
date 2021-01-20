@@ -5,7 +5,6 @@ description: 'A base theme with sensible default CSS classes added. Learn how to
 package: Core
 version: VERSION
 hidden: true
-core_version_requirement: ^8 || ^9
 
 libraries:
   - classy/base

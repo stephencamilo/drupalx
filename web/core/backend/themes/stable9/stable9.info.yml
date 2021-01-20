@@ -5,7 +5,7 @@ package: Core
 version: VERSION
 base theme: false
 hidden: true
-core_version_requirement: ^8 || ^9
+
 libraries-override:
   block/drupal.block.admin:
     css:

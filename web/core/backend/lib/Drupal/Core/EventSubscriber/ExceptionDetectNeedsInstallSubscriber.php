@@ -46,7 +46,7 @@ class ExceptionDetectNeedsInstallSubscriber implements EventSubscriberInterface 
       $request = $event->getRequest();
       $format = $request->query->get(MainContentViewSubscriber::WRAPPER_FORMAT, $request->getRequestFormat());
       if ($format == 'html') {
-        $event->setResponse(new RedirectResponse($request->getBasePath() . '/core/backend/install.php', 302, ['Cache-Control' => 'no-cache']));
+        $event->setResponse(new RedirectResponse($request->getBasePath() . '/core/install.php', 302, ['Cache-Control' => 'no-cache']));
       }
     }
   }

@@ -791,7 +791,7 @@ class BrowserTestBaseTest extends BrowserTestBase {
     // to the installer.
     // @see drupal_valid_test_ua()
     // Not using File API; a potential error must trigger a PHP warning.
-    $install_url = Url::fromUri('base:core/backend/install.php', ['external' => TRUE, 'absolute' => TRUE])->toString();
+    $install_url = Url::fromUri('base:core/install.php', ['external' => TRUE, 'absolute' => TRUE])->toString();
     $this->drupalGet($install_url);
     $this->assertSession()->statusCodeEquals(200);
     unlink($this->siteDirectory . '/.htkey');

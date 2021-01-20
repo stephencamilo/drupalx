@@ -10,7 +10,7 @@ use org\bovigo\vfs\vfsStream;
 /**
  * Tests InfoParser class and exception.
  *
- * Files for this test are stored in core/backend/modules/system/tests/fixtures and end
+ * Files for this test are stored in core/modules/system/tests/fixtures and end
  * with .info.txt instead of info.yml in order not to be considered as real
  * extensions.
  *

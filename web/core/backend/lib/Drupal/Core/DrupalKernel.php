@@ -307,8 +307,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     // - Removing the namespace directories from the path.
     // - Getting the path to the directory two levels up from the path
     //   determined in the previous step.
-    $dirname = dirname(substr(__DIR__, 0, -strlen(__NAMESPACE__)), 2);
-    return $dirname;
+    return dirname(substr(__DIR__, 0, -strlen(__NAMESPACE__)), 2);
   }
 
   /**
@@ -558,14 +557,14 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    * {@inheritdoc}
    */
   public function loadLegacyIncludes() {
-    require_once $this->root . '/backend/includes/common.inc';
-    require_once $this->root . '/backend/includes/module.inc';
-    require_once $this->root . '/backend/includes/theme.inc';
-    require_once $this->root . '/backend/includes/menu.inc';
-    require_once $this->root . '/backend/includes/file.inc';
-    require_once $this->root . '/backend/includes/form.inc';
-    require_once $this->root . '/backend/includes/errors.inc';
-    require_once $this->root . '/backend/includes/schema.inc';
+    require_once $this->root . '/core/includes/common.inc';
+    require_once $this->root . '/core/includes/module.inc';
+    require_once $this->root . '/core/includes/theme.inc';
+    require_once $this->root . '/core/includes/menu.inc';
+    require_once $this->root . '/core/includes/file.inc';
+    require_once $this->root . '/core/includes/form.inc';
+    require_once $this->root . '/core/includes/errors.inc';
+    require_once $this->root . '/core/includes/schema.inc';
   }
 
   /**
@@ -614,7 +613,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       'app' => [],
       'site' => [],
     ];
-    $this->serviceYamls['app']['core'] = 'core/backend/core.services.yml';
+    $this->serviceYamls['app']['core'] = 'core/core.services.yml';
     $this->serviceProviderClasses['app']['core'] = 'Drupal\Core\CoreServiceProvider';
 
     // Retrieve enabled modules and register their namespaces.
@@ -700,7 +699,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // installed yet (i.e., if no $databases array has been defined in the
       // settings.php file) and we are not already installing.
       if (!Database::getConnectionInfo() && !InstallerKernel::installationAttempted() && PHP_SAPI !== 'cli') {
-        $response = new RedirectResponse($request->getBasePath() . '/core/backend/install.php', 302, ['Cache-Control' => 'no-cache']);
+        $response = new RedirectResponse($request->getBasePath() . '/core/install.php', 302, ['Cache-Control' => 'no-cache']);
       }
       else {
         $this->boot();
@@ -740,7 +739,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    */
   protected function handleException(\Exception $e, $request, $type) {
     if ($this->shouldRedirectToInstaller($e, $this->container ? $this->container->get('database') : NULL)) {
-      return new RedirectResponse($request->getBasePath() . '/core/backend/install.php', 302, ['Cache-Control' => 'no-cache']);
+      return new RedirectResponse($request->getBasePath() . '/core/install.php', 302, ['Cache-Control' => 'no-cache']);
     }
 
     if ($e instanceof HttpExceptionInterface) {
@@ -1221,7 +1220,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     // - Entity
     // - Plugin
     foreach (['Core', 'Component'] as $parent_directory) {
-      $path = 'backend/lib/Drupal/' . $parent_directory;
+      $path = 'core/lib/Drupal/' . $parent_directory;
       $parent_namespace = 'Drupal\\' . $parent_directory;
       foreach (new \DirectoryIterator($this->root . '/' . $path) as $component) {
         /** @var $component \DirectoryIterator */

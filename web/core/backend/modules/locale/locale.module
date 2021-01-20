@@ -494,7 +494,7 @@ function locale_js_alter(&$javascript, AttachedAssetsInterface $assets) {
   foreach ($javascript as $item) {
     if (isset($item['type']) && $item['type'] == 'file') {
       // Ignore the JS translation placeholder file.
-      if ($item['data'] === 'core/backend/modules/locale/locale.translation.js') {
+      if ($item['data'] === 'core/modules/locale/locale.translation.js') {
         continue;
       }
       $files[] = $item['data'];
@@ -502,7 +502,7 @@ function locale_js_alter(&$javascript, AttachedAssetsInterface $assets) {
   }
 
   // Replace the placeholder file with the actual JS translation file.
-  $placeholder_file = 'core/backend/modules/locale/locale.translation.js';
+  $placeholder_file = 'core/modules/locale/locale.translation.js';
   if (isset($javascript[$placeholder_file])) {
     if ($translation_file = locale_js_translate($files)) {
       $js_translation_asset = &$javascript[$placeholder_file];
