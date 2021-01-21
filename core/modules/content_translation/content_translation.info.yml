@@ -1,0 +1,13 @@
+name: 'Content Translation'
+type: module
+description: 'Allows users to translate content.'
+dependencies:
+  - drupal:language
+package: Multilingual
+# version: VERSION
+configure: language.content_settings_page
+
+# Information added by Drupal.org packaging script on 2021-01-20
+version: '9.1.3'
+project: 'drupal'
+datestamp: 1611161270
