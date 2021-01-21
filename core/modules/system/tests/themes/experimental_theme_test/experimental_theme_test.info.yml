@@ -1,0 +1,11 @@
+name: 'Experimental test'
+type: theme
+description: 'Experimental test theme.'
+# version: VERSION
+base theme: false
+experimental: true
+
+# Information added by Drupal.org packaging script on 2021-01-20
+version: '9.1.3'
+project: 'drupal'
+datestamp: 1611161270
