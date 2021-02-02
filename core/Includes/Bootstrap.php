@@ -722,7 +722,7 @@ class Bootstrap {
       // Fall back to searching the filesystem if the database could not find the
       // file or the file does not exist at the path returned by the database.
       if (!isset($files[$type][$name])) {
-        $files[$type][$name] = _drupal_get_filename_fallback($type, $name, $trigger_error, $database_unavailable);
+        $files[$type][$name] = $this->_drupal_get_filename_fallback($type, $name, $trigger_error, $database_unavailable);
       }
     }
 
@@ -757,7 +757,7 @@ class Bootstrap {
    * @see drupal_get_filename()
    */
   function _drupal_get_filename_fallback($type, $name, $trigger_error, $database_unavailable) {
-    $file_scans = &_drupal_file_scan_cache();
+    $file_scans = &$this->_drupal_file_scan_cache();
     $filename = NULL;
 
     // If the cache indicates that the item is missing, or we can verify that the
@@ -1185,11 +1185,13 @@ class Bootstrap {
     // use drupal_static() here.
     static $files = [];
 
+    $bootstrap = new Bootstrap;
+
     if (isset($files[$type][$name])) {
       return TRUE;
     }
 
-    $filename = drupal_get_filename($type, $name);
+    $filename = $bootstrap->drupal_get_filename($type, $name);
 
     if ($filename) {
       include_once DRUPAL_ROOT . '/' . $filename;
@@ -2700,8 +2702,8 @@ class Bootstrap {
    * @see _drupal_maintenance_theme()
    */
   function drupal_maintenance_theme() {
-    require_once DRUPAL_ROOT . '/includes/theme.maintenance.inc';
-    _drupal_maintenance_theme();
+    $theme_maintenance = new ThemeMaintenance;
+    $theme_maintenance->_drupal_maintenance_theme();
   }
 
   /**
@@ -2770,7 +2772,7 @@ class Bootstrap {
     // This is not converted to drupal_static because there is no point in
     // resetting this as it can not change in the course of a request.
     if (!isset($t)) {
-      $t = drupal_installation_attempted() ? 'st' : 't';
+      $t = $this->drupal_installation_attempted() ? 'st' : 't';
     }
     return $t;
   }
