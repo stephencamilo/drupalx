@@ -643,7 +643,7 @@ function poll_block_latest_poll_view($node) {
   $node->readmore = FALSE;
   $node->teaser = '';
 
-  $links = array();
+  $links = [];
   $links[] = array('title' => t('Older polls'), 'href' => 'poll', 'attributes' => array('title' => t('View the list of polls on this site.')));
   if ($node->allowvotes) {
     $links[] = array('title' => t('Results'), 'href' => 'node/' . $node->nid . '/results', 'attributes' => array('title' => t('View the current poll results.')));
@@ -706,7 +706,7 @@ function poll_teaser($node) {
  */
 function poll_view_voting($form, &$form_state, $node, $block = FALSE) {
   if ($node->choice) {
-    $list = array();
+    $list = [];
     foreach ($node->choice as $i => $choice) {
       $list[$i] = check_plain($choice['chtext']);
     }
@@ -828,7 +828,7 @@ function poll_view_results($node, $view_mode, $block = FALSE) {
     }
   }
 
-  return theme('poll_results', array('raw_title' => $node->title, 'results' => $poll_results, 'votes' => $total_votes, 'raw_links' => isset($node->links) ? $node->links : array(), 'block' => $block, 'nid' => $node->nid, 'vote' => isset($node->vote) ? $node->vote : NULL));
+  return theme('poll_results', array('raw_title' => $node->title, 'results' => $poll_results, 'votes' => $total_votes, 'raw_links' => isset($node->links) ? $node->links : [], 'block' => $block, 'nid' => $node->nid, 'vote' => isset($node->vote) ? $node->vote : NULL));
 }
 
 
@@ -848,7 +848,7 @@ function theme_poll_choices($variables) {
 
   $is_admin= user_access('administer nodes');
   $delta = 0;
-  $rows = array();
+  $rows = [];
   $headers = array('', t('Choice'));
   if ($is_admin) {
     $headers[] = t('Vote count');

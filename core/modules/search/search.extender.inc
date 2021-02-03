@@ -48,7 +48,7 @@ class SearchQuery extends SelectQueryExtender {
    *
    * @var array
    */
-  protected $keys = array('positive' => array(), 'negative' => array());
+  protected $keys = array('positive' => [], 'negative' => []);
 
   /**
    * Indicates whether the first pass query requires complex conditions (LIKE).
@@ -81,7 +81,7 @@ class SearchQuery extends SelectQueryExtender {
    *
    * @var array
    */
-  protected $words = array();
+  protected $words = [];
 
   /**
    * Multiplier for the normalized search score.
@@ -108,21 +108,21 @@ class SearchQuery extends SelectQueryExtender {
    *
    * @see addScore()
    */
-  protected $scores = array();
+  protected $scores = [];
 
   /**
    * Stores arguments for score expressions.
    *
    * @var array
    */
-  protected $scoresArguments = array();
+  protected $scoresArguments = [];
 
   /**
    * Stores multipliers for score expressions.
    *
    * @var array
    */
-  protected $multiply = array();
+  protected $multiply = [];
 
   /**
    * Whether or not search expressions were ignored.
@@ -206,7 +206,7 @@ class SearchQuery extends SelectQueryExtender {
     // Classify tokens.
     $or = FALSE;
     $warning = '';
-    $limit_combinations = variable_get('search_and_or_limit', 7);
+    $limit_combinations = $bootstrap->variable_get('search_and_or_limit', 7);
     // The first search expression does not count as AND.
     $and_count = -1;
     $or_count = 0;
@@ -329,7 +329,7 @@ class SearchQuery extends SelectQueryExtender {
     $split = explode(' ', $word);
     foreach ($split as $s) {
       $num = is_numeric($s);
-      if ($num || drupal_strlen($s) >= variable_get('minimum_word_size', 3)) {
+      if ($num || drupal_strlen($s) >= $bootstrap->variable_get('minimum_word_size', 3)) {
         if (!isset($this->words[$s])) {
           $this->words[$s] = $s;
           $num_new_scores++;
@@ -359,7 +359,7 @@ class SearchQuery extends SelectQueryExtender {
       return FALSE;
     }
     if ($this->expressionsIgnored) {
-      drupal_set_message(t('Your search used too many AND/OR expressions. Only the first @count terms were included in this search.', array('@count' => variable_get('search_and_or_limit', 7))), 'warning');
+      drupal_set_message(t('Your search used too many AND/OR expressions. Only the first @count terms were included in this search.', array('@count' => $bootstrap->variable_get('search_and_or_limit', 7))), 'warning');
     }
     $this->executedFirstPass = TRUE;
 
@@ -428,7 +428,7 @@ class SearchQuery extends SelectQueryExtender {
    * @return object
    *   The updated query object.
    */
-  public function addScore($score, $arguments = array(), $multiply = FALSE) {
+  public function addScore($score, $arguments = [], $multiply = FALSE) {
     if ($multiply) {
       $i = count($this->multiply);
       // Modify the score expression so it is multiplied by the multiplier,
@@ -531,9 +531,9 @@ class SearchQuery extends SelectQueryExtender {
     // Remove existing fields and expressions, they are not needed for a count
     // query.
     $fields =& $inner->getFields();
-    $fields = array();
+    $fields = [];
     $expressions =& $inner->getExpressions();
-    $expressions = array();
+    $expressions = [];
 
     // Add the sid as the only field and count them as a subquery.
     $count = db_select($inner->fields('i', array('sid')), NULL, array('target' => 'slave'));

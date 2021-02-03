@@ -45,10 +45,10 @@ function contextual_library() {
     'website' => 'http://drupal.org/node/473268',
     'version' => '1.0',
     'js' => array(
-      $path . '/contextual.js' => array(),
+      $path . '/contextual.js' => [],
     ),
     'css' => array(
-      $path . '/contextual.css' => array(),
+      $path . '/contextual.css' => [],
     ),
   );
   return $libraries;
@@ -61,7 +61,7 @@ function contextual_element_info() {
   $types['contextual_links'] = array(
     '#pre_render' => array('contextual_pre_render_links'),
     '#theme' => 'links__contextual',
-    '#links' => array(),
+    '#links' => [],
     '#prefix' => '<div class="contextual-links-wrapper">',
     '#suffix' => '</div>',
     '#attributes' => array(
@@ -136,13 +136,13 @@ function contextual_preprocess(&$variables, $hook) {
  */
 function contextual_pre_render_links($element) {
   // Retrieve contextual menu links.
-  $items = array();
+  $items = [];
   foreach ($element['#contextual_links'] as $module => $args) {
     $items += menu_contextual_links($module, $args[0], $args[1]);
   }
 
   // Transform contextual links into parameters suitable for theme_link().
-  $links = array();
+  $links = [];
   foreach ($items as $class => $item) {
     $class = drupal_html_class($class);
     $links[$class] = array(
@@ -150,7 +150,7 @@ function contextual_pre_render_links($element) {
       'href' => $item['href'],
     );
     // @todo theme_links() should *really* use the same parameters as l().
-    $item['localized_options'] += array('query' => array());
+    $item['localized_options'] += array('query' => []);
     $item['localized_options']['query'] += drupal_get_destination();
     $links[$class] += $item['localized_options'];
   }

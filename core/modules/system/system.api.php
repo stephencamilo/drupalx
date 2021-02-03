@@ -220,7 +220,7 @@ function hook_entity_info() {
       'bundle keys' => array(
         'bundle' => 'type',
       ),
-      'bundles' => array(),
+      'bundles' => [],
       'view modes' => array(
         'full' => array(
           'label' => t('Full content'),
@@ -575,7 +575,7 @@ function hook_entity_prepare_view($entities, $type, $langcode) {
 function hook_cron() {
   // Short-running operation example, not using a queue:
   // Delete all expired records since the last cron run.
-  $expires = variable_get('mymodule_cron_last_run', REQUEST_TIME);
+  $expires = $bootstrap->variable_get('mymodule_cron_last_run', REQUEST_TIME);
   db_delete('mymodule_table')
     ->condition('expires', $expires, '>=')
     ->execute();
@@ -790,7 +790,7 @@ function hook_library() {
     'website' => 'http://example.com/library-1',
     'version' => '1.2',
     'js' => array(
-      drupal_get_path('module', 'my_module') . '/library-1.js' => array(),
+      drupal_get_path('module', 'my_module') . '/library-1.js' => [],
     ),
     'css' => array(
       drupal_get_path('module', 'my_module') . '/library-2.css' => array(
@@ -847,7 +847,7 @@ function hook_library_alter(&$libraries, $module) {
       // Update the existing Farbtastic to version 2.0.
       $libraries['farbtastic']['version'] = '2.0';
       $libraries['farbtastic']['js'] = array(
-        drupal_get_path('module', 'farbtastic_update') . '/farbtastic-2.0.js' => array(),
+        drupal_get_path('module', 'farbtastic_update') . '/farbtastic-2.0.js' => [],
       );
     }
   }
@@ -1673,7 +1673,7 @@ function hook_form_alter(&$form, &$form_state, $form_id) {
     $form['workflow']['upload_' . $form['type']['#value']] = array(
       '#type' => 'radios',
       '#title' => t('Attachments'),
-      '#default_value' => variable_get('upload_' . $form['type']['#value'], 1),
+      '#default_value' => $bootstrap->variable_get('upload_' . $form['type']['#value'], 1),
       '#options' => array(t('Disabled'), t('Enabled')),
     );
   }
@@ -1992,7 +1992,7 @@ function hook_mail_alter(&$message) {
       $message['send'] = FALSE;
       return;
     }
-    $message['body'][] = "--\nMail sent out from " . variable_get('site_name', t('Drupal'));
+    $message['body'][] = "--\nMail sent out from " . $bootstrap->variable_get('site_name', t('Drupal'));
   }
 }
 
@@ -2534,9 +2534,9 @@ function hook_watchdog(array $log_entry) {
   );
 
   $to = 'someone@example.com';
-  $params = array();
+  $params = [];
   $params['subject'] = t('[@site_name] @severity_desc: Alert from your web site', array(
-    '@site_name' => variable_get('site_name', 'Drupal'),
+    '@site_name' => $bootstrap->variable_get('site_name', 'Drupal'),
     '@severity_desc' => $severity_list[$log_entry['severity']],
   ));
 
@@ -2603,7 +2603,7 @@ function hook_mail($key, &$message, $params) {
   $account = $params['account'];
   $context = $params['context'];
   $variables = array(
-    '%site_name' => variable_get('site_name', 'Drupal'),
+    '%site_name' => $bootstrap->variable_get('site_name', 'Drupal'),
     '%username' => format_username($account),
   );
   if ($context['hook'] == 'taxonomy') {
@@ -2860,7 +2860,7 @@ function hook_file_load($files) {
  * @see file_validate()
  */
 function hook_file_validate($file) {
-  $errors = array();
+  $errors = [];
 
   if (empty($file->filename)) {
     $errors[] = t("The file's name is empty. Please give a name to the file.");
@@ -3008,7 +3008,7 @@ function hook_file_download($uri) {
   if (!file_prepare_directory($uri)) {
     $uri = FALSE;
   }
-  if (strpos(file_uri_target($uri), variable_get('user_picture_path', 'pictures') . '/picture-') === 0) {
+  if (strpos(file_uri_target($uri), $bootstrap->variable_get('user_picture_path', 'pictures') . '/picture-') === 0) {
     if (!user_access('access user profiles')) {
       // Access to the file is denied.
       return -1;
@@ -3137,7 +3137,7 @@ function hook_file_url_alter(&$uri) {
  *     - REQUIREMENT_ERROR: The requirement failed with an error.
  */
 function hook_requirements($phase) {
-  $requirements = array();
+  $requirements = [];
   // Ensure translations don't break during installation.
   $t = get_t();
 
@@ -3162,7 +3162,7 @@ function hook_requirements($phase) {
 
   // Report cron status
   if ($phase == 'runtime') {
-    $cron_last = variable_get('cron_last');
+    $cron_last = $bootstrap->variable_get('cron_last');
 
     if (is_numeric($cron_last)) {
       $requirements['cron']['value'] = $t('Last run !time ago', array('!time' => format_interval(REQUEST_TIME - $cron_last)));
@@ -3767,7 +3767,7 @@ function hook_registry_files_alter(&$files, $modules) {
  *
  * Remember that a user installing Drupal interactively will be able to reload
  * an installation page multiple times, so you should use variable_set() and
- * variable_get() if you are collecting any data that you need to store and
+ * $bootstrap->variable_get() if you are collecting any data that you need to store and
  * inspect later. It is important to remove any temporary variables using
  * variable_del() before your last task has completed and control is handed
  * back to the installer.
@@ -3831,7 +3831,7 @@ function hook_install_tasks(&$install_state) {
   // Here, we define a variable to allow tasks to indicate that a particular,
   // processor-intensive batch process needs to be triggered later on in the
   // installation.
-  $myprofile_needs_batch_processing = variable_get('myprofile_needs_batch_processing', FALSE);
+  $myprofile_needs_batch_processing = $bootstrap->variable_get('myprofile_needs_batch_processing', FALSE);
   $tasks = array(
     // This is an example of a task that defines a form which the user who is
     // installing the site will be asked to fill out. To implement this task,
@@ -4227,7 +4227,7 @@ function hook_date_formats() {
     array(
       'type' => 'short',
       'format' => 'F Y',
-      'locales' => array(),
+      'locales' => [],
     ),
   );
 }
@@ -4422,7 +4422,7 @@ function hook_username_alter(&$name, $account) {
  * @see hook_token_info()
  * @see hook_tokens_alter()
  */
-function hook_tokens($type, $tokens, array $data = array(), array $options = array()) {
+function hook_tokens($type, $tokens, array $data = [], array $options = []) {
   $url_options = array('absolute' => TRUE);
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
@@ -4433,7 +4433,7 @@ function hook_tokens($type, $tokens, array $data = array(), array $options = arr
   }
   $sanitize = !empty($options['sanitize']);
 
-  $replacements = array();
+  $replacements = [];
 
   if ($type == 'node' && !empty($data['node'])) {
     $node = $data['node'];
@@ -4455,7 +4455,7 @@ function hook_tokens($type, $tokens, array $data = array(), array $options = arr
 
         // Default values for the chained tokens handled below.
         case 'author':
-          $name = ($node->uid == 0) ? variable_get('anonymous', t('Anonymous')) : $node->name;
+          $name = ($node->uid == 0) ? $bootstrap->variable_get('anonymous', t('Anonymous')) : $node->name;
           $replacements[$original] = $sanitize ? filter_xss($name) : $name;
           break;
 

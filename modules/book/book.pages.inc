@@ -14,7 +14,7 @@
  * @see book_menu()
  */
 function book_render() {
-  $book_list = array();
+  $book_list = [];
   foreach (book_get_books() as $book) {
     $book_list[] = l($book['title'], $book['href'], $book['options']);
   }

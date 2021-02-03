@@ -81,7 +81,7 @@ function update_manager_update_form($form, $form_state, $context) {
   // manual updates, such as core). Then, each subarray is an array of
   // projects of that type, indexed by project short name, and containing an
   // array of data for cells in that project's row in the appropriate table.
-  $projects = array();
+  $projects = [];
 
   // This stores the actual download link we're going to update from for each
   // project in the form, regardless of if it's enabled or disabled.
@@ -275,7 +275,7 @@ function update_manager_update_form($form, $form_state, $context) {
  */
 function theme_update_manager_update_form($variables) {
   $form = $variables['form'];
-  $last = variable_get('update_last_check', 0);
+  $last = $bootstrap->variable_get('update_last_check', 0);
   $output = theme('update_last_check', array('last' => $last));
   $output .= drupal_render_children($form);
   return $output;
@@ -308,13 +308,13 @@ function update_manager_update_form_validate($form, &$form_state) {
  * @see update_manager_update_form_validate()
  */
 function update_manager_update_form_submit($form, &$form_state) {
-  $projects = array();
+  $projects = [];
   foreach (array('projects', 'disabled_projects') as $type) {
     if (!empty($form_state['values'][$type])) {
       $projects = array_merge($projects, array_keys(array_filter($form_state['values'][$type])));
     }
   }
-  $operations = array();
+  $operations = [];
   foreach ($projects as $project) {
     $operations[] = array(
       'update_manager_batch_project_get',
@@ -422,7 +422,7 @@ function update_manager_update_ready_form($form, &$form_state) {
  */
 function update_manager_update_ready_form_submit($form, &$form_state) {
   // Store maintenance_mode setting so we can restore it when done.
-  $_SESSION['maintenance_mode'] = variable_get('maintenance_mode', FALSE);
+  $_SESSION['maintenance_mode'] = $bootstrap->variable_get('maintenance_mode', FALSE);
   if ($form_state['values']['maintenance_mode'] == TRUE) {
     variable_set('maintenance_mode', TRUE);
   }
@@ -431,7 +431,7 @@ function update_manager_update_ready_form_submit($form, &$form_state) {
     // Make sure the Updater registry is loaded.
     drupal_get_updaters();
 
-    $updates = array();
+    $updates = [];
     $directory = _update_manager_extract_directory();
 
     $projects = $_SESSION['update_manager_update_projects'];
@@ -578,7 +578,7 @@ function _update_manager_check_backends(&$form, $operation) {
     return FALSE;
   }
 
-  $backend_names = array();
+  $backend_names = [];
   foreach ($available_backends as $backend) {
     $backend_names[] = $backend['title'];
   }

@@ -69,9 +69,9 @@ function aggregator_parse_feed(&$data, $feed) {
 
   // Unset the global variables before we use them.
   unset($GLOBALS['element'], $GLOBALS['item'], $GLOBALS['tag']);
-  $items = array();
-  $image = array();
-  $channel = array();
+  $items = [];
+  $image = [];
+  $channel = [];
 
   // Parse the data.
   $xml_parser = drupal_xml_parser_create($data);
@@ -90,7 +90,7 @@ function aggregator_parse_feed(&$data, $feed) {
   $items = array_reverse($items);
 
   // Initialize items array.
-  $feed->items = array();
+  $feed->items = [];
   foreach ($items as $item) {
 
     // Prepare the item:
@@ -245,7 +245,7 @@ function aggregator_element_end($parser, $name) {
  */
 function aggregator_element_data($parser, $data) {
   global $channel, $element, $items, $item, $image, $tag;
-  $items += array($item => array());
+  $items += array($item => []);
   switch ($element) {
     case 'item':
       $items[$item] += array($tag => '');

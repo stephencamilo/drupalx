@@ -572,8 +572,8 @@ function node_update_7003() {
  */
 function node_update_7004() {
   // Get original settings and all types.
-  $original_length = variable_get('teaser_length', 600);
-  $original_preview = variable_get('node_preview', 0);
+  $original_length = $bootstrap->variable_get('teaser_length', 600);
+  $original_preview = $bootstrap->variable_get('node_preview', 0);
 
   // Map old preview setting to new values order.
   $original_preview ? $original_preview = 2 : $original_preview = 1;
@@ -624,7 +624,7 @@ function node_update_7006(&$sandbox) {
     );
     _update_7000_field_create_field($body_field);
 
-    $default_trim_length = variable_get('teaser_length', 600);
+    $default_trim_length = $bootstrap->variable_get('teaser_length', 600);
 
     // Get node type info, specifically the body field settings.
     $node_types = _update_7000_node_get_types();
@@ -632,7 +632,7 @@ function node_update_7006(&$sandbox) {
     // Add body field instances for existing node types.
     foreach ($node_types as $node_type) {
       if ($node_type->has_body) {
-        $trim_length = variable_get('teaser_length_' . $node_type->type, $default_trim_length);
+        $trim_length = $bootstrap->variable_get('teaser_length_' . $node_type->type, $default_trim_length);
 
         $instance = array(
           'entity_type' => 'node',
@@ -740,7 +740,7 @@ function node_update_7006(&$sandbox) {
             $node->body[$langcode][0]['format'] = NULL;
           }
           elseif (!in_array($revision->format, $sandbox['existing_text_formats'])) {
-            $node->body[$langcode][0]['format'] = variable_get('filter_default_format', 1);
+            $node->body[$langcode][0]['format'] = $bootstrap->variable_get('filter_default_format', 1);
           }
           else {
             $node->body[$langcode][0]['format'] = $revision->format;

@@ -132,7 +132,7 @@ function field_test_field_schema($field) {
     );
   }
   else {
-    $foreign_keys = array();
+    $foreign_keys = [];
     // The 'foreign keys' key is not always used in tests.
     if (!empty($field['settings']['foreign_key_name'])) {
       $foreign_keys['foreign keys'] = array(

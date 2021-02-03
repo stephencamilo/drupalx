@@ -138,7 +138,7 @@ class LocaleConfigurationTest extends DrupalWebTestCase {
     $this->assertRaw($name, 'The language was not deleted.');
     // Delete the language for real. This a confirm form, we do not need any
     // fields changed.
-    $this->drupalPost('admin/config/regional/language/delete/' . $langcode, array(), t('Delete'));
+    $this->drupalPost('admin/config/regional/language/delete/' . $langcode, [], t('Delete'));
     // We need raw here because %locale will add HTML.
     $this->assertRaw(t('The language %locale has been removed.', array('%locale' => $name)), 'The test language has been removed.');
     $this->assertEqual($this->getUrl(), url('admin/config/regional/language', array('absolute' => TRUE)), 'Correct page redirection.');
@@ -160,7 +160,7 @@ class LocaleConfigurationTest extends DrupalWebTestCase {
     drupal_static_reset('language_list');
     $enabled = language_list('enabled');
     // Delete the disabled language.
-    $this->drupalPost('admin/config/regional/language/delete/fr', array(), t('Delete'));
+    $this->drupalPost('admin/config/regional/language/delete/fr', [], t('Delete'));
     // We need raw here because %locale will add HTML.
     $this->assertRaw(t('The language %locale has been removed.', array('%locale' => 'French')), 'Disabled language has been removed.');
     $this->assertEqual($this->getUrl(), url('admin/config/regional/language', array('absolute' => TRUE)), 'Correct page redirection.');
@@ -349,7 +349,7 @@ class LocaleTranslationFunctionalTest extends DrupalWebTestCase {
     );
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add custom language'));
     // Add string.
-    t($name, array(), array('langcode' => $langcode));
+    t($name, [], array('langcode' => $langcode));
     // Reset locale cache.
     locale_reset();
     $this->assertText($langcode, 'Language code found.');
@@ -377,7 +377,7 @@ class LocaleTranslationFunctionalTest extends DrupalWebTestCase {
     // Assume this is the only result, given the random name.
     $this->clickLink(t('edit'));
     // We save the lid from the path.
-    $matches = array();
+    $matches = [];
     preg_match('!admin/config/regional/translate/edit/(\d+)!', $this->getUrl(), $matches);
     $lid = $matches[1];
     // No t() here, it's surely not translated yet.
@@ -388,7 +388,7 @@ class LocaleTranslationFunctionalTest extends DrupalWebTestCase {
     $this->drupalPost(NULL, $edit, t('Save translations'));
     $this->assertText(t('The string has been saved.'), 'The string has been saved.');
     $this->assertEqual($this->getUrl(), url('admin/config/regional/translate/translate', array('absolute' => TRUE)), 'Correct page redirection.');
-    $this->assertTrue($name != $translation && t($name, array(), array('langcode' => $langcode)) == $translation, 't() works.');
+    $this->assertTrue($name != $translation && t($name, [], array('langcode' => $langcode)) == $translation, 't() works.');
     $this->drupalPost('admin/config/regional/translate/translate', $search, t('Filter'));
     // The indicator should not be here.
     $this->assertNoRaw($language_indicator, 'String is translated.');
@@ -415,7 +415,7 @@ class LocaleTranslationFunctionalTest extends DrupalWebTestCase {
     $this->drupalLogin($admin_user);
     $path = 'admin/config/regional/language/delete/' . $langcode;
     // This a confirm form, we do not need any fields changed.
-    $this->drupalPost($path, array(), t('Delete'));
+    $this->drupalPost($path, [], t('Delete'));
     // We need raw here because %locale will add HTML.
     $this->assertRaw(t('The language %locale has been removed.', array('%locale' => $name)), 'The test language has been removed.');
     // Reload to remove $name.
@@ -444,7 +444,7 @@ class LocaleTranslationFunctionalTest extends DrupalWebTestCase {
     $this->assertEqual($this->getUrl(), url('admin/config/regional/translate/translate', array('absolute' => TRUE)), 'Correct page redirection.');
     $this->assertRaw($name, 'The string was not deleted.');
     // Delete the name string.
-    $this->drupalPost('admin/config/regional/translate/delete/' . $lid, array(), t('Delete'));
+    $this->drupalPost('admin/config/regional/translate/delete/' . $lid, [], t('Delete'));
     $this->assertText(t('The string has been removed.'), 'The string has been removed message.');
     $this->assertEqual($this->getUrl(), url('admin/config/regional/translate/translate', array('absolute' => TRUE)), 'Correct page redirection.');
     $this->drupalPost('admin/config/regional/translate/translate', $search, t('Filter'));
@@ -503,7 +503,7 @@ class LocaleTranslationFunctionalTest extends DrupalWebTestCase {
       ->condition('language', $langcode)
       ->execute()
       ->fetchObject();
-    $js_file = 'public://' . variable_get('locale_js_directory', 'languages') . '/' . $langcode . '_' . $file->javascript . '.js';
+    $js_file = 'public://' . $bootstrap->variable_get('locale_js_directory', 'languages') . '/' . $langcode . '_' . $file->javascript . '.js';
     $this->assertTrue($result = file_exists($js_file), format_string('JavaScript file created: %file', array('%file' => $result ? $js_file : 'not found')));
 
     // Test JavaScript translation rebuilding.
@@ -553,7 +553,7 @@ class LocaleTranslationFunctionalTest extends DrupalWebTestCase {
     );
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add custom language'));
     // Add string.
-    t($name, array(), array('langcode' => $langcode));
+    t($name, [], array('langcode' => $langcode));
     // Reset locale cache.
     $search = array(
       'string' => $name,
@@ -614,7 +614,7 @@ class LocaleTranslationFunctionalTest extends DrupalWebTestCase {
     );
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add custom language'));
     // Add string.
-    t($name, array(), array('langcode' => $langcode));
+    t($name, [], array('langcode' => $langcode));
     // Reset locale cache.
     locale_reset();
     $this->drupalLogout();
@@ -670,7 +670,7 @@ class LocaleTranslationFunctionalTest extends DrupalWebTestCase {
     // Assume this is the only result, given the random name.
     $this->clickLink(t('edit'));
     // We save the lid from the path.
-    $matches = array();
+    $matches = [];
     preg_match('!admin/config/regional/translate/edit/(\d)+!', $this->getUrl(), $matches);
     $lid = $matches[1];
     $edit = array(
@@ -778,7 +778,7 @@ class LocalePluralFormatTest extends DrupalWebTestCase {
   function testGetPluralFormat() {
     $this->drupalGet('locale_test_plural_format_page');
     $tests = _locale_test_plural_format_tests();
-    $result = array();
+    $result = [];
     foreach ($tests as $test) {
       $this->assertPluralFormat($test['count'], $test['language'], $test['expected-result']);
     }
@@ -818,7 +818,7 @@ class LocalePluralFormatTest extends DrupalWebTestCase {
    * @param $options
    *   Additional options to pass to the translation import form.
    */
-  function importPoFile($contents, array $options = array()) {
+  function importPoFile($contents, array $options = []) {
     $name = drupal_tempnam('temporary://', "po_") . '.po';
     file_put_contents($name, $contents);
     $options['files[file]'] = $name;
@@ -1063,8 +1063,8 @@ class LocaleImportFunctionalTest extends DrupalWebTestCase {
       'langcode' => 'hr',
     ));
 
-    $this->assertIdentical(t('May', array(), array('langcode' => 'hr', 'context' => 'Long month name')), 'Svibanj', 'Long month name context is working.');
-    $this->assertIdentical(t('May', array(), array('langcode' => 'hr')), 'Svi.', 'Default context is working.');
+    $this->assertIdentical(t('May', [], array('langcode' => 'hr', 'context' => 'Long month name')), 'Svibanj', 'Long month name context is working.');
+    $this->assertIdentical(t('May', [], array('langcode' => 'hr')), 'Svi.', 'Default context is working.');
   }
 
   /**
@@ -1079,7 +1079,7 @@ class LocaleImportFunctionalTest extends DrupalWebTestCase {
     ));
 
     $this->assertRaw(t('The translation was successfully imported. There are %number newly created translated strings, %update strings were updated and %delete strings were removed.', array('%number' => 1, '%update' => 0, '%delete' => 0)), 'The translation file was successfully imported.');
-    $this->assertIdentical(t('Operations', array(), array('langcode' => $langcode)), 'Műveletek', 'String imported and translated.');
+    $this->assertIdentical(t('Operations', [], array('langcode' => $langcode)), 'Műveletek', 'String imported and translated.');
 
     // Try importing a .po file.
     $this->importPoFile($this->getPoFileWithEmptyMsgstr(), array(
@@ -1112,7 +1112,7 @@ class LocaleImportFunctionalTest extends DrupalWebTestCase {
    * @param $options
    *   Additional options to pass to the translation import form.
    */
-  function importPoFile($contents, array $options = array()) {
+  function importPoFile($contents, array $options = []) {
     $name = drupal_tempnam('temporary://', "po_") . '.po';
     file_put_contents($name, $contents);
     $options['files[file]'] = $name;
@@ -1367,7 +1367,7 @@ class LocaleExportFunctionalTest extends DrupalWebTestCase {
     // There are two 'Export' buttons on this page, but it somehow works.  It'd
     // be better if we could use the submit button id like documented but that
     // doesn't work.
-    $this->drupalPost('admin/config/regional/translate/export', array(), t('Export'));
+    $this->drupalPost('admin/config/regional/translate/export', [], t('Export'));
     // Ensure we have a translation file.
     $this->assertRaw('# LANGUAGE translation of PROJECT', 'Exported translation template file.');
   }
@@ -1476,7 +1476,7 @@ class LocaleUninstallFunctionalTest extends DrupalWebTestCase {
     $this->drupalPost('admin/config/regional/translate/edit/' . $string->lid, $edit, t('Save translations'));
     _locale_rebuild_js('fr');
     $file = db_query('SELECT javascript FROM {languages} WHERE language = :language', array(':language' => 'fr'))->fetchObject();
-    $js_file = 'public://' . variable_get('locale_js_directory', 'languages') . '/fr_' . $file->javascript . '.js';
+    $js_file = 'public://' . $bootstrap->variable_get('locale_js_directory', 'languages') . '/fr_' . $file->javascript . '.js';
     $this->assertTrue($result = file_exists($js_file), format_string('JavaScript file created: %file', array('%file' => $result ? $js_file : 'none')));
 
     // Disable string caching.
@@ -1508,7 +1508,7 @@ class LocaleUninstallFunctionalTest extends DrupalWebTestCase {
     $this->assertTrue($result = !file_exists($js_file), format_string('JavaScript file deleted: %file', array('%file' => $result ? $js_file : 'found')));
 
     // Check language count.
-    $language_count = variable_get('language_count', 1);
+    $language_count = $bootstrap->variable_get('language_count', 1);
     $this->assertEqual($language_count, 1, format_string('Language count: %count', array('%count' => $language_count)));
 
     // Check language negotiation.
@@ -1526,19 +1526,19 @@ class LocaleUninstallFunctionalTest extends DrupalWebTestCase {
     $this->assertFalse(variable_get('locale_language_negotiation_session_param', FALSE), 'Visit language provider settings cleared.');
 
     // Check JavaScript parsed.
-    $javascript_parsed_count = count(variable_get('javascript_parsed', array()));
+    $javascript_parsed_count = count(variable_get('javascript_parsed', []));
     $this->assertEqual($javascript_parsed_count, 0, format_string('JavaScript parsed count: %count', array('%count' => $javascript_parsed_count)));
 
     // Check multilingual workflow option for articles.
-    $multilingual = variable_get('language_content_type_article', 0);
+    $multilingual = $bootstrap->variable_get('language_content_type_article', 0);
     $this->assertEqual($multilingual, 0, format_string('Multilingual workflow option: %status', array('%status' => $multilingual ? 'enabled': 'disabled')));
 
     // Check JavaScript translations directory.
-    $locale_js_directory = variable_get('locale_js_directory', 'languages');
+    $locale_js_directory = $bootstrap->variable_get('locale_js_directory', 'languages');
     $this->assertEqual($locale_js_directory, 'languages', format_string('JavaScript translations directory: %dir', array('%dir' => $locale_js_directory)));
 
     // Check string caching.
-    $locale_cache_strings = variable_get('locale_cache_strings', 1);
+    $locale_cache_strings = $bootstrap->variable_get('locale_cache_strings', 1);
     $this->assertEqual($locale_cache_strings, 1, format_string('String caching: %status', array('%status' => $locale_cache_strings ? 'enabled': 'disabled')));
   }
 }
@@ -1615,12 +1615,12 @@ class LocaleLanguageSwitchingFunctionalTest extends DrupalWebTestCase {
     // Assert that only the current language is marked as active.
     list($language_switcher) = $this->xpath('//div[@id=:id]/div[@class="content"]', array(':id' => 'block-locale-' . $language_type));
     $links = array(
-      'active' => array(),
-      'inactive' => array(),
+      'active' => [],
+      'inactive' => [],
     );
     $anchors = array(
-      'active' => array(),
-      'inactive' => array(),
+      'active' => [],
+      'inactive' => [],
     );
     foreach ($language_switcher->ul->li as $link) {
       $classes = explode(" ", (string) $link['class']);
@@ -2007,7 +2007,7 @@ class LocalePathFunctionalTest extends DrupalWebTestCase {
 
     // Check that the "xx" front page is not available when path prefixes are
     // not enabled yet.
-    $this->drupalPost('admin/config/regional/language/configure', array(), t('Save settings'));
+    $this->drupalPost('admin/config/regional/language/configure', [], t('Save settings'));
     $this->drupalGet($prefix);
     $this->assertResponse(404, 'The "xx" front page is not available yet.');
 
@@ -2131,11 +2131,11 @@ class LocaleContentFunctionalTest extends DrupalWebTestCase {
     $this->assertFieldByXpath('//input[@name="type" and @dir="ltr"]', NULL, 'The machine name field is LTR when no additional language is configured.');
 
     // Install the Arabic language (which is RTL) and configure as the default.
-    $edit = array();
+    $edit = [];
     $edit['langcode'] = 'ar';
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
 
-    $edit = array();
+    $edit = [];
     $edit['site_default'] = 'ar';
     $this->drupalPost(NULL, $edit, t('Save configuration'));
 
@@ -2433,7 +2433,7 @@ class LocaleUILanguageNegotiationTest extends DrupalWebTestCase {
 
     // Unknown language prefix should return 404.
     variable_set('language_negotiation_' . LANGUAGE_TYPE_INTERFACE, locale_language_negotiation_info());
-    $this->drupalGet("$language_unknown/admin/config", array(), $http_header_browser_fallback);
+    $this->drupalGet("$language_unknown/admin/config", [], $http_header_browser_fallback);
     $this->assertResponse(404, "Unknown language path prefix should return 404");
 
     // Setup for domain negotiation, first configure the language to have domain
@@ -2483,7 +2483,7 @@ class LocaleUILanguageNegotiationTest extends DrupalWebTestCase {
     if (!empty($test['locale_test_domain'])) {
       variable_set('locale_test_domain', $test['locale_test_domain']);
     }
-    $this->drupalGet($test['path'], array(), $test['http_header']);
+    $this->drupalGet($test['path'], [], $test['http_header']);
     $this->assertText($test['expect'], $test['message']);
     $this->assertText(t('Language negotiation provider: @name', array('@name' => $test['expected_provider'])));
   }
@@ -2519,7 +2519,7 @@ class LocaleUILanguageNegotiationTest extends DrupalWebTestCase {
     // Access the front page without specifying any valid URL language prefix
     // and having as browser language preference a non-default language.
     $http_header = array("Accept-Language: $language_browser_fallback;q=1");
-    $this->drupalGet('', array(), $http_header);
+    $this->drupalGet('', [], $http_header);
 
     // Check that the language switcher active link matches the given browser
     // language.
@@ -2603,12 +2603,12 @@ class LocaleUrlRewritingTest extends DrupalWebTestCase {
     $this->drupalLogin($this->web_user);
 
     // Install French language.
-    $edit = array();
+    $edit = [];
     $edit['langcode'] = 'fr';
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
 
     // Install Italian language.
-    $edit = array();
+    $edit = [];
     $edit['langcode'] = 'it';
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
 
@@ -2785,7 +2785,7 @@ class LocaleMultilingualFieldsFunctionalTest extends DrupalWebTestCase {
     $body_value = $this->randomName(16);
 
     // Create node to edit.
-    $edit = array();
+    $edit = [];
     $edit[$title_key] = $title_value;
     $edit[$body_key] = $body_value;
     $edit['language'] = 'en';
@@ -2834,7 +2834,7 @@ class LocaleMultilingualFieldsFunctionalTest extends DrupalWebTestCase {
     $body_value = $this->randomName(16);
 
     // Create node to edit.
-    $edit = array();
+    $edit = [];
     $edit[$title_key] = $title_value;
     $edit[$body_key] = $body_value;
     $edit['language'] = 'en';
@@ -3083,7 +3083,7 @@ class LocaleLanguageNegotiationInfoFunctionalTest extends DrupalWebTestCase {
     variable_set('locale_test_content_language_type', TRUE);
     $this->languageNegotiationUpdate();
     $type = LANGUAGE_TYPE_CONTENT;
-    $language_types = variable_get('language_types', drupal_language_types());
+    $language_types = $bootstrap->variable_get('language_types', drupal_language_types());
     $this->assertTrue($language_types[$type], 'Content language type is configurable.');
 
     // Enable some core and custom language providers. The test language type is
@@ -3103,7 +3103,7 @@ class LocaleLanguageNegotiationInfoFunctionalTest extends DrupalWebTestCase {
     // negotiation settings with the proper flag enabled.
     variable_set('locale_test_language_negotiation_info_alter', TRUE);
     $this->languageNegotiationUpdate();
-    $negotiation = variable_get("language_negotiation_$type", array());
+    $negotiation = $bootstrap->variable_get("language_negotiation_$type", []);
     $this->assertFalse(isset($negotiation[$provider]), 'Interface language provider removed from the stored settings.');
     $this->assertNoFieldByXPath("//input[@name=\"$form_field\"]", NULL, 'Interface language provider unavailable.');
 
@@ -3121,7 +3121,7 @@ class LocaleLanguageNegotiationInfoFunctionalTest extends DrupalWebTestCase {
 
     // Check language negotiation results.
     $this->drupalGet('');
-    $last = variable_get('locale_test_language_negotiation_last', array());
+    $last = $bootstrap->variable_get('locale_test_language_negotiation_last', []);
     foreach (language_types() as $type) {
       $langcode = $last[$type];
       $value = $type == LANGUAGE_TYPE_CONTENT || strpos($type, 'test') !== FALSE ? 'it' : 'en';
@@ -3143,7 +3143,7 @@ class LocaleLanguageNegotiationInfoFunctionalTest extends DrupalWebTestCase {
 
     // Check that unavailable language providers are not present in the
     // negotiation settings.
-    $negotiation = variable_get("language_negotiation_$type", array());
+    $negotiation = $bootstrap->variable_get("language_negotiation_$type", []);
     $this->assertFalse(isset($negotiation[$test_provider]), 'The disabled test language provider is not part of the content language negotiation settings.');
 
     // Check that configuration page presents the correct options and settings.
@@ -3187,7 +3187,7 @@ class LocaleLanguageNegotiationInfoFunctionalTest extends DrupalWebTestCase {
     drupal_static_reset('language_types_info');
     foreach (language_types_info() as $type => $info) {
       if (isset($info['fixed'])) {
-        $negotiation = variable_get("language_negotiation_$type", array());
+        $negotiation = $bootstrap->variable_get("language_negotiation_$type", []);
         $equal = array_keys($negotiation) === array_values($info['fixed']);
         $this->assertTrue($equal, format_string('language negotiation for %type is properly set up', array('%type' => $type)));
       }
@@ -3224,17 +3224,17 @@ class LocaleCSSAlterTest extends DrupalWebTestCase {
     $this->drupalLogin($admin_user);
 
     // Install the Arabic language (which is RTL) and configure as the default.
-    $edit = array();
+    $edit = [];
     $edit['langcode'] = 'ar';
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
 
-    $edit = array();
+    $edit = [];
     $edit['site_default'] = 'ar';
     $this->drupalPost(NULL, $edit, t('Save configuration'));
 
     // Verify that the -rtl.css file is added directly after LTR file.
     $this->drupalGet('');
-    $query_string = '?' . variable_get('css_js_query_string', '0');
+    $query_string = '?' . $bootstrap->variable_get('css_js_query_string', '0');
     $this->assertRaw('@import url("' . $base_url . '/modules/system/system.base.css' . $query_string . '");' . "\n" . '@import url("' . $base_url . '/modules/system/system.base-rtl.css' . $query_string . '");' . "\n", 'CSS: system.base-rtl.css is added directly after system.base.css.');
     $this->assertRaw('@import url("' . $base_url . '/modules/system/system.menus.css' . $query_string . '");' . "\n" . '@import url("' . $base_url . '/modules/system/system.menus-rtl.css' . $query_string . '");' . "\n", 'CSS: system.menus-rtl.css is added directly after system.menus.css.');
     $this->assertRaw('@import url("' . $base_url . '/modules/system/system.messages.css' . $query_string . '");' . "\n" . '@import url("' . $base_url . '/modules/system/system.messages-rtl.css' . $query_string . '");' . "\n", 'CSS: system.messages-rtl.css is added directly after system.messages.css.');

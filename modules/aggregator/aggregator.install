@@ -289,7 +289,7 @@ function aggregator_update_7000() {
  * Add aggregator teaser length to settings from old global default teaser length
  */
 function aggregator_update_7001() {
-  variable_set('aggregator_teaser_length', variable_get('teaser_length'));
+  variable_set('aggregator_teaser_length', $bootstrap->variable_get('teaser_length'));
 }
 
 /**

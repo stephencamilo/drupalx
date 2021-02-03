@@ -149,11 +149,11 @@ function xmlrpc_value_get_xml($xmlrpc_value) {
 function xmlrpc_message($message) {
   $xmlrpc_message = new stdClass();
   // The stack used to keep track of the current array/struct
-  $xmlrpc_message->array_structs = array();
+  $xmlrpc_message->array_structs = [];
   // The stack used to keep track of if things are structs or array
-  $xmlrpc_message->array_structs_types = array();
+  $xmlrpc_message->array_structs_types = [];
   // A stack as well
-  $xmlrpc_message->current_struct_name = array();
+  $xmlrpc_message->current_struct_name = [];
   $xmlrpc_message->message = $message;
   return $xmlrpc_message;
 }
@@ -204,7 +204,7 @@ function xmlrpc_message_parse($xmlrpc_message) {
   try {
     $dom = new DOMDocument();
     @$dom->loadXML($xml);
-    if ($dom->getElementsByTagName('*')->length > variable_get('xmlrpc_message_maximum_tag_count', 30000)) {
+    if ($dom->getElementsByTagName('*')->length > $bootstrap->variable_get('xmlrpc_message_maximum_tag_count', 30000)) {
       return FALSE;
     }
   }
@@ -277,12 +277,12 @@ function xmlrpc_message_tag_open($parser, $tag, $attr) {
     // Deal with stacks of arrays and structs
     case 'data':
       $xmlrpc_message->array_structs_types[] = 'array';
-      $xmlrpc_message->array_structs[] = array();
+      $xmlrpc_message->array_structs[] = [];
       break;
 
     case 'struct':
       $xmlrpc_message->array_structs_types[] = 'struct';
-      $xmlrpc_message->array_structs[] = array();
+      $xmlrpc_message->array_structs[] = [];
       break;
   }
   xmlrpc_message_set($xmlrpc_message);
@@ -577,10 +577,10 @@ function xmlrpc_base64_get_xml($xmlrpc_base64) {
  *   is returned, see xmlrpc_errno() and xmlrpc_error_msg() to get more
  *   information.
  */
-function _xmlrpc($url, $args, $options = array()) {
+function _xmlrpc($url, $args, $options = []) {
   xmlrpc_clear_error();
   if (count($args) > 1) {
-    $multicall_args = array();
+    $multicall_args = [];
     foreach ($args as $method => $call) {
       $multicall_args[] = array('methodName' => $method, 'params' => $call);
     }
@@ -616,7 +616,7 @@ function _xmlrpc($url, $args, $options = array()) {
   // We now know that the message is well-formed and a non-fault result.
   if ($method == 'system.multicall') {
     // Return per-method results or error objects.
-    $return = array();
+    $return = [];
     foreach ($message->params[0] as $result) {
       if (array_keys($result) == array(0)) {
         $return[] = $result[0];

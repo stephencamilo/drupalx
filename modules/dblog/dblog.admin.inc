@@ -20,7 +20,7 @@
  */
 function dblog_overview() {
   $filter = dblog_build_filter_query();
-  $rows = array();
+  $rows = [];
   $classes = array(
     WATCHDOG_DEBUG     => 'dblog-debug',
     WATCHDOG_INFO      => 'dblog-info',
@@ -121,7 +121,7 @@ function dblog_top($type) {
   $query->setCountQuery($count_query);
   $result = $query->execute();
 
-  $rows = array();
+  $rows = [];
   foreach ($result as $dblog) {
     $rows[] = array($dblog->count, theme('dblog_message', array('event' => $dblog)));
   }
@@ -217,9 +217,9 @@ function dblog_build_filter_query() {
   $filters = dblog_filters();
 
   // Build query
-  $where = $args = array();
+  $where = $args = [];
   foreach ($_SESSION['dblog_overview_filter'] as $key => $filter) {
-    $filter_where = array();
+    $filter_where = [];
     foreach ($filter as $value) {
       $filter_where[] = $filters[$key]['where'];
       $args[] = $value;
@@ -248,7 +248,7 @@ function dblog_build_filter_query() {
  *   - options: Array of options for the select list for the filter.
  */
 function dblog_filters() {
-  $filters = array();
+  $filters = [];
 
   foreach (_dblog_get_message_types() as $type) {
     $types[$type] = t($type);
@@ -299,7 +299,7 @@ function theme_dblog_message($variables) {
     // If not, use filter_xss_admin() to allow some tags.
     if ($variables['link'] && isset($event->wid)) {
       // Truncate message to 56 chars after stripping all the tags.
-      $output = truncate_utf8(filter_xss($output, array()), 56, TRUE, TRUE);
+      $output = truncate_utf8(filter_xss($output, []), 56, TRUE, TRUE);
       $output = l($output, 'admin/reports/event/' . $event->wid, array('html' => TRUE));
     }
     else {
@@ -386,7 +386,7 @@ function dblog_filter_form_submit($form, &$form_state) {
       }
       break;
     case t('Reset'):
-      $_SESSION['dblog_overview_filter'] = array();
+      $_SESSION['dblog_overview_filter'] = [];
       break;
   }
   return 'admin/reports/dblog';
@@ -419,7 +419,7 @@ function dblog_clear_log_form($form) {
  * Form submission handler for dblog_clear_log_form().
  */
 function dblog_clear_log_submit() {
-  $_SESSION['dblog_overview_filter'] = array();
+  $_SESSION['dblog_overview_filter'] = [];
   db_truncate('watchdog')->execute();
   drupal_set_message(t('Database log cleared.'));
 }

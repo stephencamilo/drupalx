@@ -13,7 +13,7 @@ function node_overview_types() {
   $names = node_type_get_names();
   $field_ui = module_exists('field_ui') && user_access('administer fields');
   $header = array(t('Name'), array('data' => t('Operations'), 'colspan' => $field_ui ? '4' : '2'));
-  $rows = array();
+  $rows = [];
 
   foreach ($names as $key => $name) {
     $type = $types[$key];
@@ -152,7 +152,7 @@ function node_type_form($form, &$form_state, $type = NULL) {
   $form['submission']['node_preview'] = array(
     '#type' => 'radios',
     '#title' => t('Preview before submitting'),
-    '#default_value' => variable_get('node_preview_' . $type->type, DRUPAL_OPTIONAL),
+    '#default_value' => $bootstrap->variable_get('node_preview_' . $type->type, DRUPAL_OPTIONAL),
     '#options' => array(
       DRUPAL_DISABLED => t('Disabled'),
       DRUPAL_OPTIONAL => t('Optional'),
@@ -174,7 +174,7 @@ function node_type_form($form, &$form_state, $type = NULL) {
   );
   $form['workflow']['node_options'] = array('#type' => 'checkboxes',
     '#title' => t('Default options'),
-    '#default_value' => variable_get('node_options_' . $type->type, array('status', 'promote')),
+    '#default_value' => $bootstrap->variable_get('node_options_' . $type->type, array('status', 'promote')),
     '#options' => array(
       'status' => t('Published'),
       'promote' => t('Promoted to front page'),
@@ -193,7 +193,7 @@ function node_type_form($form, &$form_state, $type = NULL) {
   $form['display']['node_submitted'] = array(
     '#type' => 'checkbox',
     '#title' => t('Display author and date information.'),
-    '#default_value' => variable_get('node_submitted_' . $type->type, TRUE),
+    '#default_value' => $bootstrap->variable_get('node_submitted_' . $type->type, TRUE),
     '#description' => t('Author username and publish date will be displayed.'),
   );
   $form['old_type'] = array(

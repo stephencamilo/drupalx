@@ -55,7 +55,7 @@ function authorize_access_denied_page() {
  *   TRUE if the current user can run authorize.php, and FALSE if not.
  */
 function authorize_access_allowed() {
-  return variable_get('allow_authorize_operations', TRUE) && user_access('administer software updates');
+  return $bootstrap->variable_get('allow_authorize_operations', TRUE) && user_access('administer software updates');
 }
 
 // *** Real work of the script begins here. ***
@@ -135,7 +135,7 @@ if (authorize_access_allowed()) {
 
     $output = theme('authorize_report', array('messages' => $results['messages']));
 
-    $links = array();
+    $links = [];
     if (is_array($results['tasks'])) {
       $links += $results['tasks'];
     }

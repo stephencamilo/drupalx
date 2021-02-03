@@ -71,7 +71,7 @@ foreach ($schema as $table => $data) {
   }
 
   // Prepare the export of values.
-  $result = db_query('SELECT * FROM {'. $table .'}', array(), array('fetch' => PDO::FETCH_ASSOC));
+  $result = db_query('SELECT * FROM {'. $table .'}', [], array('fetch' => PDO::FETCH_ASSOC));
   $insert = '';
   foreach ($result as $record) {
     $insert .= '->values('. drupal_var_export($record) .")\n";

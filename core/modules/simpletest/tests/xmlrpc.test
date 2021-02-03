@@ -28,7 +28,7 @@ class XMLRPCBasicTestCase extends DrupalWebTestCase {
 
     // Invoke XML-RPC call to get list of methods.
     $url = url(NULL, array('absolute' => TRUE)) . 'xmlrpc.php';
-    $methods = xmlrpc($url, array('system.listMethods' => array()));
+    $methods = xmlrpc($url, array('system.listMethods' => []));
 
     // Ensure that the minimum methods were found.
     $count = 0;
@@ -145,7 +145,7 @@ class XMLRPCValidator1IncTestCase extends DrupalWebTestCase {
     $this->assertEqual($l_res_5, $r_res_5);
 
     $size = mt_rand(100, 200);
-    $array_6 = array();
+    $array_6 = [];
     for ($i = 0; $i < $size; $i++) {
       $array_6[] = $this->randomName(mt_rand(8, 12));
     }
@@ -154,7 +154,7 @@ class XMLRPCValidator1IncTestCase extends DrupalWebTestCase {
     $r_res_6 = xmlrpc($xml_url, array('validator1.moderateSizeArrayCheck' => array($array_6)));
     $this->assertIdentical($l_res_6, $r_res_6);
 
-    $struct_7 = array();
+    $struct_7 = [];
     for ($y = 2000; $y < 2002; $y++) {
       for ($m = 3; $m < 5; $m++) {
         for ($d = 1; $d < 6; $d++) {
@@ -178,7 +178,7 @@ class XMLRPCValidator1IncTestCase extends DrupalWebTestCase {
     $this->assertIdentical($l_res_8, $r_res_8);
 
     /* Now test multicall */
-    $x = array();
+    $x = [];
     $x['validator1.arrayOfStructsTest'] = array($array_1);
     $x['validator1.countTheEntities'] = array($string_2);
     $x['validator1.easyStructTest'] = array($struct_3);
@@ -234,11 +234,11 @@ class XMLRPCMessagesTestCase extends DrupalWebTestCase {
     // Ensure xmlrpc_test_xmlrpc_alter() is disabled and retrieve regular list of methods.
     variable_set('xmlrpc_test_xmlrpc_alter', FALSE);
     $url = url(NULL, array('absolute' => TRUE)) . 'xmlrpc.php';
-    $methods1 = xmlrpc($url, array('system.listMethods' => array()));
+    $methods1 = xmlrpc($url, array('system.listMethods' => []));
 
     // Enable the alter hook and retrieve the list of methods again.
     variable_set('xmlrpc_test_xmlrpc_alter', TRUE);
-    $methods2 = xmlrpc($url, array('system.listMethods' => array()));
+    $methods2 = xmlrpc($url, array('system.listMethods' => []));
 
     $diff = array_diff($methods1, $methods2);
     $this->assertTrue(is_array($diff) && !empty($diff), 'Method list is altered by hook_xmlrpc_alter');
@@ -251,7 +251,7 @@ class XMLRPCMessagesTestCase extends DrupalWebTestCase {
    */
   function testMulticallLimit() {
     $url = url(NULL, array('absolute' => TRUE)) . 'xmlrpc.php';
-    $multicall_args = array();
+    $multicall_args = [];
     $num_method_calls = 10;
     for ($i = 0; $i < $num_method_calls; $i++) {
       $struct = array('i' => $i);

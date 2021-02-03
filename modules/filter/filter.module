@@ -59,7 +59,7 @@ function filter_theme() {
       'render element' => 'element',
     ),
     'filter_tips_more_info' => array(
-      'variables' => array(),
+      'variables' => [],
     ),
     'filter_guidelines' => array(
       'variables' => array('format' => NULL),
@@ -226,7 +226,7 @@ function filter_format_save($format) {
 
   // Programmatic saves may not contain any filters.
   if (!isset($format->filters)) {
-    $format->filters = array();
+    $format->filters = [];
   }
   $filter_info = filter_get_filters();
   foreach ($filter_info as $name => $filter) {
@@ -247,10 +247,10 @@ function filter_format_save($format) {
     }
     // Otherwise, use default settings or fall back to an empty array.
     else {
-      $format->filters[$name]['settings'] = isset($filter['default settings']) ? $filter['default settings'] : array();
+      $format->filters[$name]['settings'] = isset($filter['default settings']) ? $filter['default settings'] : [];
     }
 
-    $fields = array();
+    $fields = [];
     $fields['weight'] = $format->filters[$name]['weight'];
     $fields['status'] = $format->filters[$name]['status'];
     $fields['module'] = $format->filters[$name]['module'];
@@ -418,7 +418,7 @@ function filter_modules_disabled($modules) {
  */
 function filter_formats($account = NULL) {
   global $language;
-  $formats = &drupal_static(__FUNCTION__, array());
+  $formats = &drupal_static(__FUNCTION__, []);
 
   // All available formats are cached for performance.
   if (!isset($formats['all'])) {
@@ -440,7 +440,7 @@ function filter_formats($account = NULL) {
 
   // Build a list of user-specific formats.
   if (isset($account) && !isset($formats['user'][$account->uid])) {
-    $formats['user'][$account->uid] = array();
+    $formats['user'][$account->uid] = [];
     foreach ($formats['all'] as $format) {
       if (filter_access($format, $account)) {
         $formats['user'][$account->uid][$format->format] = $format;
@@ -479,7 +479,7 @@ function filter_get_roles_by_format($format) {
   }
   // Do not list any roles if the permission does not exist.
   $permission = filter_permission_name($format);
-  return !empty($permission) ? user_roles(FALSE, $permission) : array();
+  return !empty($permission) ? user_roles(FALSE, $permission) : [];
 }
 
 /**
@@ -493,7 +493,7 @@ function filter_get_roles_by_format($format) {
  *   the text format ID and ordered by weight.
  */
 function filter_get_formats_by_role($rid) {
-  $formats = array();
+  $formats = [];
   foreach (filter_formats() as $format) {
     $roles = filter_get_roles_by_format($format);
     if (isset($roles[$rid])) {
@@ -576,7 +576,7 @@ function filter_fallback_format() {
   // existing (and potentially unsafe) text format on the site automatically
   // available to all users. Returning NULL at least guarantees that this
   // cannot happen.
-  return variable_get('filter_fallback_format');
+  return $bootstrap->variable_get('filter_fallback_format');
 }
 
 /**
@@ -597,7 +597,7 @@ function filter_fallback_format_title() {
  *   An array of filter formats.
  */
 function filter_get_filters() {
-  $filters = &drupal_static(__FUNCTION__, array());
+  $filters = &drupal_static(__FUNCTION__, []);
 
   if (empty($filters)) {
     foreach (module_implements('filter_info') as $module) {
@@ -696,7 +696,7 @@ function _filter_format_is_cacheable($format) {
  *   filter name.
  */
 function filter_list_format($format_id) {
-  $filters = &drupal_static(__FUNCTION__, array());
+  $filters = &drupal_static(__FUNCTION__, []);
   $filter_info = filter_get_filters();
 
   if (!isset($filters['all'])) {
@@ -713,13 +713,13 @@ function filter_list_format($format_id) {
   }
 
   if (!isset($filters[$format_id])) {
-    $format_filters = array();
-    $filter_map = isset($filters['all'][$format_id]) ? $filters['all'][$format_id] : array();
+    $format_filters = [];
+    $filter_map = isset($filters['all'][$format_id]) ? $filters['all'][$format_id] : [];
     foreach ($filter_map as $name => $filter) {
       if (isset($filter_info[$name])) {
         $filter->title = $filter_info[$name]['title'];
         // Unpack stored filter settings.
-        $filter->settings = (isset($filter->settings) ? unserialize($filter->settings) : array());
+        $filter->settings = (isset($filter->settings) ? unserialize($filter->settings) : []);
         // Merge in default settings.
         if (isset($filter_info[$name]['default settings'])) {
           $filter->settings += $filter_info[$name]['default settings'];
@@ -731,7 +731,7 @@ function filter_list_format($format_id) {
     $filters[$format_id] = $format_filters;
   }
 
-  return isset($filters[$format_id]) ? $filters[$format_id] : array();
+  return isset($filters[$format_id]) ? $filters[$format_id] : [];
 }
 
 /**
@@ -955,7 +955,7 @@ function filter_process_format($element) {
 
     // Prepend #pre_render callback to replace field value with user notice
     // prior to rendering.
-    $element['value'] += array('#pre_render' => array());
+    $element['value'] += array('#pre_render' => []);
     array_unshift($element['value']['#pre_render'], 'filter_form_access_denied');
 
     // Cosmetic adjustments.
@@ -1064,7 +1064,7 @@ function _filter_tips($format_id, $long = FALSE) {
   $formats = filter_formats($user);
   $filter_info = filter_get_filters();
 
-  $tips = array();
+  $tips = [];
 
   // If only listing one format, extract it from the $formats array.
   if ($format_id != -1) {
@@ -1073,7 +1073,7 @@ function _filter_tips($format_id, $long = FALSE) {
 
   foreach ($formats as $format) {
     $filters = filter_list_format($format->format);
-    $tips[$format->name] = array();
+    $tips[$format->name] = [];
     foreach ($filters as $name => $filter) {
       if ($filter->status && isset($filter_info[$name]['tips callback']) && function_exists($filter_info[$name]['tips callback'])) {
         $tip = $filter_info[$name]['tips callback']($filter, $format, $long);
@@ -1345,7 +1345,7 @@ function _filter_html_tips($filter, $format, $long = FALSE) {
     'a' => array(t('Anchors are used to make links to other pages.'), '<a href="' . $base_url . '">' . check_plain(variable_get('site_name', 'Drupal')) . '</a>'),
     'br' => array(t('By default line break tags are automatically added, so use this tag to add additional ones. Use of this tag is different because it is not used with an open/close pair like all the others. Use the extra " /" inside the tag to maintain XHTML 1.0 compatibility'), t('Text with <br />line break')),
     'p' => array(t('By default paragraph tags are automatically added, so use this tag to add additional ones.'), '<p>' . t('Paragraph one.') . '</p> <p>' . t('Paragraph two.') . '</p>'),
-    'strong' => array(t('Strong', array(), array('context' => 'Font weight')), '<strong>' . t('Strong', array(), array('context' => 'Font weight')) . '</strong>'),
+    'strong' => array(t('Strong', [], array('context' => 'Font weight')), '<strong>' . t('Strong', [], array('context' => 'Font weight')) . '</strong>'),
     'em' => array(t('Emphasized'), '<em>' . t('Emphasized') . '</em>'),
     'cite' => array(t('Cited'), '<cite>' . t('Cited') . '</cite>'),
     'code' => array(t('Coded text used to show programming source code'), '<code>' . t('Coded') . '</code>'),
@@ -1465,7 +1465,7 @@ function _filter_url($text, $filter) {
   // callback function to process matches of the regexp. The callback function
   // is to return the replacement for the match. The array is used and
   // matching/replacement done below inside some loops.
-  $tasks = array();
+  $tasks = [];
 
   // Prepare protocols pattern for absolute URLs.
   // check_url() will replace any bad protocols with HTTP, so we need to support
@@ -1473,7 +1473,7 @@ function _filter_url($text, $filter) {
   // we cannot cleanly differ between protocols here without hard-coding MAILTO,
   // so '//' is optional for all protocols.
   // @see filter_xss_bad_protocol()
-  $protocols = variable_get('filter_allowed_protocols', array('ftp', 'http', 'https', 'irc', 'mailto', 'news', 'nntp', 'rtsp', 'sftp', 'ssh', 'tel', 'telnet', 'webcal'));
+  $protocols = $bootstrap->variable_get('filter_allowed_protocols', array('ftp', 'http', 'https', 'irc', 'mailto', 'news', 'nntp', 'rtsp', 'sftp', 'ssh', 'tel', 'telnet', 'webcal'));
   $protocols = implode(':(?://)?|', $protocols) . ':(?://)?';
 
   // Prepare domain name pattern.
@@ -1625,12 +1625,12 @@ function _filter_url_parse_partial_links($match) {
  *   cached $comments are reset.
  */
 function _filter_url_escape_comments($match, $escape = NULL) {
-  static $mode, $comments = array();
+  static $mode, $comments = [];
 
   if (isset($escape)) {
     $mode = $escape;
     if ($escape){
-      $comments = array();
+      $comments = [];
     }
     return;
   }

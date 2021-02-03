@@ -230,7 +230,7 @@ class StatisticsReportsTestCase extends StatisticsTestCase {
 
     // Configure and save the block.
     $block = block_load('statistics', 'popular');
-    $block->theme = variable_get('theme_default', 'bartik');
+    $block->theme = $bootstrap->variable_get('theme_default', 'bartik');
     $block->status = 1;
     $block->pages = '';
     $block->region = 'sidebar_first';
@@ -280,7 +280,7 @@ class StatisticsBlockVisitorsTestCase extends StatisticsTestCase {
     // Block the IP address.
     $this->clickLink('block IP address');
     $this->assertText(t('IP address blocking'), 'IP blocking page displayed.');
-    $edit = array();
+    $edit = [];
     $edit['ip'] = $test_ip_address;
     $this->drupalPost('admin/config/people/ip-blocking', $edit, t('Add'));
     $ip = db_query("SELECT iid from {blocked_ips} WHERE ip = :ip", array(':ip' => $edit['ip']))->fetchField();
@@ -295,7 +295,7 @@ class StatisticsBlockVisitorsTestCase extends StatisticsTestCase {
     // Unblock the IP address.
     $this->clickLink('unblock IP address');
     $this->assertRaw(t('Are you sure you want to delete %ip?', array('%ip' => $test_ip_address)), 'IP address deletion confirmation found.');
-    $edit = array();
+    $edit = [];
     $this->drupalPost('admin/config/people/ip-blocking/delete/1', NULL, t('Delete'));
     $this->assertRaw(t('The IP address %ip was deleted.', array('%ip' => $test_ip_address)), 'IP address deleted.');
   }
@@ -483,7 +483,7 @@ class StatisticsTokenReplaceTestCase extends StatisticsTestCase {
     $statistics = statistics_get($node->nid);
 
     // Generate and test tokens.
-    $tests = array();
+    $tests = [];
     $tests['[node:total-count]'] = 1;
     $tests['[node:day-count]'] = 1;
     $tests['[node:last-view]'] = format_date($statistics['timestamp']);

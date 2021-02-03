@@ -9,11 +9,11 @@
  * Implements hook_schema().
  */
 function field_sql_storage_schema() {
-  $schema = array();
+  $schema = [];
 
   // Dynamic (data) tables.
   if (db_table_exists('field_config')) {
-    $fields = field_read_fields(array(), array('include_deleted' => TRUE, 'include_inactive' => TRUE));
+    $fields = field_read_fields([], array('include_deleted' => TRUE, 'include_inactive' => TRUE));
     drupal_load('module', 'field_sql_storage');
     foreach ($fields as $field) {
       if ($field['storage']['type'] == 'field_sql_storage') {
@@ -46,7 +46,7 @@ function _update_7000_field_sql_storage_write($entity_type, $bundle, $entity_id,
     ->condition('revision_id', $revision_id)
     ->execute();
 
-  $columns = array();
+  $columns = [];
   foreach ($data as $langcode => $items) {
     foreach ($items as $delta => $item) {
       $record = array(
@@ -109,7 +109,7 @@ function field_sql_storage_update_7001(&$sandbox) {
 
     // Collect affected tables: field data, field revision data, 'deleted'
     // tables.
-    $sandbox['tables'] = array();
+    $sandbox['tables'] = [];
     $results = db_select('field_config', 'fc', array('fetch' => PDO::FETCH_ASSOC))
       ->fields('fc')
       ->condition('storage_module', 'field_sql_storage')

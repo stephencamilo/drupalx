@@ -223,10 +223,10 @@ function overlay_library() {
     'website' => 'http://drupal.org/documentation/modules/overlay',
     'version' => '1.0',
     'js' => array(
-      $module_path . '/overlay-parent.js' => array(),
+      $module_path . '/overlay-parent.js' => [],
     ),
     'css' => array(
-      $module_path . '/overlay-parent.css' => array(),
+      $module_path . '/overlay-parent.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui'),
@@ -239,10 +239,10 @@ function overlay_library() {
     'website' => 'http://drupal.org/documentation/modules/overlay',
     'version' => '1.0',
     'js' => array(
-      $module_path . '/overlay-child.js' => array(),
+      $module_path . '/overlay-child.js' => [],
     ),
     'css' => array(
-      $module_path . '/overlay-child.css' => array(),
+      $module_path . '/overlay-child.css' => [],
     ),
   );
 
@@ -392,14 +392,14 @@ function overlay_disable_message() {
             'id' => 'overlay-dismiss-message',
             // If this message is being displayed outside the overlay, prevent
             // this link from opening the overlay.
-            'class' => (overlay_get_mode() == 'parent') ? array('overlay-exclude') : array(),
+            'class' => (overlay_get_mode() == 'parent') ? array('overlay-exclude') : [],
           ),
         ),
       )
     );
   }
   else {
-    $build = array();
+    $build = [];
   }
 
   return $build;
@@ -672,16 +672,16 @@ function overlay_overlay_parent_initialize() {
   // Let the client side know which paths are administrative.
   $paths = path_get_admin_paths();
   foreach ($paths as &$type) {
-    $type = str_replace('<front>', variable_get('site_frontpage', 'node'), $type);
+    $type = str_replace('<front>', $bootstrap->variable_get('site_frontpage', 'node'), $type);
   }
   drupal_add_js(array('overlay' => array('paths' => $paths)), 'setting');
-  $path_prefixes = array();
-  if (module_exists('locale') && variable_get('locale_language_negotiation_url_part', LOCALE_LANGUAGE_NEGOTIATION_URL_PREFIX) == LOCALE_LANGUAGE_NEGOTIATION_URL_PREFIX) {
+  $path_prefixes = [];
+  if (module_exists('locale') && $bootstrap->variable_get('locale_language_negotiation_url_part', LOCALE_LANGUAGE_NEGOTIATION_URL_PREFIX) == LOCALE_LANGUAGE_NEGOTIATION_URL_PREFIX) {
     // Get languages grouped by status and select only the enabled ones.
     $languages = language_list('enabled');
     $languages = $languages[1];
 
-    $path_prefixes = array();
+    $path_prefixes = [];
     foreach ($languages as $language) {
       if ($language->prefix) {
         $path_prefixes[] = $language->prefix;
@@ -733,7 +733,7 @@ function overlay_overlay_child_initialize() {
  *   (optional) An associative array of options to use when generating the
  *   redirect URL.
  */
-function overlay_close_dialog($redirect = NULL, $redirect_options = array()) {
+function overlay_close_dialog($redirect = NULL, $redirect_options = []) {
   $settings = array(
     'overlayChild' => array(
       'closeOverlay' => TRUE,
@@ -813,7 +813,7 @@ function _overlay_region_list($type) {
   $theme = $themes[$GLOBALS['theme']];
   // Return the list of regions stored within the theme's info array, or an
   // empty array if no regions of the appropriate type are defined.
-  return !empty($theme->info[$type]) ? $theme->info[$type] : array();
+  return !empty($theme->info[$type]) ? $theme->info[$type] : [];
 }
 
 /**
@@ -851,7 +851,7 @@ function overlay_get_regions_to_render() {
  * @see overlay_get_regions_to_render()
  */
 function overlay_set_regions_to_render($regions = NULL) {
-  $regions_to_render = &drupal_static(__FUNCTION__, array());
+  $regions_to_render = &drupal_static(__FUNCTION__, []);
   if (isset($regions)) {
     $regions_to_render = $regions;
   }
@@ -889,7 +889,7 @@ function overlay_render_region($region) {
   $page = array(
     '#type' => 'page',
     '#theme' => NULL,
-    '#theme_wrappers' => array(),
+    '#theme_wrappers' => [],
   );
   // Render the region, but do not cache any JavaScript or CSS associated with
   // it. This region might not be included the next time drupal_render_page()
@@ -911,7 +911,7 @@ function overlay_render_region($region) {
   $system_main_content_added = FALSE;
   // Restore the original behavior of rendering all regions for the next time
   // drupal_render_page() is called.
-  overlay_set_regions_to_render(array());
+  overlay_set_regions_to_render([]);
   return $markup;
 }
 
@@ -950,7 +950,7 @@ function overlay_get_rendered_content() {
  * @see overlay_get_rendered_content()
  */
 function overlay_store_rendered_content($id = NULL, $content = NULL) {
-  $rendered_content = &drupal_static(__FUNCTION__, array());
+  $rendered_content = &drupal_static(__FUNCTION__, []);
   if (isset($id)) {
     $rendered_content[$id] = $content;
   }

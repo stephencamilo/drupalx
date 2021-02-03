@@ -88,10 +88,10 @@ function theme_simpletest_test_table($variables) {
   );
 
   // Cycle through each test group and create a row.
-  $rows = array();
+  $rows = [];
   foreach (element_children($table) as $key) {
     $element = &$table[$key];
-    $row = array();
+    $row = [];
 
     // Make the class name safe for output on the page by replacing all
     // non-word/decimal characters with a dash (-).
@@ -122,7 +122,7 @@ function theme_simpletest_test_table($variables) {
     // Add individual tests to group.
     $current_js = array(
       'testClass' => $test_class . '-test',
-      'testNames' => array(),
+      'testNames' => [],
       'imageDirection' => $image_index,
       'clickActive' => FALSE,
     );
@@ -133,7 +133,7 @@ function theme_simpletest_test_table($variables) {
     // Cycle through each test within the current group.
     foreach (element_children($element) as $test_name) {
       $test = $element[$test_name];
-      $row = array();
+      $row = [];
 
       $current_js['testNames'][] = $test['#id'];
 
@@ -183,7 +183,7 @@ function theme_simpletest_test_table($variables) {
 function simpletest_test_form_submit($form, &$form_state) {
   simpletest_classloader_register();
   // Get list of tests.
-  $tests_list = array();
+  $tests_list = [];
   foreach ($form_state['values'] as $class_name => $value) {
     // Since class_exists() will likely trigger an autoload lookup,
     // we do the fast check first.
@@ -205,7 +205,7 @@ function simpletest_test_form_submit($form, &$form_state) {
  */
 function simpletest_result_form($form, &$form_state, $test_id) {
   // Make sure there are test results to display and a re-run is not being performed.
-  $results = array();
+  $results = [];
   if (is_numeric($test_id) && !$results = simpletest_result_get($test_id)) {
     drupal_set_message(t('No test results to display.'), 'error');
     drupal_goto('admin/config/development/testing');
@@ -217,8 +217,8 @@ function simpletest_result_form($form, &$form_state, $test_id) {
 
   // Keep track of which test cases passed or failed.
   $filter = array(
-    'pass' => array(),
-    'fail' => array(),
+    'pass' => [],
+    'fail' => [],
   );
 
   // Summary result fieldset.
@@ -238,7 +238,7 @@ function simpletest_result_form($form, &$form_state, $test_id) {
 
   // Cycle through each test group.
   $header = array(t('Message'), t('Group'), t('Filename'), t('Line'), t('Function'), array('colspan' => 2, 'data' => t('Status')));
-  $form['result']['results'] = array();
+  $form['result']['results'] = [];
   foreach ($results as $group => $assertions) {
     // Create group fieldset with summary information.
     $info = call_user_func(array($group, 'getInfo'));
@@ -252,9 +252,9 @@ function simpletest_result_form($form, &$form_state, $test_id) {
     $group_summary = &$form['result']['results'][$group]['summary'];
 
     // Create table of assertions for the group.
-    $rows = array();
+    $rows = [];
     foreach ($assertions as $assertion) {
-      $row = array();
+      $row = [];
       $row[] = $assertion->message;
       $row[] = $assertion->message_group;
       $row[] = drupal_basename($assertion->file);
@@ -340,8 +340,8 @@ function simpletest_result_form($form, &$form_state, $test_id) {
  * Re-run the tests that match the filter.
  */
 function simpletest_result_form_submit($form, &$form_state) {
-  $pass = $form_state['values']['filter_pass'] ? explode(',', $form_state['values']['filter_pass']) : array();
-  $fail = $form_state['values']['filter_fail'] ? explode(',', $form_state['values']['filter_fail']) : array();
+  $pass = $form_state['values']['filter_pass'] ? explode(',', $form_state['values']['filter_pass']) : [];
+  $fail = $form_state['values']['filter_fail'] ? explode(',', $form_state['values']['filter_fail']) : [];
 
   if ($form_state['values']['filter'] == 'all') {
     $classes = array_merge($pass, $fail);
@@ -358,12 +358,12 @@ function simpletest_result_form_submit($form, &$form_state) {
     return;
   }
 
-  $form_state_execute = array('values' => array());
+  $form_state_execute = array('values' => []);
   foreach ($classes as $class) {
     $form_state_execute['values'][$class] = 1;
   }
 
-  simpletest_test_form_submit(array(), $form_state_execute);
+  simpletest_test_form_submit([], $form_state_execute);
   $form_state['redirect'] = $form_state_execute['redirect'];
 }
 
@@ -395,10 +395,10 @@ function simpletest_result_get($test_id) {
     ->orderBy('message_id')
     ->execute();
 
-  $test_results = array();
+  $test_results = [];
   foreach ($results as $result) {
     if (!isset($test_results[$result->test_class])) {
-      $test_results[$result->test_class] = array();
+      $test_results[$result->test_class] = [];
     }
     $test_results[$result->test_class][] = $result;
   }
@@ -444,13 +444,13 @@ function simpletest_settings_form($form, &$form_state) {
     '#type' => 'checkbox',
     '#title' => t('Clear results after each complete test suite run'),
     '#description' => t('By default SimpleTest will clear the results after they have been viewed on the results page, but in some cases it may be useful to leave the results in the database. The results can then be viewed at <em>admin/config/development/testing/[test_id]</em>. The test ID can be found in the database, simpletest table, or kept track of when viewing the results the first time. Additionally, some modules may provide more analysis or features that require this setting to be disabled.'),
-    '#default_value' => variable_get('simpletest_clear_results', TRUE),
+    '#default_value' => $bootstrap->variable_get('simpletest_clear_results', TRUE),
   );
   $form['general']['simpletest_verbose'] = array(
     '#type' => 'checkbox',
     '#title' => t('Provide verbose information when running tests'),
     '#description' => t('The verbose data will be printed along with the standard assertions and is useful for debugging. The verbose data will be erased between each test suite run. The verbose data output is very detailed and should only be used when debugging.'),
-    '#default_value' => variable_get('simpletest_verbose', TRUE),
+    '#default_value' => $bootstrap->variable_get('simpletest_verbose', TRUE),
   );
 
   $form['httpauth'] = array(
@@ -471,10 +471,10 @@ function simpletest_settings_form($form, &$form_state) {
       CURLAUTH_ANY => t('Any'),
       CURLAUTH_ANYSAFE => t('Any safe'),
     ),
-    '#default_value' => variable_get('simpletest_httpauth_method', CURLAUTH_BASIC),
+    '#default_value' => $bootstrap->variable_get('simpletest_httpauth_method', CURLAUTH_BASIC),
   );
-  $username = variable_get('simpletest_httpauth_username');
-  $password = variable_get('simpletest_httpauth_password');
+  $username = $bootstrap->variable_get('simpletest_httpauth_username');
+  $password = $bootstrap->variable_get('simpletest_httpauth_password');
   $form['httpauth']['simpletest_httpauth_username'] = array(
     '#type' => 'textfield',
     '#title' => t('Username'),
@@ -501,7 +501,7 @@ function simpletest_settings_form_validate($form, &$form_state) {
   // If a username was provided but a password wasn't, preserve the existing
   // password.
   if (!empty($form_state['values']['simpletest_httpauth_username']) && empty($form_state['values']['simpletest_httpauth_password'])) {
-    $form_state['values']['simpletest_httpauth_password'] = variable_get('simpletest_httpauth_password', '');
+    $form_state['values']['simpletest_httpauth_password'] = $bootstrap->variable_get('simpletest_httpauth_password', '');
   }
 
   // If a password was provided but a username wasn't, the credentials are

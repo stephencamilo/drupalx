@@ -113,11 +113,11 @@ $info = array(
   ),
 
   // Color areas to fill (x, y, width, height).
-  'fill' => array(),
+  'fill' => [],
 
   // Coordinates of all the theme slices (x, y, width, height)
   // with their filename as used in the stylesheet.
-  'slices' => array(),
+  'slices' => [],
 
   // Reference color used for blending. Matches the base.png's colors.
   'blend_target' => '#ffffff',

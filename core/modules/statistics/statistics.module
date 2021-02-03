@@ -114,7 +114,7 @@ function statistics_permission() {
  */
 function statistics_node_view($node, $view_mode) {
   // Attach Ajax node count statistics if configured.
-  if (variable_get('statistics_count_content_views', 0) && variable_get('statistics_count_content_views_ajax', 0)) {
+  if (variable_get('statistics_count_content_views', 0) && $bootstrap->variable_get('statistics_count_content_views_ajax', 0)) {
     if (!empty($node->nid) && $view_mode == 'full' && node_is_page($node) && empty($node->in_preview)) {
       $statistics = drupal_get_path('module', 'statistics') . '/statistics.js';
       $node->content['#attached']['js'][$statistics] = array(
@@ -243,7 +243,7 @@ function statistics_user_delete($account) {
  * Implements hook_cron().
  */
 function statistics_cron() {
-  $statistics_timestamp = variable_get('statistics_day_timestamp', 0);
+  $statistics_timestamp = $bootstrap->variable_get('statistics_day_timestamp', 0);
 
   if ((REQUEST_TIME - $statistics_timestamp) >= 86400) {
     // Reset day counts.
@@ -256,7 +256,7 @@ function statistics_cron() {
   // Clean up expired access logs (if applicable).
   if (variable_get('statistics_flush_accesslog_timer', 259200) > 0) {
     db_delete('accesslog')
-      ->condition('timestamp', REQUEST_TIME - variable_get('statistics_flush_accesslog_timer', 259200), '<')
+      ->condition('timestamp', REQUEST_TIME - $bootstrap->variable_get('statistics_flush_accesslog_timer', 259200), '<')
       ->execute();
   }
 }
@@ -323,7 +323,7 @@ function statistics_get($nid) {
  * Implements hook_block_info().
  */
 function statistics_block_info() {
-  $blocks = array();
+  $blocks = [];
 
   if (variable_get('statistics_count_content_views', 0)) {
     $blocks['popular']['info'] = t('Popular content');
@@ -339,16 +339,16 @@ function statistics_block_info() {
 function statistics_block_configure($delta = '') {
   // Popular content block settings
   $numbers = array('0' => t('Disabled')) + drupal_map_assoc(array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 40));
-  $form['statistics_block_top_day_num'] = array('#type' => 'select', '#title' => t("Number of day's top views to display"), '#default_value' => variable_get('statistics_block_top_day_num', 0), '#options' => $numbers, '#description' => t('How many content items to display in "day" list.'));
-  $form['statistics_block_top_all_num'] = array('#type' => 'select', '#title' => t('Number of all time views to display'), '#default_value' => variable_get('statistics_block_top_all_num', 0), '#options' => $numbers, '#description' => t('How many content items to display in "all time" list.'));
-  $form['statistics_block_top_last_num'] = array('#type' => 'select', '#title' => t('Number of most recent views to display'), '#default_value' => variable_get('statistics_block_top_last_num', 0), '#options' => $numbers, '#description' => t('How many content items to display in "recently viewed" list.'));
+  $form['statistics_block_top_day_num'] = array('#type' => 'select', '#title' => t("Number of day's top views to display"), '#default_value' => $bootstrap->variable_get('statistics_block_top_day_num', 0), '#options' => $numbers, '#description' => t('How many content items to display in "day" list.'));
+  $form['statistics_block_top_all_num'] = array('#type' => 'select', '#title' => t('Number of all time views to display'), '#default_value' => $bootstrap->variable_get('statistics_block_top_all_num', 0), '#options' => $numbers, '#description' => t('How many content items to display in "all time" list.'));
+  $form['statistics_block_top_last_num'] = array('#type' => 'select', '#title' => t('Number of most recent views to display'), '#default_value' => $bootstrap->variable_get('statistics_block_top_last_num', 0), '#options' => $numbers, '#description' => t('How many content items to display in "recently viewed" list.'));
   return $form;
 }
 
 /**
  * Implements hook_block_save().
  */
-function statistics_block_save($delta = '', $edit = array()) {
+function statistics_block_save($delta = '', $edit = []) {
   variable_set('statistics_block_top_day_num', $edit['statistics_block_top_day_num']);
   variable_set('statistics_block_top_all_num', $edit['statistics_block_top_all_num']);
   variable_set('statistics_block_top_last_num', $edit['statistics_block_top_last_num']);
@@ -359,21 +359,21 @@ function statistics_block_save($delta = '', $edit = array()) {
  */
 function statistics_block_view($delta = '') {
   if (user_access('access content')) {
-    $content = array();
+    $content = [];
 
-    $daytop = variable_get('statistics_block_top_day_num', 0);
+    $daytop = $bootstrap->variable_get('statistics_block_top_day_num', 0);
     if ($daytop && ($result = statistics_title_list('daycount', $daytop)) && ($node_title_list = node_title_list($result, t("Today's:")))) {
       $content['top_day'] = $node_title_list;
       $content['top_day']['#suffix'] = '<br />';
     }
 
-    $alltimetop = variable_get('statistics_block_top_all_num', 0);
+    $alltimetop = $bootstrap->variable_get('statistics_block_top_all_num', 0);
     if ($alltimetop && ($result = statistics_title_list('totalcount', $alltimetop)) && ($node_title_list = node_title_list($result, t('All time:')))) {
       $content['top_all'] = $node_title_list;
       $content['top_all']['#suffix'] = '<br />';
     }
 
-    $lasttop = variable_get('statistics_block_top_last_num', 0);
+    $lasttop = $bootstrap->variable_get('statistics_block_top_last_num', 0);
     if ($lasttop && ($result = statistics_title_list('timestamp', $lasttop)) && ($node_title_list = node_title_list($result, t('Last viewed:')))) {
       $content['top_last'] = $node_title_list;
       $content['top_last']['#suffix'] = '<br />';
@@ -448,7 +448,7 @@ function statistics_ranking() {
         ),
         // Inverse law that maps the highest view count on the site to 1 and 0 to 0.
         'score' => '2.0 - 2.0 / (1.0 + node_counter.totalcount * CAST(:scale AS DECIMAL))',
-        'arguments' => array(':scale' => variable_get('node_cron_views_scale', 0)),
+        'arguments' => array(':scale' => $bootstrap->variable_get('node_cron_views_scale', 0)),
       ),
     );
   }

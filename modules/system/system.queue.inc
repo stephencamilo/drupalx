@@ -81,13 +81,13 @@ class DrupalQueue {
   public static function get($name, $reliable = FALSE) {
     static $queues;
     if (!isset($queues[$name])) {
-      $class = variable_get('queue_class_' . $name, NULL);
+      $class = $bootstrap->variable_get('queue_class_' . $name, NULL);
       if (!$class) {
-        $class = variable_get('queue_default_class', 'SystemQueue');
+        $class = $bootstrap->variable_get('queue_default_class', 'SystemQueue');
       }
       $object = new $class($name);
       if ($reliable && !$object instanceof DrupalReliableQueueInterface) {
-        $class = variable_get('queue_default_reliable_class', 'SystemQueue');
+        $class = $bootstrap->variable_get('queue_default_reliable_class', 'SystemQueue');
         $object = new $class($name);
       }
       $queues[$name] = $object;
@@ -315,7 +315,7 @@ class MemoryQueue implements DrupalQueueInterface {
    *   Arbitrary string. The name of the queue to work with.
    */
   public function __construct($name) {
-    $this->queue = array();
+    $this->queue = [];
     $this->id_sequence = 0;
   }
 
@@ -361,7 +361,7 @@ class MemoryQueue implements DrupalQueueInterface {
   }
 
   public function deleteQueue() {
-    $this->queue = array();
+    $this->queue = [];
     $this->id_sequence = 0;
   }
 }

@@ -102,7 +102,7 @@ function comment_token_info() {
 /**
  * Implements hook_tokens().
  */
-function comment_tokens($type, $tokens, array $data = array(), array $options = array()) {
+function comment_tokens($type, $tokens, array $data = [], array $options = []) {
   $url_options = array('absolute' => TRUE);
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
@@ -113,7 +113,7 @@ function comment_tokens($type, $tokens, array $data = array(), array $options = 
   }
   $sanitize = !empty($options['sanitize']);
 
-  $replacements = array();
+  $replacements = [];
 
   if ($type == 'comment' && !empty($data['comment'])) {
     $comment = $data['comment'];
@@ -131,7 +131,7 @@ function comment_tokens($type, $tokens, array $data = array(), array $options = 
           break;
 
         case 'name':
-          $name = ($comment->uid == 0) ? variable_get('anonymous', t('Anonymous')) : $comment->name;
+          $name = ($comment->uid == 0) ? $bootstrap->variable_get('anonymous', t('Anonymous')) : $comment->name;
           $replacements[$original] = $sanitize ? filter_xss($name) : $name;
           break;
 

@@ -72,7 +72,7 @@ function contact_install() {
   db_insert('contact')
     ->fields(array(
       'category' => 'Website feedback',
-      'recipients' => variable_get('site_mail', ini_get('sendmail_from')),
+      'recipients' => $bootstrap->variable_get('site_mail', ini_get('sendmail_from')),
       'selected' => 1,
       'reply' => '',
     ))
@@ -116,7 +116,7 @@ function contact_update_dependencies() {
  * Rename the threshold limit variable.
  */
 function contact_update_7000() {
-  variable_set('contact_threshold_limit', variable_get('contact_hourly_threshold', 5));
+  variable_set('contact_threshold_limit', $bootstrap->variable_get('contact_hourly_threshold', 5));
   variable_del('contact_hourly_threshold');
 }
 

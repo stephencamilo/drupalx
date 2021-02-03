@@ -60,7 +60,7 @@ function hook_options_list($field, $instance, $entity_type, $entity) {
 
   // In actual implementations, the array of options will most probably depend
   // on properties of the field. Example from taxonomy.module:
-  $options = array();
+  $options = [];
   foreach ($field['settings']['allowed_values'] as $tree) {
     $terms = taxonomy_get_tree($tree['vid'], $tree['parent']);
     if ($terms) {

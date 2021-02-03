@@ -28,7 +28,7 @@ class SyslogTestCase extends DrupalWebTestCase {
     $admin_user = $this->drupalCreateUser(array('administer site configuration'));
     $this->drupalLogin($admin_user);
 
-    $edit = array();
+    $edit = [];
     // If we're on Windows, there is no configuration form.
     if (defined('LOG_LOCAL6')) {
       $this->drupalPost('admin/config/development/logging', array('syslog_facility' => LOG_LOCAL6), t('Save configuration'));

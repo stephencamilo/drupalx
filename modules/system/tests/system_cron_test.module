@@ -11,5 +11,5 @@
 function system_cron_test_flush_caches() {
   // Set a variable to indicate that this hook was invoked.
   variable_set('system_cron_test_flush_caches', 1);
-  return array();
+  return [];
 }

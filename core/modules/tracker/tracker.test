@@ -254,8 +254,8 @@ class TrackerTest extends DrupalWebTestCase {
     $this->drupalLogin($this->user);
 
     // Create 3 nodes.
-    $edits = array();
-    $nodes = array();
+    $edits = [];
+    $nodes = [];
     for ($i = 1; $i <= 3; $i++) {
       $edits[$i] = array(
         'comment' => 2,

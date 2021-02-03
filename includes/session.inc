@@ -109,7 +109,7 @@ function _drupal_session_read($sid) {
     $user->data = unserialize($user->data);
 
     // Add roles element to $user.
-    $user->roles = array();
+    $user->roles = [];
     $user->roles[DRUPAL_AUTHENTICATED_RID] = 'authenticated user';
     $user->roles += db_query("SELECT r.rid, r.name FROM {role} r INNER JOIN {users_roles} ur ON ur.rid = r.rid WHERE ur.uid = :uid", array(':uid' => $user->uid))->fetchAllKeyed(0, 1);
   }
@@ -172,7 +172,7 @@ function _drupal_session_write($sid, $value) {
 
     // For performance reasons, do not update the sessions table, unless
     // $_SESSION has changed or more than 180 has passed since the last update.
-    if ($is_changed || !isset($user->timestamp) || REQUEST_TIME - $user->timestamp > variable_get('session_write_interval', 180)) {
+    if ($is_changed || !isset($user->timestamp) || REQUEST_TIME - $user->timestamp > $bootstrap->variable_get('session_write_interval', 180)) {
       // Either ssid or sid or both will be added from $key below.
       $fields = array(
         'uid' => $user->uid,
@@ -210,7 +210,7 @@ function _drupal_session_write($sid, $value) {
     }
 
     // Likewise, do not update access time more than once per 180 seconds.
-    if ($user->uid && REQUEST_TIME - $user->access > variable_get('session_write_interval', 180)) {
+    if ($user->uid && REQUEST_TIME - $user->access > $bootstrap->variable_get('session_write_interval', 180)) {
       db_update('users')
         ->fields(array(
           'access' => REQUEST_TIME
@@ -243,7 +243,7 @@ function drupal_session_initialize() {
 
   // We use !empty() in the following check to ensure that blank session IDs
   // are not valid.
-  if (!empty($_COOKIE[session_name()]) || ($is_https && variable_get('https', FALSE) && !empty($_COOKIE[substr(session_name(), 1)]))) {
+  if (!empty($_COOKIE[session_name()]) || ($is_https && $bootstrap->variable_get('https', FALSE) && !empty($_COOKIE[substr(session_name(), 1)]))) {
     // If a session cookie exists, initialize the session. Otherwise the
     // session is only started on demand in drupal_session_commit(), making
     // anonymous users not use a session cookie unless something is stored in
@@ -264,7 +264,7 @@ function drupal_session_initialize() {
     // anonymous users than are generated in drupal_session_regenerate() when
     // a user becomes authenticated.
     session_id(drupal_random_key());
-    if ($is_https && variable_get('https', FALSE)) {
+    if ($is_https && $bootstrap->variable_get('https', FALSE)) {
       $insecure_session_name = substr(session_name(), 1);
       $session_id = drupal_random_key();
       $_COOKIE[$insecure_session_name] = $session_id;
@@ -319,7 +319,7 @@ function drupal_session_commit() {
     // started.
     if (!drupal_session_started()) {
       drupal_session_start();
-      if ($is_https && variable_get('https', FALSE)) {
+      if ($is_https && $bootstrap->variable_get('https', FALSE)) {
         $insecure_session_name = substr(session_name(), 1);
         $params = session_get_cookie_params();
         $expire = $params['lifetime'] ? REQUEST_TIME + $params['lifetime'] : 0;
@@ -354,7 +354,7 @@ function drupal_session_regenerate() {
     return;
   }
 
-  if ($is_https && variable_get('https', FALSE)) {
+  if ($is_https && $bootstrap->variable_get('https', FALSE)) {
     $insecure_session_name = substr(session_name(), 1);
     if (!isset($GLOBALS['lazy_session']) && isset($_COOKIE[$insecure_session_name])) {
       $old_insecure_session_id = $_COOKIE[$insecure_session_name];
@@ -458,7 +458,7 @@ function _drupal_session_destroy($sid) {
 
   // Reset $_SESSION and $user to prevent a new session from being started
   // in drupal_session_commit().
-  $_SESSION = array();
+  $_SESSION = [];
   $user = drupal_anonymous_user();
 
   // Unset the session cookies.

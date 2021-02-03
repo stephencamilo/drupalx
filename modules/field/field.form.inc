@@ -48,9 +48,9 @@ function field_default_form($entity_type, $entity, $field, $instance, $langcode,
 
   $parents = $form['#parents'];
 
-  $addition = array();
+  $addition = [];
   $field_name = $field['field_name'];
-  $addition[$field_name] = array();
+  $addition[$field_name] = [];
 
   // Populate widgets with default values when creating a new entity.
   if (empty($items) && empty($id)) {
@@ -67,7 +67,7 @@ function field_default_form($entity_type, $entity, $field, $instance, $langcode,
   drupal_alter(array('field_widget_properties', 'field_widget_properties_' . $entity_type), $instance['widget'], $context);
 
   // Collect widget elements.
-  $elements = array();
+  $elements = [];
 
   // Store field information in $form_state.
   if (!field_form_get_state($parents, $field_name, $langcode, $form_state)) {
@@ -75,8 +75,8 @@ function field_default_form($entity_type, $entity, $field, $instance, $langcode,
       'field' => $field,
       'instance' => $instance,
       'items_count' => count($items),
-      'array_parents' => array(),
-      'errors' => array(),
+      'array_parents' => [],
+      'errors' => [],
     );
     field_form_set_state($parents, $field_name, $langcode, $form_state, $field_state);
   }
@@ -199,7 +199,7 @@ function field_multiple_value_form($field, $instance, $langcode, $items, &$form,
   $id_prefix = implode('-', array_merge($parents, array($field_name)));
   $wrapper_id = drupal_html_id($id_prefix . '-add-more-wrapper');
 
-  $field_elements = array();
+  $field_elements = [];
 
   $function = $instance['widget']['module'] . '_field_widget_form';
   if (function_exists($function)) {
@@ -315,11 +315,11 @@ function theme_field_multiple_value_form($variables) {
       ),
       t('Order'),
     );
-    $rows = array();
+    $rows = [];
 
     // Sort items according to '_weight' (needed when the form comes back after
     // preview or failed validation)
-    $items = array();
+    $items = [];
     foreach (element_children($element) as $key) {
       if ($key === 'add_more') {
         $add_more_button = &$element[$key];
@@ -414,7 +414,7 @@ function field_default_form_errors($entity_type, $entity, $field, $instance, $la
         }
       }
       // Reinitialize the errors list for the next submit.
-      $field_state['errors'] = array();
+      $field_state['errors'] = [];
       field_form_set_state($form['#parents'], $field['field_name'], $langcode, $form_state, $field_state);
     }
   }
@@ -546,7 +546,7 @@ function _field_form_state_parents($parents, $field_name, $langcode) {
     $form_state_parents = array_merge(array('#parents'), $parents, array('#fields'));
   }
   else {
-    $form_state_parents = array();
+    $form_state_parents = [];
   }
   $form_state_parents = array_merge(array('field'), $form_state_parents, array($field_name, $langcode));
 

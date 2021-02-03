@@ -95,12 +95,12 @@ function field_create_field($field) {
   }
 
   $field += array(
-    'entity_types' => array(),
+    'entity_types' => [],
     'cardinality' => 1,
     'translatable' => FALSE,
     'locked' => FALSE,
-    'settings' => array(),
-    'storage' => array(),
+    'settings' => [],
+    'storage' => [],
     'deleted' => 0,
   );
 
@@ -117,8 +117,8 @@ function field_create_field($field) {
 
   // Provide default storage.
   $field['storage'] += array(
-    'type' => variable_get('field_storage_default', 'field_sql_storage'),
-    'settings' => array(),
+    'type' => $bootstrap->variable_get('field_storage_default', 'field_sql_storage'),
+    'settings' => [],
   );
   // Check that the storage type is known.
   $storage_type = field_info_storage_types($field['storage']['type']);
@@ -132,7 +132,7 @@ function field_create_field($field) {
   // Collect storage information.
   module_load_install($field['module']);
   $schema = (array) module_invoke($field['module'], 'field_schema', $field);
-  $schema += array('columns' => array(), 'indexes' => array(), 'foreign keys' => array());
+  $schema += array('columns' => [], 'indexes' => [], 'foreign keys' => []);
   // 'columns' are hardcoded in the field type.
   $field['columns'] = $schema['columns'];
   // 'foreign keys' are hardcoded in the field type.
@@ -140,7 +140,7 @@ function field_create_field($field) {
   // 'indexes' can be both hardcoded in the field type, and specified in the
   // incoming $field definition.
   $field += array(
-    'indexes' => array(),
+    'indexes' => [],
   );
   $field['indexes'] += $schema['indexes'];
 
@@ -244,7 +244,7 @@ function field_update_field($field) {
   // $prior_field may no longer be right.
   module_load_install($field['module']);
   $schema = (array) module_invoke($field['module'], 'field_schema', $field);
-  $schema += array('columns' => array(), 'indexes' => array(), 'foreign keys' => array());
+  $schema += array('columns' => [], 'indexes' => [], 'foreign keys' => []);
   // 'columns' are hardcoded in the field type.
   $field['columns'] = $schema['columns'];
   // 'foreign keys' are hardcoded in the field type.
@@ -252,7 +252,7 @@ function field_update_field($field) {
   // 'indexes' can be both hardcoded in the field type, and specified in the
   // incoming $field definition.
   $field += array(
-    'indexes' => array(),
+    'indexes' => [],
   );
   $field['indexes'] += $schema['indexes'];
 
@@ -312,7 +312,7 @@ function field_update_field($field) {
  * @return
  *   A field definition array, or FALSE.
  */
-function field_read_field($field_name, $include_additional = array()) {
+function field_read_field($field_name, $include_additional = []) {
   $fields = field_read_fields(array('field_name' => $field_name), $include_additional);
   return $fields ? current($fields) : FALSE;
 }
@@ -337,7 +337,7 @@ function field_read_field($field_name, $include_additional = array()) {
  *   $include_additional['include_deleted'] is TRUE, the array is keyed
  *   by field id, otherwise it is keyed by field name.
  */
-function field_read_fields($params = array(), $include_additional = array()) {
+function field_read_fields($params = [], $include_additional = []) {
   $query = db_select('field_config', 'fc', array('fetch' => PDO::FETCH_ASSOC));
   $query->fields('fc');
 
@@ -368,7 +368,7 @@ function field_read_fields($params = array(), $include_additional = array()) {
     $query->condition('fc.deleted', 0);
   }
 
-  $fields = array();
+  $fields = [];
   $results = $query->execute();
   foreach ($results as $record) {
     $field = unserialize($record['data']);
@@ -390,7 +390,7 @@ function field_read_fields($params = array(), $include_additional = array()) {
     // Populate storage information.
     module_load_install($field['module']);
     $schema = (array) module_invoke($field['module'], 'field_schema', $field);
-    $schema += array('columns' => array(), 'indexes' => array());
+    $schema += array('columns' => [], 'indexes' => []);
     $field['columns'] = $schema['columns'];
 
     $field_name = $field['field_name'];
@@ -589,9 +589,9 @@ function _field_write_instance($instance, $update = FALSE) {
 
   // Set defaults.
   $instance += array(
-    'settings' => array(),
-    'display' => array(),
-    'widget' => array(),
+    'settings' => [],
+    'display' => [],
+    'widget' => [],
     'required' => FALSE,
     'label' => $instance['field_name'],
     'description' => '',
@@ -605,7 +605,7 @@ function _field_write_instance($instance, $update = FALSE) {
   $instance['widget'] += array(
     // TODO: what if no 'default_widget' specified ?
     'type' => $field_type['default_widget'],
-    'settings' => array(),
+    'settings' => [],
   );
   // If no weight specified, make sure the field sinks at the bottom.
   if (!isset($instance['widget']['weight'])) {
@@ -620,13 +620,13 @@ function _field_write_instance($instance, $update = FALSE) {
   // Make sure there are at least display settings for the 'default' view mode,
   // and fill in defaults for each view mode specified in the definition.
   $instance['display'] += array(
-    'default' => array(),
+    'default' => [],
   );
   foreach ($instance['display'] as $view_mode => $display) {
     $display += array(
       'label' => 'above',
       'type' => isset($field_type['default_formatter']) ? $field_type['default_formatter'] : 'hidden',
-      'settings' => array(),
+      'settings' => [],
     );
     if ($display['type'] != 'hidden') {
       $formatter_type = field_info_formatter_types($display['type']);
@@ -662,7 +662,7 @@ function _field_write_instance($instance, $update = FALSE) {
     $primary_key = array('id');
   }
   else {
-    $primary_key = array();
+    $primary_key = [];
   }
   drupal_write_record('field_config_instance', $record, $primary_key);
 }
@@ -689,7 +689,7 @@ function _field_write_instance($instance, $update = FALSE) {
  * @return
  *   An instance structure, or FALSE.
  */
-function field_read_instance($entity_type, $field_name, $bundle, $include_additional = array()) {
+function field_read_instance($entity_type, $field_name, $bundle, $include_additional = []) {
   $instances = field_read_instances(array('entity_type' => $entity_type, 'field_name' => $field_name, 'bundle' => $bundle), $include_additional);
   return $instances ? current($instances) : FALSE;
 }
@@ -710,7 +710,7 @@ function field_read_instance($entity_type, $field_name, $bundle, $include_additi
  * @return
  *   An array of instances matching the arguments.
  */
-function field_read_instances($params = array(), $include_additional = array()) {
+function field_read_instances($params = [], $include_additional = []) {
   $include_inactive = isset($include_additional['include_inactive']) && $include_additional['include_inactive'];
   $include_deleted = isset($include_additional['include_deleted']) && $include_additional['include_deleted'];
 
@@ -732,7 +732,7 @@ function field_read_instances($params = array(), $include_additional = array()) 
     $query->condition('fci.deleted', 0);
   }
 
-  $instances = array();
+  $instances = [];
   $results = $query->execute();
 
   foreach ($results as $record) {

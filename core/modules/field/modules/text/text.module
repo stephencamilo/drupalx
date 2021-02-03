@@ -62,7 +62,7 @@ function text_field_info() {
 function text_field_settings_form($field, $instance, $has_data) {
   $settings = $field['settings'];
 
-  $form = array();
+  $form = [];
 
   if ($field['type'] == 'text') {
     $form['max_length'] = array(
@@ -219,7 +219,7 @@ function text_field_formatter_settings_form($field, $instance, $view_mode, $form
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
-  $element = array();
+  $element = [];
 
   if (strpos($display['type'], '_trimmed') !== FALSE) {
     $element['trim_length'] = array(
@@ -257,7 +257,7 @@ function text_field_formatter_settings_summary($field, $instance, $view_mode) {
  * Implements hook_field_formatter_view().
  */
 function text_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
+  $element = [];
 
   switch ($display['type']) {
     case 'text_default':
@@ -351,7 +351,7 @@ function text_summary($text, $format = NULL, $size = NULL) {
   if (!isset($size)) {
     // What used to be called 'teaser' is now called 'summary', but
     // the variable 'teaser_length' is preserved for backwards compatibility.
-    $size = variable_get('teaser_length', 600);
+    $size = $bootstrap->variable_get('teaser_length', 600);
   }
 
   // Find where the delimiter is in the body
@@ -402,7 +402,7 @@ function text_summary($text, $format = NULL, $size = NULL) {
   $reversed = strrev($summary);
 
   // Build an array of arrays of break points grouped by preference.
-  $break_points = array();
+  $break_points = [];
 
   // A paragraph near the end of sliced summary is most preferable.
   $break_points[] = array('</p>' => 0);
@@ -502,8 +502,8 @@ function text_field_widget_settings_form($field, $instance) {
  * Implements hook_field_widget_form().
  */
 function text_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $summary_widget = array();
-  $main_widget = array();
+  $summary_widget = [];
+  $main_widget = [];
 
   switch ($instance['widget']['type']) {
     case 'text_textfield':

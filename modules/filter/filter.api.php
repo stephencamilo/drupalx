@@ -162,7 +162,7 @@ function hook_filter_info_alter(&$info) {
 function callback_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
   $filter->settings += $defaults;
 
-  $elements = array();
+  $elements = [];
   $elements['nofollow'] = array(
     '#type' => 'checkbox',
     '#title' => t('Add rel="nofollow" to all links'),

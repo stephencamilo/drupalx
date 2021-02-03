@@ -514,7 +514,7 @@ function hook_field_insert($entity_type, $entity, $field, $instance, $langcode, 
  */
 function hook_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
   if (variable_get('taxonomy_maintain_index_table', TRUE) && $field['storage']['type'] == 'field_sql_storage' && $entity_type == 'node') {
-    $first_call = &drupal_static(__FUNCTION__, array());
+    $first_call = &drupal_static(__FUNCTION__, []);
 
     // We don't maintain data for old revisions, so clear all previous values
     // from the table. Since this hook runs once per field, per object, make
@@ -674,7 +674,7 @@ function hook_field_prepare_translation($entity_type, $entity, $field, $instance
   $formats = filter_formats();
   $format_id = $source_entity->{$field_name}[$source_langcode][0]['format'];
   if (!filter_access($formats[$format_id])) {
-    $items = array();
+    $items = [];
   }
 }
 
@@ -1147,7 +1147,7 @@ function hook_field_formatter_info_alter(&$info) {
  *   parameter by reference.
  */
 function hook_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
-  $tids = array();
+  $tids = [];
 
   // Collect every possible term attached to any of the fieldable entities.
   foreach ($entities as $id => $entity) {
@@ -1212,7 +1212,7 @@ function hook_field_formatter_prepare_view($entity_type, $entities, $field, $ins
  *   by numeric indexes starting from 0.
  */
 function hook_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
+  $element = [];
   $settings = $display['settings'];
 
   switch ($display['type']) {
@@ -1240,7 +1240,7 @@ function hook_field_formatter_view($entity_type, $entity, $field, $instance, $la
     case 'sample_field_formatter_combined':
       // Some formatters might need to display all values within a single piece
       // of markup.
-      $rows = array();
+      $rows = [];
       foreach ($items as $delta => $item) {
         $rows[] = array($delta, $item['value']);
       }
@@ -1608,7 +1608,7 @@ function hook_field_attach_create_bundle($entity_type, $bundle) {
 function hook_field_attach_rename_bundle($entity_type, $bundle_old, $bundle_new) {
   // Update the extra weights variable with new information.
   if ($bundle_old !== $bundle_new) {
-    $extra_weights = variable_get('field_extra_weights', array());
+    $extra_weights = $bootstrap->variable_get('field_extra_weights', []);
     if (isset($info[$entity_type][$bundle_old])) {
       $extra_weights[$entity_type][$bundle_new] = $extra_weights[$entity_type][$bundle_old];
       unset($extra_weights[$entity_type][$bundle_old]);
@@ -1632,7 +1632,7 @@ function hook_field_attach_rename_bundle($entity_type, $bundle_old, $bundle_new)
  */
 function hook_field_attach_delete_bundle($entity_type, $bundle, $instances) {
   // Remove the extra weights variable information for this bundle.
-  $extra_weights = variable_get('field_extra_weights', array());
+  $extra_weights = $bootstrap->variable_get('field_extra_weights', []);
   if (isset($extra_weights[$entity_type][$bundle])) {
     unset($extra_weights[$entity_type][$bundle]);
     variable_set('field_extra_weights', $extra_weights);
@@ -1668,7 +1668,7 @@ function hook_field_storage_info() {
     'field_sql_storage' => array(
       'label' => t('Default SQL storage'),
       'description' => t('Stores fields in the local SQL database, using per-field tables.'),
-      'settings' => array(),
+      'settings' => [],
     ),
   );
 }
@@ -1710,7 +1710,7 @@ function hook_field_storage_info_alter(&$info) {
  * @see hook_field_storage_details_alter()
  */
 function hook_field_storage_details($field) {
-  $details = array();
+  $details = [];
 
   // Add field columns.
   foreach ((array) $field['columns'] as $column_name => $attributes) {
@@ -1742,7 +1742,7 @@ function hook_field_storage_details($field) {
  */
 function hook_field_storage_details_alter(&$details, $field) {
   if ($field['field_name'] == 'field_of_interest') {
-    $columns = array();
+    $columns = [];
     foreach ((array) $field['columns'] as $column_name => $attributes) {
       $columns[$column_name] = $column_name;
     }
@@ -1809,14 +1809,14 @@ function hook_field_storage_load($entity_type, $entities, $age, $fields, $option
 
     $results = $query->execute();
 
-    $delta_count = array();
+    $delta_count = [];
     foreach ($results as $row) {
       if (!isset($delta_count[$row->entity_id][$row->language])) {
         $delta_count[$row->entity_id][$row->language] = 0;
       }
 
       if ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED || $delta_count[$row->entity_id][$row->language] < $field['cardinality']) {
-        $item = array();
+        $item = [];
         // For each column declared by the field, populate the item
         // from the prefixed database column.
         foreach ($field['columns'] as $column => $attributes) {
@@ -2004,7 +2004,7 @@ function hook_field_storage_delete_revision($entity_type, $entity, $fields) {
  *   See EntityFieldQuery::execute() for the return values.
  */
 function hook_field_storage_query($query) {
-  $groups = array();
+  $groups = [];
   if ($query->age == FIELD_LOAD_CURRENT) {
     $tablename_function = '_field_sql_storage_tablename';
     $id_key = 'entity_id';
@@ -2013,7 +2013,7 @@ function hook_field_storage_query($query) {
     $tablename_function = '_field_sql_storage_revision_tablename';
     $id_key = 'revision_id';
   }
-  $table_aliases = array();
+  $table_aliases = [];
   // Add tables for the fields used.
   foreach ($query->fields as $key => $field) {
     $tablename = $tablename_function($field);
@@ -2266,7 +2266,7 @@ function hook_field_storage_pre_insert($entity_type, $entity, &$skip_fields) {
  *   Saved field IDs are set set as keys in $skip_fields.
  */
 function hook_field_storage_pre_update($entity_type, $entity, &$skip_fields) {
-  $first_call = &drupal_static(__FUNCTION__, array());
+  $first_call = &drupal_static(__FUNCTION__, []);
 
   if ($entity_type == 'node' && $entity->status && _forum_node_check_node_type($entity)) {
     // We don't maintain data for old revisions, so clear all previous values
@@ -2325,7 +2325,7 @@ function hook_field_storage_pre_update($entity_type, $entity, &$skip_fields) {
  * @ingroup field_info
  */
 function hook_field_info_max_weight($entity_type, $bundle, $context) {
-  $weights = array();
+  $weights = [];
 
   foreach (my_module_entity_additions($entity_type, $bundle, $context) as $addition) {
     $weights[] = $addition['weight'];

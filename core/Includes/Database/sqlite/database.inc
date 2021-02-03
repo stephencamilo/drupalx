@@ -40,7 +40,7 @@ class DatabaseConnection_sqlite extends DatabaseConnection {
    *
    * @var array
    */
-  protected $attachedDatabases = array();
+  protected $attachedDatabases = [];
 
   /**
    * Whether or not a table has been dropped this request: the destructor will
@@ -54,7 +54,7 @@ class DatabaseConnection_sqlite extends DatabaseConnection {
    */
   var $tableDropped = FALSE;
 
-  public function __construct(array $connection_options = array()) {
+  public function __construct(array $connection_options = []) {
     // We don't need a specific PDOStatement class here, we simulate it below.
     $this->statementClass = NULL;
 
@@ -65,7 +65,7 @@ class DatabaseConnection_sqlite extends DatabaseConnection {
 
     // Allow PDO options to be overridden.
     $connection_options += array(
-      'pdo' => array(),
+      'pdo' => [],
     );
     $connection_options['pdo'] += array(
       // Convert numeric values to strings when fetching.
@@ -112,7 +112,7 @@ class DatabaseConnection_sqlite extends DatabaseConnection {
     // @see https://sqlite.org/wal.html
     if (version_compare($version, '3.7') >= 0) {
       $connection_options += array(
-        'init_commands' => array(),
+        'init_commands' => [],
       );
       $connection_options['init_commands'] += array(
         'wal' => "PRAGMA journal_mode=WAL",
@@ -242,7 +242,7 @@ class DatabaseConnection_sqlite extends DatabaseConnection {
    * a DatabaseStatement_sqlite object, that will create a PDOStatement
    * using the semi-private PDOPrepare() method below.
    */
-  public function prepare($query, $options = array()) {
+  public function prepare($query, $options = []) {
     return new DatabaseStatement_sqlite($this, $query, $options);
   }
 
@@ -258,15 +258,15 @@ class DatabaseConnection_sqlite extends DatabaseConnection {
    * DatabaseStatement_sqlite needs to call it, we have no other choice but to
    * expose this function to the world.
    */
-  public function PDOPrepare($query, array $options = array()) {
+  public function PDOPrepare($query, array $options = []) {
     return parent::prepare($query, $options);
   }
 
-  public function queryRange($query, $from, $count, array $args = array(), array $options = array()) {
+  public function queryRange($query, $from, $count, array $args = [], array $options = []) {
     return $this->query($query . ' LIMIT ' . (int) $from . ', ' . (int) $count, $args, $options);
   }
 
-  public function queryTemporary($query, array $args = array(), array $options = array()) {
+  public function queryTemporary($query, array $args = [], array $options = []) {
     // Generate a new temporary table name and protect it from prefixing.
     // SQLite requires that temporary tables to be non-qualified.
     $tablename = $this->generateTemporaryTableName();
@@ -432,13 +432,13 @@ class DatabaseStatement_sqlite extends DatabaseStatementPrefetch implements Iter
    *
    * See http://bugs.php.net/bug.php?id=45259 for more details.
    */
-  protected function getStatement($query, &$args = array()) {
+  protected function getStatement($query, &$args = []) {
     if (count($args)) {
       // Check if $args is a simple numeric array.
       if (range(0, count($args) - 1) === array_keys($args)) {
         // In that case, we have unnamed placeholders.
         $count = 0;
-        $new_args = array();
+        $new_args = [];
         foreach ($args as $value) {
           if (is_float($value) || is_int($value)) {
             if (is_float($value)) {
@@ -488,7 +488,7 @@ class DatabaseStatement_sqlite extends DatabaseStatementPrefetch implements Iter
     return $this->dbh->PDOPrepare($query);
   }
 
-  public function execute($args = array(), $options = array()) {
+  public function execute($args = [], $options = []) {
     try {
       $return = parent::execute($args, $options);
     }
@@ -506,7 +506,7 @@ class DatabaseStatement_sqlite extends DatabaseStatementPrefetch implements Iter
     // In some weird cases, SQLite will prefix some column names by the name
     // of the table. We post-process the data, by renaming the column names
     // using the same convention as MySQL and PostgreSQL.
-    $rename_columns = array();
+    $rename_columns = [];
     foreach ($this->columnNames as $k => $column) {
       // In some SQLite versions, SELECT DISTINCT(field) will return "(field)"
       // instead of "field".

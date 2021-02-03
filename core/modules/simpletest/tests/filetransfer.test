@@ -38,7 +38,7 @@ class FileTranferTest extends DrupalWebTestCase {
     $location = 'temporary://fake';
     if (is_dir($location)) {
       $ret = 0;
-      $output = array();
+      $output = [];
       exec('rm -Rf ' . escapeshellarg($location), $output, $ret);
       if ($ret != 0) {
         throw new Exception('Error removing fake module directory.');
@@ -50,7 +50,7 @@ class FileTranferTest extends DrupalWebTestCase {
     return $location;
   }
 
-  function _writeDirectory($base, $files = array()) {
+  function _writeDirectory($base, $files = []) {
     mkdir($base);
     foreach ($files as $key => $file) {
       if (is_array($file)) {
@@ -79,7 +79,7 @@ class FileTranferTest extends DrupalWebTestCase {
 
     $gotit = TRUE;
     try {
-      $this->testConnection->copyDirectory($source, DRUPAL_ROOT . '/'. variable_get('file_public_path', conf_path() . '/files'));
+      $this->testConnection->copyDirectory($source, DRUPAL_ROOT . '/'. $bootstrap->variable_get('file_public_path', conf_path() . '/files'));
     }
     catch (FileTransferException $e) {
       $gotit = FALSE;
@@ -153,7 +153,7 @@ class TestFileTransfer extends FileTransfer {
  */
 class MockTestConnection {
 
-  var $commandsRun = array();
+  var $commandsRun = [];
   var $connectionString;
 
   function run($cmd) {
@@ -162,7 +162,7 @@ class MockTestConnection {
 
   function flushCommands() {
     $out = $this->commandsRun;
-    $this->commandsRun = array();
+    $this->commandsRun = [];
     return $out;
   }
 }

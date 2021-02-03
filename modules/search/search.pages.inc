@@ -114,7 +114,7 @@ function template_preprocess_search_result(&$variables) {
     $variables['content_attributes_array']['xml:lang'] = $result['language'];
   }
 
-  $info = array();
+  $info = [];
   if (!empty($result['module'])) {
     $info['module'] = check_plain($result['module']);
   }

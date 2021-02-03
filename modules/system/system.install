@@ -10,7 +10,7 @@
  */
 function system_requirements($phase) {
   global $base_url;
-  $requirements = array();
+  $requirements = [];
   // Ensure translations don't break during installation.
   $t = get_t();
 
@@ -105,7 +105,7 @@ function system_requirements($phase) {
     'title' => $t('PHP extensions'),
   );
 
-  $missing_extensions = array();
+  $missing_extensions = [];
   $required_extensions = array(
     'date',
     'dom',
@@ -266,9 +266,9 @@ function system_requirements($phase) {
     file_ensure_htaccess();
     $htaccess_files['public://.htaccess'] = array(
       'title' => $t('Public files directory'),
-      'directory' => variable_get('file_public_path', conf_path() . '/files'),
+      'directory' => $bootstrap->variable_get('file_public_path', conf_path() . '/files'),
     );
-    if ($private_files_directory = variable_get('file_private_path')) {
+    if ($private_files_directory = $bootstrap->variable_get('file_private_path')) {
       $htaccess_files['private://.htaccess'] = array(
         'title' => $t('Private files directory'),
         'directory' => $private_files_directory,
@@ -276,7 +276,7 @@ function system_requirements($phase) {
     }
     $htaccess_files['temporary://.htaccess'] = array(
       'title' => $t('Temporary files directory'),
-      'directory' => variable_get('file_temporary_path', file_directory_temp()),
+      'directory' => $bootstrap->variable_get('file_temporary_path', file_directory_temp()),
     );
     foreach ($htaccess_files as $htaccess_file => $info) {
       // Check for the string which was added to the recommended .htaccess file
@@ -295,16 +295,16 @@ function system_requirements($phase) {
   // Report cron status.
   if ($phase == 'runtime') {
     // Cron warning threshold defaults to two days.
-    $threshold_warning = variable_get('cron_threshold_warning', 172800);
+    $threshold_warning = $bootstrap->variable_get('cron_threshold_warning', 172800);
     // Cron error threshold defaults to two weeks.
-    $threshold_error = variable_get('cron_threshold_error', 1209600);
+    $threshold_error = $bootstrap->variable_get('cron_threshold_error', 1209600);
     // Cron configuration help text.
     $help = $t('For more information, see the online handbook entry for <a href="@cron-handbook">configuring cron jobs</a>.', array('@cron-handbook' => 'http://drupal.org/cron'));
 
     // Determine when cron last ran.
-    $cron_last = variable_get('cron_last');
+    $cron_last = $bootstrap->variable_get('cron_last');
     if (!is_numeric($cron_last)) {
-      $cron_last = variable_get('install_time', 0);
+      $cron_last = $bootstrap->variable_get('install_time', 0);
     }
 
     // Determine severity based on time since cron last ran.
@@ -324,7 +324,7 @@ function system_requirements($phase) {
     }
 
     $description .= ' ' . $t('You can <a href="@cron">run cron manually</a>.', array('@cron' => url('admin/reports/status/run-cron')));
-    $description .= '<br />' . $t('To run cron from outside the site, go to <a href="!cron">!cron</a>', array('!cron' => url($base_url . '/cron.php', array('external' => TRUE, 'query' => array('cron_key' => variable_get('cron_key', 'drupal'))))));
+    $description .= '<br />' . $t('To run cron from outside the site, go to <a href="!cron">!cron</a>', array('!cron' => url($base_url . '/cron.php', array('external' => TRUE, 'query' => array('cron_key' => $bootstrap->variable_get('cron_key', 'drupal'))))));
 
     $requirements['cron'] = array(
       'title' => $t('Cron maintenance tasks'),
@@ -336,20 +336,20 @@ function system_requirements($phase) {
 
   // Test files directories.
   $directories = array(
-    variable_get('file_public_path', conf_path() . '/files'),
+    $bootstrap->variable_get('file_public_path', conf_path() . '/files'),
     // By default no private files directory is configured. For private files
     // to be secure the admin needs to provide a path outside the webroot.
-    variable_get('file_private_path', FALSE),
+    $bootstrap->variable_get('file_private_path', FALSE),
   );
 
   // Do not check for the temporary files directory during installation
   // unless it has been set in settings.php. In this case the user has
   // no alternative but to fix the directory if it is not writable.
   if ($phase == 'install') {
-    $directories[] = variable_get('file_temporary_path', FALSE);
+    $directories[] = $bootstrap->variable_get('file_temporary_path', FALSE);
   }
   else {
-    $directories[] = variable_get('file_temporary_path', file_directory_temp());
+    $directories[] = $bootstrap->variable_get('file_temporary_path', file_directory_temp());
   }
 
   $requirements['file system'] = array(
@@ -539,7 +539,7 @@ function _system_check_db_utf8mb4_requirements($phase) {
   // information before running the installer, as otherwise we cannot get a
   // valid database connection object.
   if (isset($install_state['settings_verified']) && !$install_state['settings_verified']) {
-    return array();
+    return [];
   }
 
   $connection = Database::getConnection();
@@ -631,7 +631,7 @@ function system_install() {
  */
 function system_schema() {
   // NOTE: {variable} needs to be created before all other tables, as
-  // some database drivers, e.g. Oracle and DB2, will require variable_get()
+  // some database drivers, e.g. Oracle and DB2, will require $bootstrap->variable_get()
   // and variable_set() for overcoming some database specific limitations.
   $schema['variable'] = array(
     'description' => 'Named variable/value pairs created by Drupal core or any other module or theme. All variables are cached in memory at the start of every Drupal request so developers should not be careless about what is stored here.',
@@ -1888,7 +1888,7 @@ function system_update_7002() {
  * Update {blocked_ips} with valid IP addresses from {access}.
  */
 function system_update_7003() {
-  $messages = array();
+  $messages = [];
   $type = 'host';
   $result = db_query("SELECT mask FROM {access} WHERE status = :status AND type = :type", array(
     ':status' => 0,
@@ -1961,12 +1961,12 @@ function system_update_7004(&$sandbox) {
   // Only run this the first time through the batch update.
   if (!isset($sandbox['progress'])) {
     // Rename forum module's block variables.
-    $forum_block_num_0 = variable_get('forum_block_num_0');
+    $forum_block_num_0 = $bootstrap->variable_get('forum_block_num_0');
     if (isset($forum_block_num_0)) {
       variable_set('forum_block_num_active', $forum_block_num_0);
       variable_del('forum_block_num_0');
     }
-    $forum_block_num_1 = variable_get('forum_block_num_1');
+    $forum_block_num_1 = $bootstrap->variable_get('forum_block_num_1');
     if (isset($forum_block_num_1)) {
       variable_set('forum_block_num_new', $forum_block_num_1);
       variable_del('forum_block_num_1');
@@ -1994,7 +1994,7 @@ function system_update_7005() {
  */
 function system_update_7007() {
   // Copy the permissions from the old {permission} table to the new {role_permission} table.
-  $messages = array();
+  $messages = [];
   $result = db_query("SELECT rid, perm FROM {permission} ORDER BY rid ASC");
   $query = db_insert('role_permission')->fields(array('rid', 'permission'));
   foreach ($result as $role) {
@@ -2016,7 +2016,7 @@ function system_update_7007() {
  * Rename the variable for primary links.
  */
 function system_update_7009() {
-  $current_primary = variable_get('menu_primary_links_source');
+  $current_primary = $bootstrap->variable_get('menu_primary_links_source');
   if (isset($current_primary)) {
     variable_set('menu_main_links_source', $current_primary);
     variable_del('menu_primary_links_source');
@@ -2028,7 +2028,7 @@ function system_update_7009() {
  */
 function system_update_7011() {
   // Get existing roles that can 'administer nodes'.
-  $rids = array();
+  $rids = [];
   $rids = db_query("SELECT rid FROM {role_permission} WHERE permission = :perm", array(':perm' => 'administer nodes'))->fetchCol();
   // None found.
   if (empty($rids)) {
@@ -2052,12 +2052,12 @@ function system_update_7013() {
   $timezones = system_time_zones();
   // If the contributed Date module set a default time zone name, use this
   // setting as the default time zone.
-  if (($timezone_name = variable_get('date_default_timezone_name')) && isset($timezones[$timezone_name])) {
+  if (($timezone_name = $bootstrap->variable_get('date_default_timezone_name')) && isset($timezones[$timezone_name])) {
     $timezone = $timezone_name;
   }
   // If the contributed Event module has set a default site time zone, look up
   // the time zone name and use it as the default time zone.
-  if (!$timezone && ($timezone_id = variable_get('date_default_timezone_id', 0))) {
+  if (!$timezone && ($timezone_id = $bootstrap->variable_get('date_default_timezone_id', 0))) {
     try {
       $timezone_name = db_query('SELECT name FROM {event_timezones} WHERE timezone = :timezone_id', array(':timezone_id' => $timezone_id))->fetchField();
       if (($timezone_name = str_replace(' ', '_', $timezone_name)) && isset($timezones[$timezone_name])) {
@@ -2071,10 +2071,10 @@ function system_update_7013() {
   }
 
   // Check to see if timezone was overriden in update_prepare_d7_bootstrap().
-  $offset = variable_get('date_temporary_timezone');
+  $offset = $bootstrap->variable_get('date_temporary_timezone');
   // If not, use the default.
   if (!isset($offset)) {
-    $offset = variable_get('date_default_timezone', 0);
+    $offset = $bootstrap->variable_get('date_default_timezone', 0);
   }
 
   // If the previous default time zone was a non-zero offset, guess the site's
@@ -2160,9 +2160,9 @@ function system_update_7016() {
  */
 function system_update_7017() {
   // Get the global theme settings.
-  $settings = variable_get('theme_settings', array());
+  $settings = $bootstrap->variable_get('theme_settings', []);
   // Get the settings of the default theme.
-  $settings = array_merge($settings, variable_get('theme_' . variable_get('theme_default', 'garland') . '_settings', array()));
+  $settings = array_merge($settings, $bootstrap->variable_get('theme_' . $bootstrap->variable_get('theme_default', 'garland') . '_settings', []));
 
   $types = _update_7000_node_get_types();
   foreach ($types as $type) {
@@ -2172,7 +2172,7 @@ function system_update_7017() {
   }
 
   // Unset deprecated 'toggle_node_info' theme settings.
-  $theme_settings = variable_get('theme_settings', array());
+  $theme_settings = $bootstrap->variable_get('theme_settings', []);
   foreach ($theme_settings as $setting => $value) {
     if (substr($setting, 0, 16) == 'toggle_node_info') {
       unset($theme_settings[$setting]);
@@ -2253,7 +2253,7 @@ function system_update_7033() {
  * Migrate the file path settings and create the new {file_managed} table.
  */
 function system_update_7034() {
-  $files_directory = variable_get('file_directory_path', NULL);
+  $files_directory = $bootstrap->variable_get('file_directory_path', NULL);
   if (variable_get('file_downloads', 1) == 1) {
     // Our default is public, so we don't need to set anything.
     if (!empty($files_directory)) {
@@ -2409,7 +2409,7 @@ function system_update_7045() {
  * Switch from the Minnelli theme if it is the default or admin theme.
  */
 function system_update_7046() {
-  if (variable_get('theme_default') == 'minnelli' || variable_get('admin_theme') == 'minnelli') {
+  if (variable_get('theme_default') == 'minnelli' || $bootstrap->variable_get('admin_theme') == 'minnelli') {
     // Make sure Garland is enabled.
     db_update('system')
       ->fields(array('status' => 1))
@@ -2419,12 +2419,12 @@ function system_update_7046() {
     if (variable_get('theme_default') != 'garland') {
       // If the default theme isn't Garland, transfer all of Minnelli's old
       // settings to Garland.
-      $settings = variable_get('theme_minnelli_settings', array());
+      $settings = $bootstrap->variable_get('theme_minnelli_settings', []);
       // Set the theme setting width to "fixed" to match Minnelli's old layout.
       $settings['garland_width'] = 'fixed';
       variable_set('theme_garland_settings', $settings);
       // Remove Garland's color files since they won't match Minnelli's.
-      foreach (variable_get('color_garland_files', array()) as $file) {
+      foreach (variable_get('color_garland_files', []) as $file) {
         @drupal_unlink($file);
       }
       if (isset($file) && $file = dirname($file)) {
@@ -2725,7 +2725,7 @@ function system_update_7060() {
   }
 
   // Check which node types have upload.module attachments enabled.
-  $context['types'] = array();
+  $context['types'] = [];
   foreach (_update_7000_node_get_types() as $node_type) {
     if (variable_get('upload_' . $node_type->type, 0)) {
       $context['types'][$node_type->type] = $node_type->type;
@@ -2758,13 +2758,13 @@ function system_update_7060() {
       'translatable' => FALSE,
       'settings' => array(
         'display_field' => 1,
-        'display_default' => variable_get('upload_list_default', 1),
+        'display_default' => $bootstrap->variable_get('upload_list_default', 1),
         'uri_scheme' => file_default_scheme(),
         'default_file' => 0,
       ),
     );
 
-    $upload_size = variable_get('upload_uploadsize_default', 1);
+    $upload_size = $bootstrap->variable_get('upload_uploadsize_default', 1);
     $instance = array(
       'field_name' => 'upload',
       'entity_type' => 'node',
@@ -2781,7 +2781,7 @@ function system_update_7060() {
       ),
       'settings' => array(
         'max_filesize' => $upload_size ? ($upload_size . ' MB') : '',
-        'file_extensions' => variable_get('upload_extensions_default', 'jpg jpeg gif png txt doc xls pdf ppt pps odt ods odp'),
+        'file_extensions' => $bootstrap->variable_get('upload_extensions_default', 'jpg jpeg gif png txt doc xls pdf ppt pps odt ods odp'),
         'file_directory' => '',
         'description_field' => 1,
       ),
@@ -2789,28 +2789,28 @@ function system_update_7060() {
         'default' => array(
           'label' => 'hidden',
           'type' => 'file_table',
-          'settings' => array(),
+          'settings' => [],
           'weight' => 0,
           'module' => 'file',
         ),
         'full' => array(
           'label' => 'hidden',
           'type' => 'file_table',
-          'settings' => array(),
+          'settings' => [],
           'weight' => 0,
           'module' => 'file',
         ),
         'teaser' => array(
           'label' => 'hidden',
           'type' => 'hidden',
-          'settings' => array(),
+          'settings' => [],
           'weight' => 0,
           'module' => NULL,
         ),
         'rss' => array(
           'label' => 'hidden',
           'type' => 'file_table',
-          'settings' => array(),
+          'settings' => [],
           'weight' => 0,
           'module' => 'file',
         ),
@@ -2900,13 +2900,13 @@ function system_update_7061(&$sandbox) {
 
   // Determine vids for this batch.
   // Process all files attached to a given revision during the same batch.
-  $limit = variable_get('upload_update_batch_size', 100);
+  $limit = $bootstrap->variable_get('upload_update_batch_size', 100);
   $vids = db_query_range('SELECT vid FROM {system_update_7061} WHERE vid > :lastvid ORDER BY vid', 0, $limit, array(':lastvid' => $sandbox['last_vid_processed']))
     ->fetchCol();
 
   // Retrieve information on all the files attached to these revisions.
   if (!empty($vids)) {
-    $node_revisions = array();
+    $node_revisions = [];
     $result = db_query('SELECT u.fid, u.vid, u.list, u.description, n.nid, n.type, u.weight FROM {upload} u INNER JOIN {node_revision} nr ON u.vid = nr.vid INNER JOIN {node} n ON n.nid = nr.nid WHERE u.vid IN (:vids) ORDER BY u.vid, u.weight, u.fid', array(':vids' => $vids));
     foreach ($result as $record) {
       // For each uploaded file, retrieve the corresponding data from the old
@@ -2946,7 +2946,7 @@ function system_update_7061(&$sandbox) {
     // Now that we know which files belong to which revisions, update the
     // files'// database entries, and save a reference to each file in the
     // upload field on their node revisions.
-    $basename = variable_get('file_directory_path', conf_path() . '/files');
+    $basename = $bootstrap->variable_get('file_directory_path', conf_path() . '/files');
     $scheme = file_default_scheme() . '://';
     foreach ($node_revisions as $vid => $revision) {
       foreach ($revision['file'][LANGUAGE_NONE] as $delta => $file) {
@@ -3064,7 +3064,7 @@ function system_update_7065() {
  * Migrate the 'file_directory_temp' variable.
  */
 function system_update_7066() {
-  $d6_file_directory_temp = variable_get('file_directory_temp', file_directory_temp());
+  $d6_file_directory_temp = $bootstrap->variable_get('file_directory_temp', file_directory_temp());
   variable_set('file_temporary_path', $d6_file_directory_temp);
   variable_del('file_directory_temp');
 }

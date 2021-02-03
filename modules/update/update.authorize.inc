@@ -27,7 +27,7 @@
  *   - local_url: The locally installed location of new code to update with.
  */
 function update_authorize_run_update($filetransfer, $projects) {
-  $operations = array();
+  $operations = [];
   foreach ($projects as $project => $project_info) {
     $operations[] = array(
       'update_authorize_batch_copy_project',
@@ -117,14 +117,14 @@ function update_authorize_batch_copy_project($project, $updater_name, $local_url
 
   // Initialize some variables in the Batch API $context array.
   if (!isset($context['results']['log'])) {
-    $context['results']['log'] = array();
+    $context['results']['log'] = [];
   }
   if (!isset($context['results']['log'][$project])) {
-    $context['results']['log'][$project] = array();
+    $context['results']['log'][$project] = [];
   }
 
   if (!isset($context['results']['tasks'])) {
-    $context['results']['tasks'] = array();
+    $context['results']['tasks'] = [];
   }
 
   // The batch API uses a session, and since all the arguments are serialized
@@ -189,7 +189,7 @@ function update_authorize_update_batch_finished($success, $results) {
       $success = FALSE;
     }
   }
-  $offline = variable_get('maintenance_mode', FALSE);
+  $offline = $bootstrap->variable_get('maintenance_mode', FALSE);
   if ($success) {
     // Now that the update completed, we need to clear the cache of available
     // update data and recompute our status, so prevent show bogus results.
@@ -258,7 +258,7 @@ function update_authorize_install_batch_finished($success, $results) {
       $success = FALSE;
     }
   }
-  $offline = variable_get('maintenance_mode', FALSE);
+  $offline = $bootstrap->variable_get('maintenance_mode', FALSE);
   if ($success) {
     // Take the site out of maintenance mode if it was previously that way.
     if ($offline && isset($_SESSION['maintenance_mode']) && $_SESSION['maintenance_mode'] == FALSE) {

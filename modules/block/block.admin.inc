@@ -99,7 +99,7 @@ function block_admin_display_form($form, &$form_state, $blocks, $theme, $block_r
     // Add a last region for disabled blocks.
     '#value' => $block_regions + array(BLOCK_REGION_NONE => BLOCK_REGION_NONE),
   );
-  $form['blocks'] = array();
+  $form['blocks'] = [];
   $form['#tree'] = TRUE;
 
   foreach ($blocks as $i => $block) {
@@ -294,8 +294,8 @@ function block_admin_configure($form, &$form_state, $module, $delta) {
     '#tree' => TRUE,
   );
 
-  $theme_default = variable_get('theme_default', 'bartik');
-  $admin_theme = variable_get('admin_theme');
+  $theme_default = $bootstrap->variable_get('theme_default', 'bartik');
+  $admin_theme = $bootstrap->variable_get('admin_theme');
   foreach (list_themes() as $key => $theme) {
     // Only display enabled themes
     if ($theme->status) {
@@ -667,11 +667,11 @@ function template_preprocess_block_admin_display_form(&$variables) {
 
   foreach ($variables['block_regions'] as $key => $value) {
     // Initialize an empty array for the region.
-    $variables['block_listing'][$key] = array();
+    $variables['block_listing'][$key] = [];
   }
 
   // Initialize disabled blocks array.
-  $variables['block_listing'][BLOCK_REGION_NONE] = array();
+  $variables['block_listing'][BLOCK_REGION_NONE] = [];
 
   // Add each block in the form to the appropriate place in the block listing.
   foreach (element_children($variables['form']['blocks']) as $i) {

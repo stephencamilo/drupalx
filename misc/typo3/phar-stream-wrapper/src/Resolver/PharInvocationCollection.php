@@ -22,7 +22,7 @@ class PharInvocationCollection implements Collectable
     /**
      * @var PharInvocation[]
      */
-    private $invocations = array();
+    private $invocations = [];
 
     /**
      * @param PharInvocation $invocation

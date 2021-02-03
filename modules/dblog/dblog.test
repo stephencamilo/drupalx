@@ -39,7 +39,7 @@ class DBLogTestCase extends DrupalWebTestCase {
     parent::setUp('dblog', 'blog', 'poll');
     // Create users.
     $this->big_user = $this->drupalCreateUser(array('administer site configuration', 'access administration pages', 'access site reports', 'administer users'));
-    $this->any_user = $this->drupalCreateUser(array());
+    $this->any_user = $this->drupalCreateUser([]);
   }
 
   /**
@@ -72,13 +72,13 @@ class DBLogTestCase extends DrupalWebTestCase {
    */
   private function verifyRowLimit($row_limit) {
     // Change the database log row limit.
-    $edit = array();
+    $edit = [];
     $edit['dblog_row_limit'] = $row_limit;
     $this->drupalPost('admin/config/development/logging', $edit, t('Save configuration'));
     $this->assertResponse(200);
 
     // Check row limit variable.
-    $current_limit = variable_get('dblog_row_limit', 1000);
+    $current_limit = $bootstrap->variable_get('dblog_row_limit', 1000);
     $this->assertTrue($current_limit == $row_limit, format_string('[Cache] Row limit variable of @count equals row limit of @limit', array('@count' => $current_limit, '@limit' => $row_limit)));
     // Verify dblog row limit equals specified row limit.
     $current_limit = unserialize(db_query("SELECT value FROM {variable} WHERE name = :dblog_limit", array(':dblog_limit' => 'dblog_row_limit'))->fetchField());
@@ -128,7 +128,7 @@ class DBLogTestCase extends DrupalWebTestCase {
     $log = array(
       'type'        => $type,
       'message'     => 'Log entry added to test the dblog row limit.',
-      'variables'   => array(),
+      'variables'   => [],
       'severity'    => $severity,
       'link'        => $link,
       'user'        => $this->big_user,
@@ -215,7 +215,7 @@ class DBLogTestCase extends DrupalWebTestCase {
     $pass = user_password();
     // Add a user using the form to generate an add user event (which is not
     // triggered by drupalCreateUser).
-    $edit = array();
+    $edit = [];
     $edit['name'] = $name;
     $edit['mail'] = $name . '@example.com';
     $edit['pass[pass1]'] = $pass;
@@ -261,7 +261,7 @@ class DBLogTestCase extends DrupalWebTestCase {
     $this->assertLogMessage(t('Session closed for %name.', array('%name' => $name)), 'DBLog event was recorded: [logout user]');
     // Delete user.
     $message = t('Deleted user: %name %email.', array('%name' => $name, '%email' => '<' . $user->mail . '>'));
-    $message_text = truncate_utf8(filter_xss($message, array()), 56, TRUE, TRUE);
+    $message_text = truncate_utf8(filter_xss($message, []), 56, TRUE, TRUE);
     // Verify that the full message displays on the details page.
     $link = FALSE;
     if ($links = $this->xpath('//a[text()="' . html_entity_decode($message_text) . '"]')) {
@@ -318,7 +318,7 @@ class DBLogTestCase extends DrupalWebTestCase {
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->assertResponse(200);
     // Delete the node.
-    $this->drupalPost('node/' . $node->nid . '/delete', array(), t('Delete'));
+    $this->drupalPost('node/' . $node->nid . '/delete', [], t('Delete'));
     $this->assertResponse(200);
     // View the node (to generate page not found event).
     $this->drupalGet('node/' . $node->nid);
@@ -425,7 +425,7 @@ class DBLogTestCase extends DrupalWebTestCase {
     $log = array(
       'type'        => 'custom',
       'message'     => 'Log entry added to test the doClearTest clear down.',
-      'variables'   => array(),
+      'variables'   => [],
       'severity'    => WATCHDOG_NOTICE,
       'link'        => NULL,
       'user'        => $this->big_user,
@@ -442,7 +442,7 @@ class DBLogTestCase extends DrupalWebTestCase {
     // Login the admin user.
     $this->drupalLogin($this->big_user);
     // Post in order to clear the database table.
-    $this->drupalPost('admin/reports/dblog', array(), t('Clear log messages'));
+    $this->drupalPost('admin/reports/dblog', [], t('Clear log messages'));
     // Count the rows in watchdog that previously related to the deleted user.
     $count = db_query('SELECT COUNT(*) FROM {watchdog}')->fetchField();
     $this->assertEqual($count, 0, format_string('DBLog contains :count records after a clear.', array(':count' => $count)));
@@ -458,8 +458,8 @@ class DBLogTestCase extends DrupalWebTestCase {
     db_delete('watchdog')->execute();
 
     // Generate 9 random watchdog entries.
-    $type_names = array();
-    $types = array();
+    $type_names = [];
+    $types = [];
     for ($i = 0; $i < 3; $i++) {
       $type_names[] = $type_name = $this->randomName();
       $severity = WATCHDOG_EMERGENCY;
@@ -516,7 +516,7 @@ class DBLogTestCase extends DrupalWebTestCase {
     }
 
     // Clear all logs and make sure the confirmation message is found.
-    $this->drupalPost('admin/reports/dblog', array(), t('Clear log messages'));
+    $this->drupalPost('admin/reports/dblog', [], t('Clear log messages'));
     $this->assertText(t('Database log cleared.'), 'Confirmation message found');
   }
 
@@ -527,7 +527,7 @@ class DBLogTestCase extends DrupalWebTestCase {
     $log = array(
       'type'        => 'custom',
       'message'     => 'Log entry added to test watchdog handling of Exceptions.',
-      'variables'   => array(),
+      'variables'   => [],
       'severity'    => WATCHDOG_NOTICE,
       'link'        => NULL,
       'user'        => $this->big_user,
@@ -558,7 +558,7 @@ class DBLogTestCase extends DrupalWebTestCase {
    *   - user: (string) The user associated with this database log event.
    */
   protected function getLogEntries() {
-    $entries = array();
+    $entries = [];
     if ($table = $this->xpath('.//table[@id="admin-dblog"]')) {
       $table = array_shift($table);
       foreach ($table->tbody->tr as $row) {
@@ -659,7 +659,7 @@ class DBLogTestCase extends DrupalWebTestCase {
    *   The message to pass to simpletest.
    */
   protected function assertLogMessage($log_message, $message) {
-    $message_text = truncate_utf8(filter_xss($log_message, array()), 56, TRUE, TRUE);
+    $message_text = truncate_utf8(filter_xss($log_message, []), 56, TRUE, TRUE);
     // After filter_xss(), HTML entities should be converted to their character
     // equivalents because assertLink() uses this string in xpath() to query the
     // Document Object Model (DOM).

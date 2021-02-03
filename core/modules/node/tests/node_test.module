@@ -73,7 +73,7 @@ function node_test_node_access_records($node) {
   if (!empty($node->disable_node_access)) {
     return;
   }
-  $grants = array();
+  $grants = [];
   if ($node->type == 'article') {
     // Create grant in arbitrary article_realm for article nodes.
     $grants[] = array(
@@ -119,7 +119,7 @@ function node_test_node_access_records_alter(&$grants, $node) {
  */
 function node_test_node_grants_alter(&$grants, $account, $op) {
   // Return an empty array of grants to prove that we can alter by reference.
-  $grants = array();
+  $grants = [];
 }
 
 /**
@@ -157,7 +157,7 @@ function node_test_node_update($node) {
  */
 function node_test_entity_view_mode_alter(&$view_mode, $context) {
   // Only alter the view mode if we are on the test callback.
-  if ($change_view_mode = variable_get('node_test_change_view_mode', '')) {
+  if ($change_view_mode = $bootstrap->variable_get('node_test_change_view_mode', '')) {
     $view_mode = $change_view_mode;
   }
 }

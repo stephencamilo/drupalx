@@ -45,7 +45,7 @@ function openid_user_identities($account) {
   }
 
   $header = array(t('OpenID'), t('Operations'));
-  $rows = array();
+  $rows = [];
 
   $result = db_query("SELECT * FROM {authmap} WHERE module='openid' AND uid=:uid", array(':uid' => $account->uid));
   foreach ($result as $identity) {
@@ -100,7 +100,7 @@ function openid_user_delete_form($form, $form_state, $account, $aid = 0) {
     ':aid' => $aid,
   ))
   ->fetchField();
-  return confirm_form(array(), t('Are you sure you want to delete the OpenID %authname for %user?', array('%authname' => $authname, '%user' => $account->name)), 'user/' . $account->uid . '/openid');
+  return confirm_form([], t('Are you sure you want to delete the OpenID %authname for %user?', array('%authname' => $authname, '%user' => $account->name)), 'user/' . $account->uid . '/openid');
 }
 
 function openid_user_delete_form_submit($form, &$form_state) {

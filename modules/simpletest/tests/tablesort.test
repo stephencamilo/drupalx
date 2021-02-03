@@ -15,7 +15,7 @@ class TableSortTest extends DrupalUnitTestCase {
    *
    * @var array
    */
-  protected $GET = array();
+  protected $GET = [];
 
   public static function getInfo() {
     return array(
@@ -54,7 +54,7 @@ class TableSortTest extends DrupalUnitTestCase {
       'name' => 'foo',
       'sql' => '',
       'sort' => 'asc',
-      'query' => array(),
+      'query' => [],
     );
     $ts = tablesort_init($headers);
     $this->verbose(strtr('$ts: <pre>!ts</pre>', array('!ts' => check_plain(var_export($ts, TRUE)))));
@@ -115,7 +115,7 @@ class TableSortTest extends DrupalUnitTestCase {
       'name' => '2',
       'sql' => 'two',
       'sort' => 'desc',
-      'query' => array(),
+      'query' => [],
     );
     $this->verbose(strtr('$ts: <pre>!ts</pre>', array('!ts' => check_plain(var_export($ts, TRUE)))));
     $this->assertEqual($ts, $expected_ts, 'Complex table headers sorted correctly.');
@@ -134,7 +134,7 @@ class TableSortTest extends DrupalUnitTestCase {
       'name' => '1',
       'sql' => 'one',
       'sort' => 'asc',
-      'query' => array(),
+      'query' => [],
     );
     $this->verbose(strtr('$ts: <pre>!ts</pre>', array('!ts' => check_plain(var_export($ts, TRUE)))));
     $this->assertEqual($ts, $expected_ts, 'Complex table headers plus non-overriding $_GET parameters sorted correctly.');

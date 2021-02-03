@@ -244,7 +244,7 @@
  *   );
  * @endcode
  */
-$databases = array();
+$databases = [];
 
 /**
  * Quoting of identifiers in MySQL.

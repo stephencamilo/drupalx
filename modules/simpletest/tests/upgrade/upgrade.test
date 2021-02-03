@@ -10,7 +10,7 @@ abstract class UpgradePathTestCase extends DrupalWebTestCase {
    *
    * @var array
    */
-  var $databaseDumpFiles = array();
+  var $databaseDumpFiles = [];
 
   /**
    * Flag that indicates whether the child site has been upgraded.
@@ -20,12 +20,12 @@ abstract class UpgradePathTestCase extends DrupalWebTestCase {
   /**
    * Array of errors triggered during the upgrade process.
    */
-  var $upgradeErrors = array();
+  var $upgradeErrors = [];
 
   /**
    * Array of modules loaded when the test starts.
    */
-  var $loadedModules = array();
+  var $loadedModules = [];
 
   /**
    * Flag to indicate whether zlib is installed or not.
@@ -93,7 +93,7 @@ abstract class UpgradePathTestCase extends DrupalWebTestCase {
 
     // Reset flags.
     $this->upgradedSite = FALSE;
-    $this->upgradeErrors = array();
+    $this->upgradeErrors = [];
 
     $this->loadedModules = module_list();
 
@@ -107,7 +107,7 @@ abstract class UpgradePathTestCase extends DrupalWebTestCase {
     }
 
     // Reset all statics and variables to perform tests in a clean environment.
-    $conf = array();
+    $conf = [];
     drupal_static_reset();
 
     // Change the database prefix.
@@ -219,7 +219,7 @@ abstract class UpgradePathTestCase extends DrupalWebTestCase {
     }
 
     // Continue.
-    $this->drupalPost(NULL, array(), t('Continue'));
+    $this->drupalPost(NULL, [], t('Continue'));
     if (!$this->assertResponse(200)) {
       return FALSE;
     }
@@ -233,7 +233,7 @@ abstract class UpgradePathTestCase extends DrupalWebTestCase {
     }
 
     // Go!
-    $this->drupalPost(NULL, array(), t('Apply pending updates'));
+    $this->drupalPost(NULL, [], t('Apply pending updates'));
     if (!$this->assertResponse(200)) {
       return FALSE;
     }
@@ -255,7 +255,7 @@ abstract class UpgradePathTestCase extends DrupalWebTestCase {
 
     // Check if there still are pending updates.
     $this->drupalGet($update_url, array('external' => TRUE));
-    $this->drupalPost(NULL, array(), t('Continue'));
+    $this->drupalPost(NULL, [], t('Continue'));
     if (!$this->assertText(t('No pending updates.'), 'No pending updates at the end of the update process.')) {
       return FALSE;
     }
@@ -280,7 +280,7 @@ abstract class UpgradePathTestCase extends DrupalWebTestCase {
 
     // Reload global $conf array and permissions.
     $this->refreshVariables();
-    $this->checkPermissions(array(), TRUE);
+    $this->checkPermissions([], TRUE);
 
     return TRUE;
   }
@@ -411,7 +411,7 @@ class BasicUpgradePath extends UpgradePathTestCase {
     $this->assertFalse($result, 'No {menu_links} entry exists for user/autocomplete');
 
     // Test that the environment after the upgrade is in a consistent status.
-    $update_d6 = variable_get('update_d6', FALSE);
+    $update_d6 = $bootstrap->variable_get('update_d6', FALSE);
     $this->assertFalse($update_d6, 'The D6 upgrade flag variable has been correctly disabled.');
   }
 }

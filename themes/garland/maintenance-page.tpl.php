@@ -32,7 +32,7 @@
         <div id="logo-floater">
         <?php
           // Prepare header
-          $site_fields = array();
+          $site_fields = [];
           if ($site_name) {
             $site_fields[] = $site_name;
           }

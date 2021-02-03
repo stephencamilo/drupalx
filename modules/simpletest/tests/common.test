@@ -26,7 +26,7 @@ class DrupalAlterTestCase extends DrupalWebTestCase {
     // active theme.
     global $theme, $base_theme_info;
     $theme = 'bartik';
-    $base_theme_info = array();
+    $base_theme_info = [];
 
     $array = array('foo' => 'bar');
     $entity = new stdClass();
@@ -189,7 +189,7 @@ class CommonURLUnitTest extends DrupalWebTestCase {
     $url = 'foo/bar:1';
     $result = array(
       'path' => 'foo/bar:1',
-      'query' => array(),
+      'query' => [],
       'fragment' => '',
     );
     $this->assertEqual(drupal_parse_url($url), $result, 'Relative URL parsed correctly.');
@@ -714,7 +714,7 @@ class CascadingStylesheetsTestCase extends DrupalWebTestCase {
    * Check default stylesheets as empty.
    */
   function testDefault() {
-    $this->assertEqual(array(), drupal_add_css(), 'Default CSS is empty.');
+    $this->assertEqual([], drupal_add_css(), 'Default CSS is empty.');
   }
 
   /**
@@ -761,7 +761,7 @@ class CascadingStylesheetsTestCase extends DrupalWebTestCase {
    */
   function testReset() {
     drupal_static_reset('drupal_add_css');
-    $this->assertEqual(array(), drupal_add_css(), 'Resetting the CSS empties the cache.');
+    $this->assertEqual([], drupal_add_css(), 'Resetting the CSS empties the cache.');
   }
 
   /**
@@ -773,7 +773,7 @@ class CascadingStylesheetsTestCase extends DrupalWebTestCase {
     $styles = drupal_get_css();
     $this->assertTrue(strpos($styles, $css) > 0, 'Rendered CSS includes the added stylesheet.');
     // Verify that newlines are properly added inside style tags.
-    $query_string = variable_get('css_js_query_string', '0');
+    $query_string = $bootstrap->variable_get('css_js_query_string', '0');
     $css_processed = "<style type=\"text/css\" media=\"all\">\n@import url(\"" . check_plain(file_create_url($css)) . "?" . $query_string ."\");\n</style>";
     $this->assertEqual(trim($styles), $css_processed, 'Rendered CSS includes newlines inside style tags for JavaScript use.');
   }
@@ -893,7 +893,7 @@ class CascadingStylesheetsTestCase extends DrupalWebTestCase {
       $result = $matches[2];
     }
     else {
-      $result = array();
+      $result = [];
     }
 
     $this->assertIdentical($result, $expected, 'The CSS files are in the expected order.');
@@ -947,7 +947,7 @@ class CascadingStylesheetsTestCase extends DrupalWebTestCase {
    */
   function testAddCssFileWithQueryString() {
     $this->drupalGet('common-test/query-string');
-    $query_string = variable_get('css_js_query_string', '0');
+    $query_string = $bootstrap->variable_get('css_js_query_string', '0');
     $this->assertRaw(drupal_get_path('module', 'node') . '/node.css?' . $query_string, 'Query string was appended correctly to css.');
     $this->assertRaw(drupal_get_path('module', 'node') . '/node-fake.css?arg1=value1&amp;arg2=value2', 'Query string not escaped on a URI.');
   }
@@ -971,14 +971,14 @@ class DrupalHTMLIdentifierTestCase extends DrupalUnitTestCase {
   function testDrupalCleanCSSIdentifier() {
     // Verify that no valid ASCII characters are stripped from the identifier.
     $identifier = 'abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789';
-    $this->assertIdentical(drupal_clean_css_identifier($identifier, array()), $identifier, 'Verify valid ASCII characters pass through.');
+    $this->assertIdentical(drupal_clean_css_identifier($identifier, []), $identifier, 'Verify valid ASCII characters pass through.');
 
     // Verify that valid UTF-8 characters are not stripped from the identifier.
     $identifier = '¡¢£¤¥';
-    $this->assertIdentical(drupal_clean_css_identifier($identifier, array()), $identifier, 'Verify valid UTF-8 characters pass through.');
+    $this->assertIdentical(drupal_clean_css_identifier($identifier, []), $identifier, 'Verify valid UTF-8 characters pass through.');
 
     // Verify that invalid characters (including non-breaking space) are stripped from the identifier.
-    $this->assertIdentical(drupal_clean_css_identifier('invalid !"#$%&\'()*+,./:;<=>?@[\\]^`{|}~ identifier', array()), 'invalididentifier', 'Strip invalid characters.');
+    $this->assertIdentical(drupal_clean_css_identifier('invalid !"#$%&\'()*+,./:;<=>?@[\\]^`{|}~ identifier', []), 'invalididentifier', 'Strip invalid characters.');
 
     // Verify that double underscores are replaced in the identifier by default.
     $identifier = 'css__identifier__with__double__underscores';
@@ -1134,7 +1134,7 @@ class DrupalHTTPRequestTestCase extends DrupalWebTestCase {
     $this->assertTrue(substr($result->request, -strlen($data_string)) === $data_string, 'Request ends with URL-encoded data when drupal_http_request() called using string.');
 
     $this->drupalSetContent($result->data);
-    $this->assertTitle(t('Welcome to @site-name | @site-name', array('@site-name' => variable_get('site_name', 'Drupal'))), 'Site title matches.');
+    $this->assertTitle(t('Welcome to @site-name | @site-name', array('@site-name' => $bootstrap->variable_get('site_name', 'Drupal'))), 'Site title matches.');
 
     // Test that code and status message is returned.
     $result = drupal_http_request(url('pagedoesnotexist', array('absolute' => TRUE)));
@@ -1319,7 +1319,7 @@ class DrupalSetContentTestCase extends DrupalWebTestCase {
 
     $block_regions = system_region_list($theme_key, REGIONS_ALL, FALSE);
     $delimiter = $this->randomName(32);
-    $values = array();
+    $values = [];
     // Set some random content for each region available.
     foreach ($block_regions as $region) {
       $first_chunk = $this->randomName(32);
@@ -1444,7 +1444,7 @@ class JavaScriptTestCase extends DrupalWebTestCase {
     parent::setUp('locale', 'simpletest', 'common_test');
 
     // Disable preprocessing
-    $this->preprocess_js = variable_get('preprocess_js', 0);
+    $this->preprocess_js = $bootstrap->variable_get('preprocess_js', 0);
     variable_set('preprocess_js', 0);
 
     // Reset drupal_add_js() and drupal_add_library() statics before each test.
@@ -1462,7 +1462,7 @@ class JavaScriptTestCase extends DrupalWebTestCase {
    * Test default JavaScript is empty.
    */
   function testDefault() {
-    $this->assertEqual(array(), drupal_add_js(), 'Default JavaScript is empty.');
+    $this->assertEqual([], drupal_add_js(), 'Default JavaScript is empty.');
   }
 
   /**
@@ -1537,7 +1537,7 @@ class JavaScriptTestCase extends DrupalWebTestCase {
   function testReset() {
     drupal_add_js('misc/collapse.js');
     drupal_static_reset('drupal_add_js');
-    $this->assertEqual(array(), drupal_add_js(), 'Resetting the JavaScript correctly empties the cache.');
+    $this->assertEqual([], drupal_add_js(), 'Resetting the JavaScript correctly empties the cache.');
   }
 
   /**
@@ -1736,7 +1736,7 @@ class JavaScriptTestCase extends DrupalWebTestCase {
     ));
 
     // Store the expected key for the first item in the cache.
-    $cache = array_keys(variable_get('drupal_js_cache_files', array()));
+    $cache = array_keys(variable_get('drupal_js_cache_files', []));
     $expected_key = $cache[0];
 
     // Reset variables and add a file in a different scope first.
@@ -1754,7 +1754,7 @@ class JavaScriptTestCase extends DrupalWebTestCase {
     ));
 
     // Compare the expected key for the first file to the current one.
-    $cache = array_keys(variable_get('drupal_js_cache_files', array()));
+    $cache = array_keys(variable_get('drupal_js_cache_files', []));
     $key = $cache[0];
     $this->assertEqual($key, $expected_key, 'JavaScript aggregation is not affected by ordering in different scopes.');
   }
@@ -1791,12 +1791,12 @@ class JavaScriptTestCase extends DrupalWebTestCase {
 
     // Retrieve the rendered JavaScript and test against the regex.
     $js = drupal_get_js('footer');
-    $matches = array();
+    $matches = [];
     if (preg_match_all('/Weight\s([-0-9]+\s[#0-9]+)/', $js, $matches)) {
       $result = $matches[1];
     }
     else {
-      $result = array();
+      $result = [];
     }
     $this->assertIdentical($result, $expected, 'JavaScript is added in the expected weight order.');
   }
@@ -1902,7 +1902,7 @@ class JavaScriptTestCase extends DrupalWebTestCase {
     // Retrieve all libraries for a module not implementing hook_library().
     // Note: This test installs Locale module.
     $libraries = drupal_get_library('locale');
-    $this->assertEqual($libraries, array(), 'Retrieving libraries from a module not implementing hook_library() returns an emtpy array.');
+    $this->assertEqual($libraries, [], 'Retrieving libraries from a module not implementing hook_library() returns an emtpy array.');
 
     // Retrieve a specific library by module and name.
     $farbtastic = drupal_get_library('common_test', 'farbtastic');
@@ -1918,7 +1918,7 @@ class JavaScriptTestCase extends DrupalWebTestCase {
    */
   function testAddJsFileWithQueryString() {
     $this->drupalGet('common-test/query-string');
-    $query_string = variable_get('css_js_query_string', '0');
+    $query_string = $bootstrap->variable_get('css_js_query_string', '0');
     $this->assertRaw(drupal_get_path('module', 'node') . '/node.js?' . $query_string, 'Query string was appended correctly to js.');
   }
 
@@ -2056,13 +2056,13 @@ class DrupalRenderTestCase extends DrupalWebTestCase {
     $element_mixed_weight = array(
       'child5' => array('#weight' => 10),
       'child3' => array('#weight' => -10),
-      'child1' => array(),
+      'child1' => [],
       'child4' => array('#weight' => 10),
-      'child2' => array(),
+      'child2' => [],
       'child6' => array('#weight' => 10),
-      'child9' => array(),
+      'child9' => [],
       'child8' => array('#weight' => 10),
-      'child7' => array(),
+      'child7' => [],
     );
 
     $expected = array(
@@ -2257,7 +2257,7 @@ class DrupalRenderTestCase extends DrupalWebTestCase {
     ));
   }
 
-  protected function assertRenderedElement(array $element, $xpath, array $xpath_args = array()) {
+  protected function assertRenderedElement(array $element, $xpath, array $xpath_args = []) {
     $original_element = $element;
     $this->drupalSetContent(drupal_render($element));
     $this->verbose('<pre>' .  check_plain(var_export($original_element, TRUE)) . '</pre>'
@@ -2564,10 +2564,10 @@ class DrupalDataApiTest extends DrupalWebTestCase {
     $this->assertIdentical($result->name, 'Dave', 'Name field set.');
     $this->assertIdentical($result->info, NULL, 'Info field set.');
 
-    $person->info = array();
+    $person->info = [];
     $update_result = drupal_write_record('test_serialized', $person, array('id'));
     $result = db_query("SELECT * FROM {test_serialized} WHERE id = :id", array(':id' => $person->id))->fetchObject();
-    $this->assertIdentical(unserialize($result->info), array(), 'Info field updated.');
+    $this->assertIdentical(unserialize($result->info), [], 'Info field updated.');
 
     // Update the serialized record.
     $data = array('foo' => 'bar', 1 => 2, 'empty' => '', 'null' => NULL);
@@ -2610,7 +2610,7 @@ class DrupalErrorCollectionUnitTest extends DrupalWebTestCase {
    *
    * @var Array
    */
-  protected $collectedErrors = array();
+  protected $collectedErrors = [];
 
   public static function getInfo() {
     return array(
@@ -2628,7 +2628,7 @@ class DrupalErrorCollectionUnitTest extends DrupalWebTestCase {
    * Test that simpletest collects errors from the tested site.
    */
   function testErrorCollect() {
-    $this->collectedErrors = array();
+    $this->collectedErrors = [];
     $this->drupalGet('error-test/generate-warnings-with-report');
     $this->assertEqual(count($this->collectedErrors), 3, 'Three errors were collected');
 
@@ -2939,7 +2939,7 @@ class DrupalAttributesUnitTest extends DrupalUnitTestCase {
     $this->assertIdentical(drupal_attributes($attributes), ' id="id-test" class="first last" alt="Alternate"', 'Multiple attributes.');
 
     // Verify empty attributes array is rendered.
-    $this->assertIdentical(drupal_attributes(array()), '', 'Empty attributes array.');
+    $this->assertIdentical(drupal_attributes([]), '', 'Empty attributes array.');
   }
 }
 
@@ -3138,7 +3138,7 @@ class FeedIconTest extends DrupalWebTestCase {
    * Check that special characters are correctly escaped. Test for issue #1211668.
    */
   function testFeedIconEscaping() {
-    $variables = array();
+    $variables = [];
     $variables['url'] = 'node';
     $variables['title'] = '<>&"\'';
     $text = theme_feed_icon($variables);
@@ -3181,7 +3181,7 @@ class ArrayDiffUnitTest extends DrupalUnitTestCase {
     $this->array1 = array(
       'same' => 'yes',
       'different' => 'no',
-      'array_empty_diff' => array(),
+      'array_empty_diff' => [],
       'null' => NULL,
       'int_diff' => 1,
       'array_diff' => array('same' => 'same', 'array' => array('same' => 'same')),
@@ -3192,7 +3192,7 @@ class ArrayDiffUnitTest extends DrupalUnitTestCase {
     $this->array2 = array(
       'same' => 'yes',
       'different' => 'yes',
-      'array_empty_diff' => array(),
+      'array_empty_diff' => [],
       'null' => NULL,
       'int_diff' => '1',
       'array_diff' => array('same' => 'different', 'array' => array('same' => 'same')),
@@ -3221,26 +3221,26 @@ class ArrayDiffUnitTest extends DrupalUnitTestCase {
 }
 
 /**
- * Tests the functionality of drupal_get_query_array().
+ * Tests the functionality of drupal_get_query_[].
  */
 class DrupalGetQueryArrayTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'Query parsing using drupal_get_query_array()',
-      'description' => 'Tests that drupal_get_query_array() correctly parses query parameters.',
+      'name' => 'Query parsing using drupal_get_query_[]',
+      'description' => 'Tests that drupal_get_query_[] correctly parses query parameters.',
       'group' => 'System',
     );
   }
 
   /**
-   * Tests that drupal_get_query_array() correctly explodes query parameters.
+   * Tests that drupal_get_query_[] correctly explodes query parameters.
    */
-  public function testDrupalGetQueryArray() {
+  public function testDrupalGetQuery[] {
     $url = "http://my.site.com/somepath?foo=/content/folder[@name='foo']/folder[@name='bar']";
     $parsed = parse_url($url);
     $result = drupal_get_query_array($parsed['query']);
-    $this->assertEqual($result['foo'], "/content/folder[@name='foo']/folder[@name='bar']", 'drupal_get_query_array() should only explode parameters on the first equals sign.');
+    $this->assertEqual($result['foo'], "/content/folder[@name='foo']/folder[@name='bar']", 'drupal_get_query_[] should only explode parameters on the first equals sign.');
   }
 
 }

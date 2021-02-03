@@ -59,7 +59,7 @@ class DatabaseSchema_mysql extends DatabaseSchema {
 
     // Ensure the table name is not surrounded with quotes as that is not
     // appropriate for schema queries.
-    $quote_char = variable_get('mysql_identifier_quote_character', MYSQL_IDENTIFIER_QUOTE_CHARACTER_DEFAULT);
+    $quote_char = $bootstrap->variable_get('mysql_identifier_quote_character', MYSQL_IDENTIFIER_QUOTE_CHARACTER_DEFAULT);
     $table_name = str_replace($quote_char, '', $table_name);
 
     $table_info = $this->getPrefixInfo($table_name, $add_prefix);
@@ -267,7 +267,7 @@ class DatabaseSchema_mysql extends DatabaseSchema {
   }
 
   protected function createKeysSql($spec) {
-    $keys = array();
+    $keys = [];
 
     if (!empty($spec['primary key'])) {
       $keys[] = 'PRIMARY KEY (' . $this->createKeysSqlHelper($spec['primary key']) . ')';
@@ -287,7 +287,7 @@ class DatabaseSchema_mysql extends DatabaseSchema {
   }
 
   protected function createKeySql($fields) {
-    $return = array();
+    $return = [];
     foreach ($fields as $field) {
       if (is_array($field)) {
         $return[] = '`' . $field[0] . '`(' . $field[1] . ')';
@@ -300,7 +300,7 @@ class DatabaseSchema_mysql extends DatabaseSchema {
   }
 
   protected function createKeysSqlHelper($fields) {
-    $return = array();
+    $return = [];
     foreach ($fields as $field) {
       if (is_array($field)) {
         $return[] = '`' . $field[0] . '`(' . $field[1] . ')';
@@ -333,7 +333,7 @@ class DatabaseSchema_mysql extends DatabaseSchema {
     return TRUE;
   }
 
-  public function addField($table, $field, $spec, $keys_new = array()) {
+  public function addField($table, $field, $spec, $keys_new = []) {
     if (!$this->tableExists($table)) {
       throw new DatabaseSchemaObjectDoesNotExistException(t("Cannot add field @table.@field: table doesn't exist.", array('@field' => $field, '@table' => $table)));
     }
@@ -462,7 +462,7 @@ class DatabaseSchema_mysql extends DatabaseSchema {
     return TRUE;
   }
 
-  public function changeField($table, $field, $field_new, $spec, $keys_new = array()) {
+  public function changeField($table, $field, $field_new, $spec, $keys_new = []) {
     if (!$this->fieldExists($table, $field)) {
       throw new DatabaseSchemaObjectDoesNotExistException(t("Cannot change the definition of field @table.@name: field doesn't exist.", array('@table' => $table, '@name' => $field)));
     }

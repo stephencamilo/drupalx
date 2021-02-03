@@ -70,12 +70,12 @@
     /**
      * An array of keys to add to the cache at the end of the request.
      */
-    protected $keysToPersist = array();
+    protected $keysToPersist = [];
 
     /**
      * Storage for the data itself.
      */
-    protected $storage = array();
+    protected $storage = [];
 
     /**
      * Constructs a DrupalCacheArray object.
@@ -188,7 +188,7 @@
      * Destructs the DrupalCacheArray object.
      */
     public function __destruct() {
-      $data = array();
+      $data = [];
       foreach ($this->keysToPersist as $offset => $persist) {
         if ($persist) {
           $data[$offset] = $this->storage[$offset];

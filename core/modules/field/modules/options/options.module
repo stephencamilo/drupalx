@@ -42,21 +42,21 @@ function options_field_widget_info() {
   return array(
     'options_select' => array(
       'label' => t('Select list'),
-      'field types' => array(),
+      'field types' => [],
       'behaviors' => array(
         'multiple values' => FIELD_BEHAVIOR_CUSTOM,
       ),
     ),
     'options_buttons' => array(
       'label' => t('Check boxes/radio buttons'),
-      'field types' => array(),
+      'field types' => [],
       'behaviors' => array(
         'multiple values' => FIELD_BEHAVIOR_CUSTOM,
       ),
     ),
     'options_onoff' => array(
       'label' => t('Single on/off checkbox'),
-      'field types' => array(),
+      'field types' => [],
       'behaviors' => array(
         'multiple values' => FIELD_BEHAVIOR_CUSTOM,
       ),
@@ -153,7 +153,7 @@ function options_field_widget_form(&$form, &$form_state, $field, $instance, $lan
  * Implements hook_field_widget_settings_form().
  */
 function options_field_widget_settings_form($field, $instance) {
-  $form = array();
+  $form = [];
   if ($instance['widget']['type'] == 'options_onoff') {
     $form['display_label'] = array(
       '#type' => 'checkbox',
@@ -190,7 +190,7 @@ function _options_properties($type, $multiple, $required, $has_value) {
     'optgroups' => FALSE,
   );
 
-  $properties = array();
+  $properties = [];
 
   switch ($type) {
     case 'select':
@@ -294,7 +294,7 @@ function _options_prepare_options(&$options, $properties) {
  */
 function _options_storage_to_form($items, $options, $column, $properties) {
   $items_transposed = options_array_transpose($items);
-  $values = (isset($items_transposed[$column]) && is_array($items_transposed[$column])) ? $items_transposed[$column] : array();
+  $values = (isset($items_transposed[$column]) && is_array($items_transposed[$column])) ? $items_transposed[$column] : [];
 
   // Discard values that are not in the current list of options. Flatten the
   // array if needed.
@@ -349,13 +349,13 @@ function _options_form_to_storage($element) {
  *   The transposed array.
  */
 function options_array_transpose($array) {
-  $result = array();
+  $result = [];
   if (is_array($array)) {
     foreach ($array as $key1 => $value1) {
       if (is_array($value1)) {
         foreach ($value1 as $key2 => $value2) {
           if (!isset($result[$key2])) {
-            $result[$key2] = array();
+            $result[$key2] = [];
           }
           $result[$key2][$key1] = $value2;
         }
@@ -374,7 +374,7 @@ function options_array_transpose($array) {
  *   A flattened array.
  */
 function options_array_flatten($array) {
-  $result = array();
+  $result = [];
   if (is_array($array)) {
     foreach ($array as $key => $value) {
       if (is_array($value)) {

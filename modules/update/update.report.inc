@@ -33,7 +33,7 @@ function update_status() {
 function theme_update_report($variables) {
   $data = $variables['data'];
 
-  $last = variable_get('update_last_check', 0);
+  $last = $bootstrap->variable_get('update_last_check', 0);
   $output = theme('update_last_check', array('last' => $last));
 
   if (!is_array($data)) {
@@ -41,10 +41,10 @@ function theme_update_report($variables) {
     return $output;
   }
 
-  $header = array();
-  $rows = array();
+  $header = [];
+  $rows = [];
 
-  $notification_level = variable_get('update_notification_threshold', 'all');
+  $notification_level = $bootstrap->variable_get('update_notification_threshold', 'all');
 
   // Create an array of status values keyed by module or theme name, since
   // we'll need this while generating the report if we have to cross reference
@@ -106,8 +106,8 @@ function theme_update_report($variables) {
     $row .= "</div>\n";
 
     $versions_inner = '';
-    $security_class = array();
-    $version_class = array();
+    $security_class = [];
+    $version_class = [];
     if (isset($project['recommended'])) {
       if ($project['status'] != UPDATE_CURRENT || $project['existing_version'] !== $project['recommended']) {
 
@@ -183,7 +183,7 @@ function theme_update_report($variables) {
     if (!empty($project['disabled'])) {
       sort($project['disabled']);
       // Make sure we start with a clean slate for each project in the report.
-      $includes_items = array();
+      $includes_items = [];
       $row .= t('Includes:');
       $includes_items[] = t('Enabled: %includes', array('%includes' => implode(', ', $project['includes'])));
       $includes_items[] = t('Disabled: %disabled', array('%disabled' => implode(', ', $project['disabled'])));
@@ -197,7 +197,7 @@ function theme_update_report($variables) {
     if (!empty($project['base_themes'])) {
       $row .= '<div class="basethemes">';
       asort($project['base_themes']);
-      $base_themes = array();
+      $base_themes = [];
       foreach ($project['base_themes'] as $base_key => $base_theme) {
         switch ($status[$base_key]) {
           case UPDATE_NOT_SECURE:
@@ -224,7 +224,7 @@ function theme_update_report($variables) {
     $row .= "</div>\n"; // info div.
 
     if (!isset($rows[$project['project_type']])) {
-      $rows[$project['project_type']] = array();
+      $rows[$project['project_type']] = [];
     }
     $row_key = isset($project['title']) ? drupal_strtolower($project['title']) : drupal_strtolower($project['name']);
     $rows[$project['project_type']][$row_key] = array(
@@ -310,7 +310,7 @@ function theme_update_version($variables) {
   $output .= ' <span class="version-date">(' . format_date($version['date'], 'custom', 'Y-M-d') . ')</span>';
   $output .= "</td>\n";
   $output .= '<td class="version-links">';
-  $links = array();
+  $links = [];
   $links['update-download'] = array(
     'title' => t('Download'),
     'href' => $version['download_link'],

@@ -26,7 +26,7 @@ class UpgradePathTaxonomyTestCase extends UpgradePathTestCase {
    * for the specified entity type and bundle.
    */
   function instanceVocabularies($entity_type, $bundle) {
-    $instances = array();
+    $instances = [];
     foreach (field_info_instances($entity_type, $bundle) as $instance) {
       $field = field_info_field($instance['field_name']);
       if ($field['type'] == 'taxonomy_term_reference') {
@@ -63,7 +63,7 @@ class UpgradePathTaxonomyTestCase extends UpgradePathTestCase {
 
     // Check that the node type 'page' has been associated to a taxonomy
     // reference field for each vocabulary.
-    $voc_keys = array();
+    $voc_keys = [];
     foreach (taxonomy_get_vocabularies() as $vocab) {
       $voc_keys[] = $vocab->machine_name;
     }
@@ -97,8 +97,8 @@ class UpgradePathTaxonomyTestCase extends UpgradePathTestCase {
     // Check that each node of type 'page' and 'story' is associated to all the
     // terms except terms whose ID is equal to the node ID or is equal to the
     // node ID subtracted from 49.
-    $nodes = node_load_multiple(array(), array('type' => 'page'));
-    $nodes += node_load_multiple(array(), array('type' => 'story'));
+    $nodes = node_load_multiple([], array('type' => 'page'));
+    $nodes += node_load_multiple([], array('type' => 'story'));
     $terms = db_select('taxonomy_term_data', 'td')
       ->fields('td')
       ->orderBy('vid')
@@ -112,7 +112,7 @@ class UpgradePathTaxonomyTestCase extends UpgradePathTestCase {
       $this->drupalSetContent($render);
       $this->verbose($render);
 
-      $vocabulary_seen = array();
+      $vocabulary_seen = [];
       foreach ($terms as $tid => $term) {
         // In our test database, each node is arbitrary associated with all
         // terms except two: one whose tid is ($nid) and one whose tid is

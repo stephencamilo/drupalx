@@ -38,8 +38,8 @@ class TriggerWebTestCase extends DrupalWebTestCase {
  * Provides tests for node triggers.
  */
 class TriggerContentTestCase extends TriggerWebTestCase {
-  var $_cleanup_roles = array();
-  var $_cleanup_users = array();
+  var $_cleanup_roles = [];
+  var $_cleanup_users = [];
 
   public static function getInfo() {
     return array(
@@ -72,10 +72,10 @@ class TriggerContentTestCase extends TriggerWebTestCase {
       // the actions fire.
       $this->drupalLogin($test_user);
       $edit = array('aid' => $hash);
-      $this->drupalPost('admin/structure/trigger/node', $edit, t('Assign'), array(), array(), 'trigger-node-presave-assign-form');
+      $this->drupalPost('admin/structure/trigger/node', $edit, t('Assign'), [], [], 'trigger-node-presave-assign-form');
       // Create an unpublished node.
       $this->drupalLogin($web_user);
-      $edit = array();
+      $edit = [];
       $langcode = LANGUAGE_NONE;
       $edit["title"] = '!SimpleTest test node! ' . $this->randomName(10);
       $edit["body[$langcode][0][value]"] = '!SimpleTest test body! ' . $this->randomName(32) . ' ' . $this->randomName(32);
@@ -93,11 +93,11 @@ class TriggerContentTestCase extends TriggerWebTestCase {
       $this->drupalLogin($test_user);
       // This action already assigned in this test.
       $edit = array('aid' => $hash);
-      $this->drupalPost('admin/structure/trigger/node', $edit, t('Assign'), array(), array(), 'trigger-node-presave-assign-form');
+      $this->drupalPost('admin/structure/trigger/node', $edit, t('Assign'), [], [], 'trigger-node-presave-assign-form');
       $this->assertRaw(t('The action you chose is already assigned to that trigger.'), 'Check to make sure an error occurs when assigning an action to a trigger twice.');
 
       // The action should be able to be unassigned from a trigger.
-      $this->drupalPost('admin/structure/trigger/unassign/node/node_presave/' . $hash, array(), t('Unassign'));
+      $this->drupalPost('admin/structure/trigger/unassign/node/node_presave/' . $hash, [], t('Unassign'));
       $this->assertRaw(t('Action %action has been unassigned.', array('%action' => ucfirst($info['name']))), format_string('Check to make sure the @action action can be unassigned from the trigger.', array('@action' => $info['name'])));
       $assigned = db_query("SELECT COUNT(*) FROM {trigger_assignments} WHERE aid IN (:keys)", array(':keys' => $content_actions))->fetchField();
       $this->assertFalse($assigned, 'Check to make sure unassign worked properly at the database level.');
@@ -114,7 +114,7 @@ class TriggerContentTestCase extends TriggerWebTestCase {
     // Assign an action to the node save/update trigger.
     $test_user = $this->drupalCreateUser(array('administer actions', 'administer nodes', 'create page content', 'access administration pages', 'access content overview'));
     $this->drupalLogin($test_user);
-    $nodes = array();
+    $nodes = [];
 
     for ($index = 0; $index < 3; $index++) {
       $nodes[] = $this->drupalCreateNode(array('type' => 'page'));
@@ -123,7 +123,7 @@ class TriggerContentTestCase extends TriggerWebTestCase {
     $action_id = 'trigger_test_generic_any_action';
     $hash = drupal_hash_base64($action_id);
     $edit = array('aid' => $hash);
-    $this->drupalPost('admin/structure/trigger/node', $edit, t('Assign'), array(), array(), 'trigger-node-update-assign-form');
+    $this->drupalPost('admin/structure/trigger/node', $edit, t('Assign'), [], [], 'trigger-node-update-assign-form');
 
     $edit = array(
       'operation' => 'unpublish',
@@ -131,7 +131,7 @@ class TriggerContentTestCase extends TriggerWebTestCase {
       'nodes[' . $nodes[1]->nid . ']' => TRUE,
     );
     $this->drupalPost('admin/content', $edit, t('Update'));
-    $count = variable_get('trigger_test_generic_any_action', 0);
+    $count = $bootstrap->variable_get('trigger_test_generic_any_action', 0);
     $this->assertTrue($count == 2, format_string('Action was triggered 2 times. Actual: %count', array('%count' => $count)));
   }
 
@@ -213,7 +213,7 @@ class TriggerCronTestCase extends TriggerWebTestCase {
 
     // Assign a non-configurable action to the cron run trigger.
     $edit = array('aid' => drupal_hash_base64('trigger_test_system_cron_action'));
-    $this->drupalPost('admin/structure/trigger/system', $edit, t('Assign'), array(), array(), 'trigger-cron-assign-form');
+    $this->drupalPost('admin/structure/trigger/system', $edit, t('Assign'), [], [], 'trigger-cron-assign-form');
 
     // Assign a configurable action to the cron trigger.
     $action_label = $this->randomName();
@@ -225,7 +225,7 @@ class TriggerCronTestCase extends TriggerWebTestCase {
     // $aid is likely 3 but if we add more uses for the sequences table in
     // core it might break, so it is easier to get the value from the database.
     $edit = array('aid' => drupal_hash_base64($aid));
-    $this->drupalPost('admin/structure/trigger/system', $edit, t('Assign'), array(), array(), 'trigger-cron-assign-form');
+    $this->drupalPost('admin/structure/trigger/system', $edit, t('Assign'), [], [], 'trigger-cron-assign-form');
 
     // Add a second configurable action to the cron trigger.
     $action_label = $this->randomName();
@@ -235,17 +235,17 @@ class TriggerCronTestCase extends TriggerWebTestCase {
     );
     $aid = $this->configureAdvancedAction('trigger_test_system_cron_conf_action', $edit);
     $edit = array('aid' => drupal_hash_base64($aid));
-    $this->drupalPost('admin/structure/trigger/system', $edit, t('Assign'), array(), array(), 'trigger-cron-assign-form');
+    $this->drupalPost('admin/structure/trigger/system', $edit, t('Assign'), [], [], 'trigger-cron-assign-form');
 
     // Force a cron run.
     $this->cronRun();
 
     // Make sure the non-configurable action has fired.
-    $action_run = variable_get('trigger_test_system_cron_action', FALSE);
+    $action_run = $bootstrap->variable_get('trigger_test_system_cron_action', FALSE);
     $this->assertTrue($action_run, 'Check that the cron run triggered the test action.');
 
     // Make sure that both configurable actions have fired.
-    $action_run = variable_get('trigger_test_system_cron_conf_action', 0) == 2;
+    $action_run = $bootstrap->variable_get('trigger_test_system_cron_conf_action', 0) == 2;
     $this->assertTrue($action_run, 'Check that the cron run triggered both complex actions.');
   }
 }
@@ -319,7 +319,7 @@ class TriggerActionTestCase extends TriggerWebTestCase {
     $form_html_id = strtr($form_name, '_', '-');
     $edit = array('aid' => drupal_hash_base64($action));
     $trigger_type = preg_replace('/_.*/', '', $trigger);
-    $this->drupalPost("admin/structure/trigger/$trigger_type", $edit, t('Assign'), array(), array(), $form_html_id);
+    $this->drupalPost("admin/structure/trigger/$trigger_type", $edit, t('Assign'), [], [], $form_html_id);
     $actions = trigger_get_assigned_actions($trigger);
     $this->assertTrue(!empty($actions[$action]), format_string('Simple action @action assigned to trigger @trigger', array('@action' => $action, '@trigger' => $trigger)));
   }
@@ -343,7 +343,7 @@ class TriggerActionTestCase extends TriggerWebTestCase {
     $aid = $this->configureAdvancedAction('system_message_action', $action_edit);
 
     $edit = array('aid' => drupal_hash_base64($aid));
-    $this->drupalPost('admin/structure/trigger/user', $edit, t('Assign'), array(), array(), $form_html_id);
+    $this->drupalPost('admin/structure/trigger/user', $edit, t('Assign'), [], [], $form_html_id);
     drupal_static_reset('trigger_get_asssigned_actions');
   }
 
@@ -372,7 +372,7 @@ class TriggerActionTestCase extends TriggerWebTestCase {
     $aid = $this->configureAdvancedAction('system_send_email_action', $action_edit);
 
     $edit = array('aid' => drupal_hash_base64($aid));
-    $this->drupalPost('admin/structure/trigger/user', $edit, t('Assign'), array(), array(), $form_html_id);
+    $this->drupalPost('admin/structure/trigger/user', $edit, t('Assign'), [], [], $form_html_id);
     drupal_static_reset('trigger_get_assigned_actions');
   }
 
@@ -475,7 +475,7 @@ class TriggerUserTokenTestCase extends TriggerActionTestCase {
     $user_to_delete = $this->drupalCreateUser(array('access content'));
     variable_set('user_cancel_method', 'user_cancel_delete');
 
-    $this->drupalPost("user/{$user_to_delete->uid}/cancel", array(), t('Cancel account'));
+    $this->drupalPost("user/{$user_to_delete->uid}/cancel", [], t('Cancel account'));
     $this->assertSystemMessageAndEmailTokenReplacement('user_delete', $user_to_delete);
   }
 
@@ -545,8 +545,8 @@ class TriggerUserActionTestCase extends TriggerActionTestCase {
  * Tests other triggers.
  */
 class TriggerOtherTestCase extends TriggerWebTestCase {
-  var $_cleanup_roles = array();
-  var $_cleanup_users = array();
+  var $_cleanup_roles = [];
+  var $_cleanup_users = [];
 
   public static function getInfo() {
     return array(
@@ -570,7 +570,7 @@ class TriggerOtherTestCase extends TriggerWebTestCase {
     $action_id = 'trigger_test_generic_action';
     $hash = drupal_hash_base64($action_id);
     $edit = array('aid' => $hash);
-    $this->drupalPost('admin/structure/trigger/user', $edit, t('Assign'), array(), array(), 'trigger-user-insert-assign-form');
+    $this->drupalPost('admin/structure/trigger/user', $edit, t('Assign'), [], [], 'trigger-user-insert-assign-form');
 
     // Set action variable to FALSE.
     variable_set($action_id, FALSE);
@@ -580,7 +580,7 @@ class TriggerOtherTestCase extends TriggerWebTestCase {
     $this->drupalLogin($web_user);
     $name = $this->randomName();
     $pass = user_password();
-    $edit = array();
+    $edit = [];
     $edit['name'] = $name;
     $edit['mail'] = $name . '@example.com';
     $edit['pass[pass1]'] = $pass;
@@ -604,7 +604,7 @@ class TriggerOtherTestCase extends TriggerWebTestCase {
     // Configure an advanced action that we can assign.
     $aid = $this->configureAdvancedAction('system_message_action', $action_edit);
     $edit = array('aid' => drupal_hash_base64($aid));
-    $this->drupalPost('admin/structure/trigger/user', $edit, t('Assign'), array(), array(), 'trigger-user-login-assign-form');
+    $this->drupalPost('admin/structure/trigger/user', $edit, t('Assign'), [], [], 'trigger-user-login-assign-form');
 
     // Verify that the action has been assigned to the correct hook.
     $actions = trigger_get_assigned_actions('user_login');
@@ -627,7 +627,7 @@ class TriggerOtherTestCase extends TriggerWebTestCase {
     $action_id = 'trigger_test_generic_action';
     $hash = drupal_hash_base64($action_id);
     $edit = array('aid' => $hash);
-    $this->drupalPost('admin/structure/trigger/comment', $edit, t('Assign'), array(), array(), 'trigger-comment-insert-assign-form');
+    $this->drupalPost('admin/structure/trigger/comment', $edit, t('Assign'), [], [], 'trigger-comment-insert-assign-form');
 
     // Set action variable to FALSE.
     variable_set($action_id, FALSE);
@@ -636,7 +636,7 @@ class TriggerOtherTestCase extends TriggerWebTestCase {
     $web_user = $this->drupalCreateUser(array('create article content', 'access content', 'skip comment approval', 'post comments'));
     $this->drupalLogin($web_user);
     $node = $this->drupalCreateNode(array('type' => 'article', 'promote' => 1));
-    $edit = array();
+    $edit = [];
     $edit['subject'] = $this->randomName(10);
     $edit['comment_body[' . LANGUAGE_NONE . '][0][value]'] = $this->randomName(10) . ' ' . $this->randomName(10);
     $this->drupalGet('comment/reply/' . $node->nid);
@@ -656,7 +656,7 @@ class TriggerOtherTestCase extends TriggerWebTestCase {
     $action_id = 'trigger_test_generic_action';
     $hash = drupal_hash_base64($action_id);
     $edit = array('aid' => $hash);
-    $this->drupalPost('admin/structure/trigger/taxonomy', $edit, t('Assign'), array(), array(), 'trigger-taxonomy-term-insert-assign-form');
+    $this->drupalPost('admin/structure/trigger/taxonomy', $edit, t('Assign'), [], [], 'trigger-taxonomy-term-insert-assign-form');
 
     // Set action variable to FALSE.
     variable_set($action_id, FALSE);
@@ -713,12 +713,12 @@ class TriggerOrphanedActionsTestCase extends DrupalWebTestCase {
     $test_user = $this->drupalCreateUser(array('administer actions'));
     $this->drupalLogin($test_user);
     $edit = array('aid' => $hash);
-    $this->drupalPost('admin/structure/trigger/node', $edit, t('Assign'), array(), array(), 'trigger-node-presave-assign-form');
+    $this->drupalPost('admin/structure/trigger/node', $edit, t('Assign'), [], [], 'trigger-node-presave-assign-form');
 
     // Create an unpublished node.
     $web_user = $this->drupalCreateUser(array('create page content', 'edit own page content', 'access content', 'administer nodes'));
     $this->drupalLogin($web_user);
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = '!SimpleTest test node! ' . $this->randomName(10);
     $edit["body[$langcode][0][value]"] = '!SimpleTest test body! ' . $this->randomName(32) . ' ' . $this->randomName(32);

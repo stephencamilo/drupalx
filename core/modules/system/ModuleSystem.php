@@ -1,70 +1,72 @@
 <?php
+namespace Core\Modules\System;
 
 /**
  * @file
  * Configuration system that lets administrators modify the workings of the site.
  */
 
+class ModuleSystem {
 /**
  * Maximum age of temporary files in seconds.
  */
-define('DRUPAL_MAXIMUM_TEMP_FILE_AGE', 21600);
+public $drupal_maximum_temp_file_age = 21600;
 
 /**
  * Default interval for automatic cron executions in seconds.
  */
-define('DRUPAL_CRON_DEFAULT_THRESHOLD', 10800);
+public $drupal_cron_default_threshold = 10800;
 
 /**
  * New users will be set to the default time zone at registration.
  */
-define('DRUPAL_USER_TIMEZONE_DEFAULT', 0);
+public $drupal_user_timezone_default = 0;
 
 /**
  * New users will get an empty time zone at registration.
  */
-define('DRUPAL_USER_TIMEZONE_EMPTY', 1);
+public $drupal_user_timezone_empty = 1;
 
 /**
  * New users will select their own timezone at registration.
  */
-define('DRUPAL_USER_TIMEZONE_SELECT', 2);
+public $drupal_user_timezone_select = 2;
 
  /**
  * Disabled option on forms and settings
  */
-define('DRUPAL_DISABLED', 0);
+public $drupal_disabled = 0;
 
 /**
  * Optional option on forms and settings
  */
-define('DRUPAL_OPTIONAL', 1);
+public $drupal_optional = 1;
 
 /**
  * Required option on forms and settings
  */
-define('DRUPAL_REQUIRED', 2);
+public $drupal_required = 2;
 
 /**
  * Maximum number of values in a weight select element.
  *
  * If the number of values is over the maximum, a text field is used instead.
  */
-define('DRUPAL_WEIGHT_SELECT_MAX', 100);
+public $drupal_weight_select_max = 100;
 
 /**
  * Return only visible regions.
  *
  * @see system_region_list()
  */
-define('REGIONS_VISIBLE', 'visible');
+public $regions_visible = 'visible';
 
 /**
  * Return all regions.
  *
  * @see system_region_list()
  */
-define('REGIONS_ALL', 'all');
+public $regions_all = 'all';
 
 /**
  * Implements hook_help().
@@ -196,10 +198,10 @@ function system_theme() {
       'file' => 'system.admin.inc',
     ),
     'system_powered_by' => array(
-      'variables' => array(),
+      'variables' => [],
     ),
     'system_compact_link' => array(
-      'variables' => array(),
+      'variables' => [],
     ),
     'system_date_time_settings' => array(
       'render element' => 'form',
@@ -238,7 +240,7 @@ function system_permission() {
     ),
     'view the administration theme' => array(
       'title' => t('View the administration theme'),
-      'description' => variable_get('admin_theme') ? '' : t('This is only used when the site is configured to use a separate administration theme on the <a href="@appearance-url">Appearance</a> page.', array('@appearance-url' => url('admin/appearance'))),
+      'description' => $bootstrap->variable_get('admin_theme') ? '' : t('This is only used when the site is configured to use a separate administration theme on the <a href="@appearance-url">Appearance</a> page.', array('@appearance-url' => url('admin/appearance'))),
     ),
     'access site reports' => array(
       'title' => t('View site reports'),
@@ -308,23 +310,23 @@ function system_element_info() {
   // debugging page that displays rather than executes Ajax commands).
   $types['ajax'] = array(
     '#header' => TRUE,
-    '#commands' => array(),
+    '#commands' => [],
     '#error' => NULL,
   );
   $types['html_tag'] = array(
     '#theme' => 'html_tag',
     '#pre_render' => array('drupal_pre_render_conditional_comments'),
-    '#attributes' => array(),
+    '#attributes' => [],
     '#value' => NULL,
   );
   $types['styles'] = array(
-    '#items' => array(),
+    '#items' => [],
     '#pre_render' => array('drupal_pre_render_styles'),
     '#group_callback' => 'drupal_group_css',
     '#aggregate_callback' => 'drupal_aggregate_css',
   );
   $types['scripts'] = array(
-    '#items' => array(),
+    '#items' => [],
     '#pre_render' => array('drupal_pre_render_scripts'),
   );
 
@@ -466,7 +468,7 @@ function system_element_info() {
     '#js_select' => TRUE,
     '#multiple' => TRUE,
     '#process' => array('form_process_tableselect'),
-    '#options' => array(),
+    '#options' => [],
     '#empty' => '',
     '#theme' => 'tableselect',
   );
@@ -1209,7 +1211,7 @@ function system_library() {
     'website' => 'http://malsup.com/jquery/form/',
     'version' => '2.52',
     'js' => array(
-      'misc/jquery.form.js' => array(),
+      'misc/jquery.form.js' => [],
     ),
     'dependencies' => array(
       array('system', 'jquery.cookie'),
@@ -1222,7 +1224,7 @@ function system_library() {
     'website' => 'http://benalman.com/projects/jquery-bbq-plugin/',
     'version' => '1.2.1',
     'js' => array(
-      'misc/jquery.ba-bbq.js' => array(),
+      'misc/jquery.ba-bbq.js' => [],
     ),
   );
 
@@ -1232,10 +1234,10 @@ function system_library() {
     'website' => 'http://drupal.org/node/323112',
     'version' => '1.0',
     'js' => array(
-      'misc/vertical-tabs.js' => array(),
+      'misc/vertical-tabs.js' => [],
     ),
     'css' => array(
-      'misc/vertical-tabs.css' => array(),
+      'misc/vertical-tabs.css' => [],
     ),
     'dependencies' => array(
       // Vertical tabs relies on drupalGetSummary in form.js
@@ -1249,10 +1251,10 @@ function system_library() {
     'website' => 'http://code.google.com/p/farbtastic/',
     'version' => '1.2',
     'js' => array(
-      'misc/farbtastic/farbtastic.js' => array(),
+      'misc/farbtastic/farbtastic.js' => [],
     ),
     'css' => array(
-      'misc/farbtastic/farbtastic.css' => array(),
+      'misc/farbtastic/farbtastic.css' => [],
     ),
   );
 
@@ -1262,7 +1264,7 @@ function system_library() {
     'website' => 'http://plugins.jquery.com/project/cookie',
     'version' => '1.0',
     'js' => array(
-      'misc/jquery.cookie.js' => array(),
+      'misc/jquery.cookie.js' => [],
     ),
   );
 
@@ -1275,8 +1277,8 @@ function system_library() {
       'misc/ui/jquery.ui.core.min.js' => array('group' => JS_LIBRARY, 'weight' => -11),
     ),
     'css' => array(
-      'misc/ui/jquery.ui.core.css' => array(),
-      'misc/ui/jquery.ui.theme.css' => array(),
+      'misc/ui/jquery.ui.core.css' => [],
+      'misc/ui/jquery.ui.theme.css' => [],
     ),
   );
   $libraries['ui.accordion'] = array(
@@ -1284,10 +1286,10 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/accordion/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.accordion.min.js' => array(),
+      'misc/ui/jquery.ui.accordion.min.js' => [],
     ),
     'css' => array(
-      'misc/ui/jquery.ui.accordion.css' => array(),
+      'misc/ui/jquery.ui.accordion.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1298,10 +1300,10 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/autocomplete/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.autocomplete.min.js' => array(),
+      'misc/ui/jquery.ui.autocomplete.min.js' => [],
     ),
     'css' => array(
-      'misc/ui/jquery.ui.autocomplete.css' => array(),
+      'misc/ui/jquery.ui.autocomplete.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1313,10 +1315,10 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/button/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.button.min.js' => array(),
+      'misc/ui/jquery.ui.button.min.js' => [],
     ),
     'css' => array(
-      'misc/ui/jquery.ui.button.css' => array(),
+      'misc/ui/jquery.ui.button.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1327,10 +1329,10 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/datepicker/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.datepicker.min.js' => array(),
+      'misc/ui/jquery.ui.datepicker.min.js' => [],
     ),
     'css' => array(
-      'misc/ui/jquery.ui.datepicker.css' => array(),
+      'misc/ui/jquery.ui.datepicker.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui'),
@@ -1341,10 +1343,10 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/dialog/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.dialog.min.js' => array(),
+      'misc/ui/jquery.ui.dialog.min.js' => [],
     ),
     'css' => array(
-      'misc/ui/jquery.ui.dialog.css' => array(),
+      'misc/ui/jquery.ui.dialog.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1360,7 +1362,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/draggable/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.draggable.min.js' => array(),
+      'misc/ui/jquery.ui.draggable.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1372,7 +1374,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/droppable/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.droppable.min.js' => array(),
+      'misc/ui/jquery.ui.droppable.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1385,7 +1387,7 @@ function system_library() {
     'website' => 'http://docs.jquery.com/UI/Mouse',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.mouse.min.js' => array(),
+      'misc/ui/jquery.ui.mouse.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1396,7 +1398,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/position/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.position.min.js' => array(),
+      'misc/ui/jquery.ui.position.min.js' => [],
     ),
   );
   $libraries['ui.progressbar'] = array(
@@ -1404,10 +1406,10 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/progressbar/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.progressbar.min.js' => array(),
+      'misc/ui/jquery.ui.progressbar.min.js' => [],
     ),
     'css' => array(
-      'misc/ui/jquery.ui.progressbar.css' => array(),
+      'misc/ui/jquery.ui.progressbar.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1418,10 +1420,10 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/resizable/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.resizable.min.js' => array(),
+      'misc/ui/jquery.ui.resizable.min.js' => [],
     ),
     'css' => array(
-      'misc/ui/jquery.ui.resizable.css' => array(),
+      'misc/ui/jquery.ui.resizable.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1433,10 +1435,10 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/selectable/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.selectable.min.js' => array(),
+      'misc/ui/jquery.ui.selectable.min.js' => [],
     ),
     'css' => array(
-      'misc/ui/jquery.ui.selectable.css' => array(),
+      'misc/ui/jquery.ui.selectable.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1448,10 +1450,10 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/slider/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.slider.min.js' => array(),
+      'misc/ui/jquery.ui.slider.min.js' => [],
     ),
     'css' => array(
-      'misc/ui/jquery.ui.slider.css' => array(),
+      'misc/ui/jquery.ui.slider.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1463,7 +1465,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/sortable/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.sortable.min.js' => array(),
+      'misc/ui/jquery.ui.sortable.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1475,10 +1477,10 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/tabs/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.ui.tabs.min.js' => array(),
+      'misc/ui/jquery.ui.tabs.min.js' => [],
     ),
     'css' => array(
-      'misc/ui/jquery.ui.tabs.css' => array(),
+      'misc/ui/jquery.ui.tabs.css' => [],
     ),
     'dependencies' => array(
       array('system', 'ui.widget'),
@@ -1508,7 +1510,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.blind.min.js' => array(),
+      'misc/ui/jquery.effects.blind.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1519,7 +1521,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.bounce.min.js' => array(),
+      'misc/ui/jquery.effects.bounce.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1530,7 +1532,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.clip.min.js' => array(),
+      'misc/ui/jquery.effects.clip.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1541,7 +1543,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.drop.min.js' => array(),
+      'misc/ui/jquery.effects.drop.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1552,7 +1554,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.explode.min.js' => array(),
+      'misc/ui/jquery.effects.explode.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1563,7 +1565,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.fade.min.js' => array(),
+      'misc/ui/jquery.effects.fade.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1574,7 +1576,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.fold.min.js' => array(),
+      'misc/ui/jquery.effects.fold.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1585,7 +1587,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.highlight.min.js' => array(),
+      'misc/ui/jquery.effects.highlight.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1596,7 +1598,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.pulsate.min.js' => array(),
+      'misc/ui/jquery.effects.pulsate.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1607,7 +1609,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.scale.min.js' => array(),
+      'misc/ui/jquery.effects.scale.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1618,7 +1620,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.shake.min.js' => array(),
+      'misc/ui/jquery.effects.shake.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1629,7 +1631,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.slide.min.js' => array(),
+      'misc/ui/jquery.effects.slide.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1640,7 +1642,7 @@ function system_library() {
     'website' => 'http://jqueryui.com/demos/effect/',
     'version' => '1.8.7',
     'js' => array(
-      'misc/ui/jquery.effects.transfer.min.js' => array(),
+      'misc/ui/jquery.effects.transfer.min.js' => [],
     ),
     'dependencies' => array(
       array('system', 'effects'),
@@ -1787,7 +1789,7 @@ function _system_themes_access($theme) {
  * @return
  *   Nothing, this function just initializes variables in the user's session.
  */
-function system_authorized_init($callback, $file, $arguments = array(), $page_title = NULL) {
+function system_authorized_init($callback, $file, $arguments = [], $page_title = NULL) {
   // First, figure out what file transfer backends the site supports, and put
   // all of those in the SESSION so that authorize.php has access to all of
   // them via the class autoloader, even without a full bootstrap.
@@ -1815,7 +1817,7 @@ function system_authorized_init($callback, $file, $arguments = array(), $page_ti
  *
  * @see system_authorized_init()
  */
-function system_authorized_get_url(array $options = array()) {
+function system_authorized_get_url(array $options = []) {
   global $base_url;
   // Force HTTPS if available, regardless of what the caller specifies.
   $options['https'] = TRUE;
@@ -1836,7 +1838,7 @@ function system_authorized_batch_processing_url() {
  *
  * @see system_authorized_init()
  */
-function system_authorized_run($callback, $file, $arguments = array(), $page_title = NULL) {
+function system_authorized_run($callback, $file, $arguments = [], $page_title = NULL) {
   system_authorized_init($callback, $file, $arguments, $page_title);
   drupal_goto(system_authorized_get_url());
 }
@@ -1878,7 +1880,7 @@ function system_updater_info() {
  * Implements hook_filetransfer_info().
  */
 function system_filetransfer_info() {
-  $backends = array();
+  $backends = [];
 
   // This is the default, will be available on most systems.
   if (function_exists('ftp_connect')) {
@@ -1972,7 +1974,7 @@ function system_add_module_assets() {
  */
 function system_custom_theme() {
   if (user_access('view the administration theme') && path_is_admin(current_path())) {
-    return variable_get('admin_theme');
+    return $bootstrap->variable_get('admin_theme');
   }
 }
 
@@ -1999,7 +2001,7 @@ function system_form_user_register_form_alter(&$form, &$form_state) {
     else {
       $form['account']['timezone'] = array(
         '#type' => 'hidden',
-        '#value' => variable_get('user_default_timezone', DRUPAL_USER_TIMEZONE_DEFAULT) ? '' : variable_get('date_default_timezone', ''),
+        '#value' => $bootstrap->variable_get('user_default_timezone', DRUPAL_USER_TIMEZONE_DEFAULT) ? '' : $bootstrap->variable_get('date_default_timezone', ''),
       );
     }
     return $form;
@@ -2011,7 +2013,7 @@ function system_form_user_register_form_alter(&$form, &$form_state) {
  */
 function system_user_login(&$edit, $account) {
   // If the user has a NULL time zone, notify them to set a time zone.
-  if (!$account->timezone && variable_get('configurable_timezones', 1) && variable_get('empty_timezone_message', 0)) {
+  if (!$account->timezone && $bootstrap->variable_get('configurable_timezones', 1) && $bootstrap->variable_get('empty_timezone_message', 0)) {
     drupal_set_message(t('Configure your <a href="@user-edit">account time zone setting</a>.', array('@user-edit' => url("user/$account->uid/edit", array('query' => drupal_get_destination(), 'fragment' => 'edit-timezone')))));
   }
 }
@@ -2033,7 +2035,7 @@ function system_user_timezone(&$form, &$form_state) {
   $form['timezone']['timezone'] = array(
     '#type' => 'select',
     '#title' => t('Time zone'),
-    '#default_value' => isset($account->timezone) ? $account->timezone : ($account->uid == $user->uid ? variable_get('date_default_timezone', '') : ''),
+    '#default_value' => isset($account->timezone) ? $account->timezone : ($account->uid == $user->uid ? $bootstrap->variable_get('date_default_timezone', '') : ''),
     '#options' => system_time_zones($account->uid != $user->uid),
     '#description' => t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
   );
@@ -2086,7 +2088,7 @@ function system_block_info() {
  * all system menu blocks.
  */
 function system_block_view($delta = '') {
-  $block = array();
+  $block = [];
   switch ($delta) {
     case 'main':
       $block['subject'] = NULL;
@@ -2129,7 +2131,7 @@ function system_preprocess_block(&$variables) {
  *   The menu item to be displayed.
  */
 function system_admin_menu_block($item) {
-  $cache = &drupal_static(__FUNCTION__, array());
+  $cache = &drupal_static(__FUNCTION__, []);
   // If we are calling this function for a menu item that corresponds to a
   // local task (for example, admin/tasks), then we want to retrieve the
   // parent item's child links, not this item's (since this item won't have
@@ -2146,7 +2148,7 @@ function system_admin_menu_block($item) {
     return $cache[$item['mlid']];
   }
 
-  $content = array();
+  $content = [];
   $query = db_select('menu_links', 'ml', array('fetch' => PDO::FETCH_ASSOC));
   $query->join('menu_router', 'm', 'm.path = ml.router_path');
   $query
@@ -2258,7 +2260,7 @@ function system_update_files_database(&$files, $type) {
       // Keep the old filename from the database in case the file has moved.
       $old_filename = $file->filename;
 
-      $updated_fields = array();
+      $updated_fields = [];
 
       // Handle info specially, compare the serialized value.
       $serialized_info = serialize($files[$file->name]->info);
@@ -2350,7 +2352,7 @@ function system_update_files_database(&$files, $type) {
  * @see system_rebuild_theme_data()
  */
 function system_get_info($type, $name = NULL) {
-  $info = array();
+  $info = [];
   if ($type == 'module') {
     $type = 'module_enabled';
   }
@@ -2361,7 +2363,7 @@ function system_get_info($type, $name = NULL) {
     }
   }
   if (isset($name)) {
-    return isset($info[$name]) ? $info[$name] : array();
+    return isset($info[$name]) ? $info[$name] : [];
   }
   return $info;
 }
@@ -2388,12 +2390,12 @@ function _system_rebuild_module_data() {
 
   // Set defaults for module info.
   $defaults = array(
-    'dependencies' => array(),
+    'dependencies' => [],
     'description' => '',
     'package' => 'Other',
     'version' => NULL,
     'php' => DRUPAL_MINIMUM_PHP,
-    'files' => array(),
+    'files' => [],
     'bootstrap' => 0,
   );
 
@@ -2487,7 +2489,7 @@ function system_rebuild_module_data() {
  * are loaded earlier to invoke the hooks.
  */
 function _system_update_bootstrap_status() {
-  $bootstrap_modules = array();
+  $bootstrap_modules = [];
   foreach (bootstrap_hooks() as $hook) {
     foreach (module_implements($hook) as $module) {
       $bootstrap_modules[] = $module;
@@ -2514,9 +2516,12 @@ function _system_update_bootstrap_status() {
  */
 function _system_rebuild_theme_data() {
   // Find themes
-  $themes = drupal_system_listing('/^' . DRUPAL_PHP_FUNCTION_PATTERN . '\.info$/', 'themes');
+  $common = new \Core\Includes\Common;
+  $bootstrap = new \Core\Includes\Bootstrap;
+  $module = new \Core\Includes\Module;
+  $themes = $common->drupal_system_listing('/^' . $bootstrap->drupal_php_function_pattern . '\.info$/', 'themes');
   // Allow modules to add further themes.
-  if ($module_themes = module_invoke_all('system_theme_info')) {
+  if ($module_themes = $module->module_invoke_all('system_theme_info')) {
     foreach ($module_themes as $name => $uri) {
       // @see file_scan_directory()
       $themes[$name] = (object) array(
@@ -2558,11 +2563,11 @@ function _system_rebuild_theme_data() {
     'features' => _system_default_theme_features(),
     'screenshot' => 'screenshot.png',
     'php' => DRUPAL_MINIMUM_PHP,
-    'stylesheets' => array(),
-    'scripts' => array(),
+    'stylesheets' => [],
+    'scripts' => [],
   );
 
-  $sub_themes = array();
+  $sub_themes = [];
   // Read info files for each theme
   foreach ($themes as $key => $theme) {
     $themes[$key]->filename = $theme->uri;
@@ -2711,7 +2716,7 @@ function _system_default_theme_features() {
  *
  * This function has been deprecated in favor of drupal_find_base_themes().
  */
-function system_find_base_themes($themes, $key, $used_keys = array()) {
+function system_find_base_themes($themes, $key, $used_keys = []) {
   return drupal_find_base_themes($themes, $key, $used_keys);
 }
 
@@ -2736,10 +2741,10 @@ function system_find_base_themes($themes, $key, $used_keys = array()) {
 function system_region_list($theme_key, $show = REGIONS_ALL, $labels = TRUE) {
   $themes = list_themes();
   if (!isset($themes[$theme_key])) {
-    return array();
+    return [];
   }
 
-  $list = array();
+  $list = [];
   $info = $themes[$theme_key]->info;
   // If requested, suppress hidden regions. See block_admin_display_form().
   foreach ($info['regions'] as $name => $label) {
@@ -2954,7 +2959,7 @@ function confirm_form($form, $question, $path, $description = NULL, $yes = NULL,
 function system_admin_compact_mode() {
   // PHP converts dots into underscores in cookie names to avoid problems with
   // its parser, so we use a converted cookie name.
-  return isset($_COOKIE['Drupal_visitor_admin_compact_mode']) ? $_COOKIE['Drupal_visitor_admin_compact_mode'] : variable_get('admin_compact_mode', FALSE);
+  return isset($_COOKIE['Drupal_visitor_admin_compact_mode']) ? $_COOKIE['Drupal_visitor_admin_compact_mode'] : $bootstrap->variable_get('admin_compact_mode', FALSE);
 }
 
 /**
@@ -2983,7 +2988,7 @@ function system_get_module_admin_tasks($module, $info) {
   $links = &drupal_static(__FUNCTION__);
 
   if (!isset($links)) {
-    $links = array();
+    $links = [];
     $query = db_select('menu_links', 'ml', array('fetch' => PDO::FETCH_ASSOC));
     $query->join('menu_router', 'm', 'm.path = ml.router_path');
     $query
@@ -3003,8 +3008,8 @@ function system_get_module_admin_tasks($module, $info) {
     }
   }
 
-  $admin_tasks = array();
-  $titles = array();
+  $admin_tasks = [];
+  $titles = [];
   if ($menu = module_invoke($module, 'menu')) {
     foreach ($menu as $path => $item) {
       if (isset($links[$path])) {
@@ -3331,7 +3336,7 @@ function system_message_action_submit($form, $form_state) {
  *
  * @ingroup actions
  */
-function system_message_action(&$entity, $context = array()) {
+function system_message_action(&$entity, $context = []) {
   if (empty($context['node'])) {
     $context['node'] = $entity;
   }
@@ -3399,13 +3404,13 @@ function system_block_ip_action() {
  */
 function system_time_zones($blank = NULL) {
   $zonelist = timezone_identifiers_list();
-  $zones = $blank ? array('' => t('- None selected -')) : array();
+  $zones = $blank ? array('' => t('- None selected -')) : [];
   foreach ($zonelist as $zone) {
     // Because many time zones exist in PHP only for backward compatibility
     // reasons and should not be used, the list is filtered by a regular
     // expression.
     if (preg_match('!^((Africa|America|Antarctica|Arctic|Asia|Atlantic|Australia|Europe|Indian|Pacific)/|UTC$)!', $zone)) {
-      $zones[$zone] = t('@zone: @date', array('@zone' => t(str_replace('_', ' ', $zone)), '@date' => format_date(REQUEST_TIME, 'custom', variable_get('date_format_long', 'l, F j, Y - H:i') . ' O', $zone)));
+      $zones[$zone] = t('@zone: @date', array('@zone' => t(str_replace('_', ' ', $zone)), '@date' => format_date(REQUEST_TIME, 'custom', $bootstrap->variable_get('date_format_long', 'l, F j, Y - H:i') . ' O', $zone)));
     }
   }
   // Sort the translated time zones alphabetically.
@@ -3562,8 +3567,8 @@ function system_run_automated_cron() {
   // If the site is not fully installed, suppress the automated cron run.
   // Otherwise it could be triggered prematurely by Ajax requests during
   // installation.
-  if (($threshold = variable_get('cron_safe_threshold', DRUPAL_CRON_DEFAULT_THRESHOLD)) > 0 && variable_get('install_task') == 'done') {
-    $cron_last = variable_get('cron_last', NULL);
+  if (($threshold = $bootstrap->variable_get('cron_safe_threshold', DRUPAL_CRON_DEFAULT_THRESHOLD)) > 0 && $bootstrap->variable_get('install_task') == 'done') {
+    $cron_last = $bootstrap->variable_get('cron_last', NULL);
     if (!isset($cron_last) || (REQUEST_TIME - $cron_last > $threshold)) {
       drupal_cron_run();
     }
@@ -3712,11 +3717,11 @@ function system_date_format_locale($langcode = NULL, $type = NULL) {
   $formats = &drupal_static(__FUNCTION__);
 
   if (empty($formats)) {
-    $formats = array();
+    $formats = [];
     $result = db_query("SELECT format, type, language FROM {date_format_locale}");
     foreach ($result as $record) {
       if (!isset($formats[$record->language])) {
-        $formats[$record->language] = array();
+        $formats[$record->language] = [];
       }
       $formats[$record->language][$record->type] = $record->format;
     }
@@ -3748,7 +3753,7 @@ function system_date_format_locale($langcode = NULL, $type = NULL) {
  *     unsaved in the database.
  */
 function _system_date_format_types_build() {
-  $types = array();
+  $types = [];
 
   // Get list of modules that implement hook_date_format_types().
   $modules = module_implements('date_format_types');
@@ -3756,7 +3761,7 @@ function _system_date_format_types_build() {
   foreach ($modules as $module) {
     $module_types = module_invoke($module, 'date_format_types');
     foreach ($module_types as $module_type => $type_title) {
-      $type = array();
+      $type = [];
       $type['module'] = $module;
       $type['type'] = $module_type;
       $type['title'] = $type_title;
@@ -3771,7 +3776,7 @@ function _system_date_format_types_build() {
   $result = db_query('SELECT dft.type, dft.title, dft.locked FROM {date_format_type} dft ORDER BY dft.title');
   foreach ($result as $record) {
     if (!isset($types[$record->type])) {
-      $type = array();
+      $type = [];
       $type['is_new'] = FALSE;
       $type['module'] = '';
       $type['type'] = $record->type;
@@ -3780,7 +3785,7 @@ function _system_date_format_types_build() {
       $types[$record->type] = $type;
     }
     else {
-      $type = array();
+      $type = [];
       $type['is_new'] = FALSE;  // Over-riding previous setting.
       $types[$record->type] = array_merge($types[$record->type], $type);
     }
@@ -3813,7 +3818,7 @@ function _system_date_format_types_build() {
  *     unsaved in the database.
  */
 function _system_date_formats_build() {
-  $date_formats = array();
+  $date_formats = [];
 
   // First handle hook_date_format_types().
   $types = _system_date_format_types_build();
@@ -3835,7 +3840,7 @@ function _system_date_formats_build() {
       continue;
     }
     if (!isset($date_formats[$module_format['type']])) {
-      $date_formats[$module_format['type']] = array();
+      $date_formats[$module_format['type']] = [];
     }
 
     // If another module already set this format, merge in the new settings.
@@ -3854,7 +3859,7 @@ function _system_date_formats_build() {
   foreach ($result as $record) {
     // If this date type isn't set, initialise the array.
     if (!isset($date_formats[$record->type])) {
-      $date_formats[$record->type] = array();
+      $date_formats[$record->type] = [];
     }
     $format = (array) $record;
     $format['is_new'] = FALSE; // It's in the db, so override this setting.
@@ -3892,7 +3897,7 @@ function _system_date_formats_build() {
  *     unsaved in the database.
  */
 function system_date_format_type_save($type) {
-  $info = array();
+  $info = [];
   $info['type'] = $type['type'];
   $info['title'] = $type['title'];
   $info['locked'] = $type['locked'];
@@ -3941,7 +3946,7 @@ function system_date_format_type_delete($type) {
  * @see http://php.net/date
  */
 function system_date_format_save($date_format, $dfid = 0) {
-  $info = array();
+  $info = [];
   $info['dfid'] = $dfid;
   $info['type'] = $date_format['type'];
   $info['format'] = $date_format['format'];
@@ -3962,7 +3967,7 @@ function system_date_format_save($date_format, $dfid = 0) {
   // that are enabled (value of 1).
   $languages = $languages[1];
 
-  $locale_format = array();
+  $locale_format = [];
   $locale_format['type'] = $date_format['type'];
   $locale_format['format'] = $date_format['format'];
 
@@ -4059,7 +4064,7 @@ function theme_exposed_filters($variables) {
   $output = '';
 
   if (isset($form['current'])) {
-    $items = array();
+    $items = [];
     foreach (element_children($form['current']) as $key) {
       $items[] = drupal_render($form['current'][$key]);
     }
@@ -4084,4 +4089,5 @@ function system_admin_paths() {
     'admin/reports/status/php' => FALSE,
   );
   return $paths;
+}
 }

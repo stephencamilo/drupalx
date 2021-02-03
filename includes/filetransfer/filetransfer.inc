@@ -363,7 +363,7 @@ abstract class FileTransfer {
 class FileTransferException extends Exception {
   public $arguments;
 
-  function __construct($message, $code = 0, $arguments = array()) {
+  function __construct($message, $code = 0, $arguments = []) {
     parent::__construct($message, $code);
     $this->arguments = $arguments;
   }

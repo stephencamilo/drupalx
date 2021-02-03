@@ -14,7 +14,7 @@
  * @see book_menu()
  */
 function book_admin_overview() {
-  $rows = array();
+  $rows = [];
 
   $headers = array(t('Book'), t('Operations'));
 
@@ -38,7 +38,7 @@ function book_admin_settings() {
   $form['book_allowed_types'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Content types allowed in book outlines'),
-    '#default_value' => variable_get('book_allowed_types', array('book')),
+    '#default_value' => $bootstrap->variable_get('book_allowed_types', array('book')),
     '#options' => $types,
     '#description' => t('Users with the %outline-perm permission can add all content types.', array('%outline-perm' => t('Administer book outlines'))),
     '#required' => TRUE,
@@ -46,7 +46,7 @@ function book_admin_settings() {
   $form['book_child_type'] = array(
     '#type' => 'radios',
     '#title' => t('Content type for child pages'),
-    '#default_value' => variable_get('book_child_type', 'book'),
+    '#default_value' => $bootstrap->variable_get('book_child_type', 'book'),
     '#options' => $types,
     '#required' => TRUE,
   );
@@ -257,7 +257,7 @@ function theme_book_admin_table($variables) {
 
   $header = array(t('Title'), t('Weight'), t('Parent'), array('data' => t('Operations'), 'colspan' => '3'));
 
-  $rows = array();
+  $rows = [];
   $destination = drupal_get_destination();
   $access = user_access('administer nodes');
   foreach (element_children($form) as $key) {

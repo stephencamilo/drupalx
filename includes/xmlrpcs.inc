@@ -76,7 +76,7 @@ function xmlrpc_server($callbacks) {
     xmlrpc_server_error(-32600, t('Server error. Invalid XML-RPC. Request must be a methodCall.'));
   }
   if (!isset($xmlrpc_server->message->params)) {
-    $xmlrpc_server->message->params = array();
+    $xmlrpc_server->message->params = [];
   }
   xmlrpc_server_set($xmlrpc_server);
   $result = xmlrpc_server_call($xmlrpc_server, $xmlrpc_server->message->methodname, $xmlrpc_server->message->params);
@@ -266,9 +266,9 @@ function xmlrpc_server_multicall($methodcalls) {
   // See http://www.xmlrpc.com/discuss/msgReader$1208
   // To avoid multicall expansion attacks, limit the number of duplicate method
   // calls allowed with a default of 1. Set to -1 for unlimited.
-  $duplicate_method_limit = variable_get('xmlrpc_multicall_duplicate_method_limit', 1);
-  $method_count = array();
-  $return = array();
+  $duplicate_method_limit = $bootstrap->variable_get('xmlrpc_multicall_duplicate_method_limit', 1);
+  $method_count = [];
+  $return = [];
   $xmlrpc_server = xmlrpc_server_get();
   foreach ($methodcalls as $call) {
     $ok = TRUE;
@@ -370,7 +370,7 @@ function xmlrpc_server_method_signature($methodname) {
     return xmlrpc_error(-32601, t('Server error. Requested method @methodname signature not specified.', array("@methodname" => $methodname)));
   }
   // We array of types
-  $return = array();
+  $return = [];
   foreach ($xmlrpc_server->signatures[$methodname] as $type) {
     $return[] = $type;
   }

@@ -24,7 +24,7 @@ function aggregator_view() {
   $output = '<h3>' . t('Feed overview') . '</h3>';
 
   $header = array(t('Title'), t('Items'), t('Last update'), t('Next update'), array('data' => t('Operations'), 'colspan' => '3'));
-  $rows = array();
+  $rows = [];
   foreach ($result as $feed) {
     $rows[] = array(
       l($feed->title, "aggregator/sources/$feed->fid"),
@@ -43,7 +43,7 @@ function aggregator_view() {
   $output .= '<h3>' . t('Category overview') . '</h3>';
 
   $header = array(t('Title'), t('Items'), t('Operations'));
-  $rows = array();
+  $rows = [];
   foreach ($result as $category) {
     $rows[] = array(l($category->title, "aggregator/categories/$category->cid"), format_plural($category->items, '1 item', '@count items'), l(t('edit'), "admin/config/services/aggregator/edit/category/$category->cid"));
   }
@@ -95,8 +95,8 @@ function aggregator_form_feed($form, &$form_state, stdClass $feed = NULL) {
   );
 
   // Handling of categories.
-  $options = array();
-  $values = array();
+  $options = [];
+  $values = [];
   $categories = db_query('SELECT c.cid, c.title, f.fid FROM {aggregator_category} c LEFT JOIN {aggregator_category_feed} f ON c.cid = f.cid AND f.fid = :fid ORDER BY title', array(':fid' => isset($feed->fid) ? $feed->fid : NULL));
   foreach ($categories as $category) {
     $options[$category->cid] = check_plain($category->title);
@@ -381,7 +381,7 @@ function aggregator_form_opml_submit($form, &$form_state) {
  *   OPML documents do.
  */
 function _aggregator_parse_opml($opml) {
-  $feeds = array();
+  $feeds = [];
   $xml_parser = drupal_xml_parser_create($opml);
   if (xml_parse_into_struct($xml_parser, $opml, $values)) {
     foreach ($values as $entry) {
@@ -425,7 +425,7 @@ function aggregator_admin_form($form, $form_state) {
     '#title' => t('Allowed HTML tags'),
     '#size' => 80,
     '#maxlength' => 255,
-    '#default_value' => variable_get('aggregator_allowed_html_tags', '<a> <b> <br> <dd> <dl> <dt> <em> <i> <li> <ol> <p> <strong> <u> <ul>'),
+    '#default_value' => $bootstrap->variable_get('aggregator_allowed_html_tags', '<a> <b> <br> <dd> <dl> <dt> <em> <i> <li> <ol> <p> <strong> <u> <ul>'),
     '#description' => t('A space-separated list of HTML tags allowed in the content of feed items. Disallowed tags are stripped from the content.'),
   );
 
@@ -472,14 +472,14 @@ function aggregator_admin_form($form, $form_state) {
   }
 
   // Only show basic configuration if there are actually options.
-  $basic_conf = array();
+  $basic_conf = [];
   if (count($fetchers) > 1) {
     $basic_conf['aggregator_fetcher'] = array(
       '#type' => 'radios',
       '#title' => t('Fetcher'),
       '#description' => t('Fetchers download data from an external source. Choose a fetcher suitable for the external source you would like to download from.'),
       '#options' => $fetchers,
-      '#default_value' => variable_get('aggregator_fetcher', 'aggregator'),
+      '#default_value' => $bootstrap->variable_get('aggregator_fetcher', 'aggregator'),
     );
   }
   if (count($parsers) > 1) {
@@ -488,7 +488,7 @@ function aggregator_admin_form($form, $form_state) {
       '#title' => t('Parser'),
       '#description' => t('Parsers transform downloaded data into standard structures. Choose a parser suitable for the type of feeds you would like to aggregate.'),
       '#options' => $parsers,
-      '#default_value' => variable_get('aggregator_parser', 'aggregator'),
+      '#default_value' => $bootstrap->variable_get('aggregator_parser', 'aggregator'),
     );
   }
   if (count($processors) > 1) {
@@ -497,7 +497,7 @@ function aggregator_admin_form($form, $form_state) {
       '#title' => t('Processors'),
       '#description' => t('Processors act on parsed feed data, for example they store feed items. Choose the processors suitable for your task.'),
       '#options' => $processors,
-      '#default_value' => variable_get('aggregator_processors', array('aggregator')),
+      '#default_value' => $bootstrap->variable_get('aggregator_processors', array('aggregator')),
     );
   }
   if (count($basic_conf)) {
@@ -512,7 +512,7 @@ function aggregator_admin_form($form, $form_state) {
   }
 
   // Implementing modules will expect an array at $form['modules'].
-  $form['modules'] = array();
+  $form['modules'] = [];
 
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(

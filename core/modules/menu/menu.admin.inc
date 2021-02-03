@@ -9,9 +9,9 @@
  * Menu callback which shows an overview page of all the custom menus and their descriptions.
  */
 function menu_overview_page() {
-  $result = db_query("SELECT * FROM {menu_custom} ORDER BY title", array(), array('fetch' => PDO::FETCH_ASSOC));
+  $result = db_query("SELECT * FROM {menu_custom} ORDER BY title", [], array('fetch' => PDO::FETCH_ASSOC));
   $header = array(t('Title'), array('data' => t('Operations'), 'colspan' => '3'));
-  $rows = array();
+  $rows = [];
   foreach ($result as $menu) {
     $row = array(theme('menu_admin_overview', array('title' => $menu['title'], 'name' => $menu['menu_name'], 'description' => $menu['description'])));
     $row[] = array('data' => l(t('list links'), 'admin/structure/menu/manage/' . $menu['menu_name']));
@@ -55,12 +55,12 @@ function menu_overview_form($form, &$form_state, $menu) {
     WHERE ml.menu_name = :menu
     ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC";
   $result = db_query($sql, array(':menu' => $menu['menu_name']), array('fetch' => PDO::FETCH_ASSOC));
-  $links = array();
+  $links = [];
   foreach ($result as $item) {
     $links[] = $item;
   }
   $tree = menu_tree_data($links);
-  $node_links = array();
+  $node_links = [];
   menu_tree_collect_node_links($tree, $node_links);
   // We indicate that a menu administrator is running the menu access check.
   $menu_admin = TRUE;
@@ -129,7 +129,7 @@ function _menu_overview_tree_form($tree) {
         '#default_value' => $item['plid'],
       );
       // Build a list of operations.
-      $operations = array();
+      $operations = [];
       $operations['edit'] = array('#type' => 'link', '#title' => t('edit'), '#href' => 'admin/structure/menu/item/' . $item['mlid'] . '/edit');
       // Only items created by the menu module can be deleted.
       if ($item['module'] == 'menu' || $item['updated'] == 1) {
@@ -167,7 +167,7 @@ function menu_overview_form_submit($form, &$form_state) {
   $order = array_flip(array_keys($form_state['input'])); // Get the $_POST order.
   $form = array_merge($order, $form); // Update our original form with the new order.
 
-  $updated_items = array();
+  $updated_items = [];
   $fields = array('weight', 'plid');
   foreach (element_children($form) as $mlid) {
     if (isset($form[$mlid]['#item'])) {
@@ -218,12 +218,12 @@ function theme_menu_overview_form($variables) {
     array('data' => t('Operations'), 'colspan' => '3'),
   );
 
-  $rows = array();
+  $rows = [];
   foreach (element_children($form) as $mlid) {
     if (isset($form[$mlid]['hidden'])) {
       $element = &$form[$mlid];
       // Build a list of operations.
-      $operations = array();
+      $operations = [];
       foreach (element_children($element['operations']) as $op) {
         $operations[] = array('data' => drupal_render($element['operations'][$op]), 'class' => array('menu-operations'));
       }
@@ -239,7 +239,7 @@ function theme_menu_overview_form($variables) {
       // Change the parent field to a hidden. This allows any value but hides the field.
       $element['plid']['#type'] = 'hidden';
 
-      $row = array();
+      $row = [];
       $row[] = theme('indentation', array('size' => $element['#item']['depth'] - 1)) . drupal_render($element['title']);
       $row[] = array('data' => drupal_render($element['hidden']), 'class' => array('checkbox', 'menu-enabled'));
       $row[] = drupal_render($element['weight']) . drupal_render($element['plid']) . drupal_render($element['mlid']);
@@ -265,7 +265,7 @@ function theme_menu_overview_form($variables) {
 function menu_edit_item($form, &$form_state, $type, $item, $menu) {
   if ($type == 'add' || empty($item)) {
     // This is an add form, initialize the menu link.
-    $item = array('link_title' => '', 'mlid' => 0, 'plid' => 0, 'menu_name' => $menu['menu_name'], 'weight' => 0, 'link_path' => '', 'options' => array(), 'module' => 'menu', 'expanded' => 0, 'hidden' => 0, 'has_children' => 0);
+    $item = array('link_title' => '', 'mlid' => 0, 'plid' => 0, 'menu_name' => $menu['menu_name'], 'weight' => 0, 'link_path' => '', 'options' => [], 'module' => 'menu', 'expanded' => 0, 'hidden' => 0, 'has_children' => 0);
   }
   else {
     // Get the human-readable menu title from the given menu name.
@@ -437,7 +437,7 @@ function menu_edit_item_submit($form, &$form_state) {
 /**
  * Menu callback; Build the form that handles the adding/editing of a custom menu.
  */
-function menu_edit_menu($form, &$form_state, $type, $menu = array()) {
+function menu_edit_menu($form, &$form_state, $type, $menu = []) {
   $system_menus = menu_list_system_menus();
   $menu += array(
     'menu_name' => '',
@@ -676,11 +676,11 @@ function menu_configure() {
 
   $menu_options = menu_get_menus();
 
-  $main = variable_get('menu_main_links_source', 'main-menu');
+  $main = $bootstrap->variable_get('menu_main_links_source', 'main-menu');
   $form['menu_main_links_source'] = array(
     '#type' => 'select',
     '#title' => t('Source for the Main links'),
-    '#default_value' => variable_get('menu_main_links_source', 'main-menu'),
+    '#default_value' => $bootstrap->variable_get('menu_main_links_source', 'main-menu'),
     '#empty_option' => t('No Main links'),
     '#options' => $menu_options,
     '#tree' => FALSE,
@@ -690,7 +690,7 @@ function menu_configure() {
   $form['menu_secondary_links_source'] = array(
     '#type' => 'select',
     '#title' => t('Source for the Secondary links'),
-    '#default_value' => variable_get('menu_secondary_links_source', 'user-menu'),
+    '#default_value' => $bootstrap->variable_get('menu_secondary_links_source', 'user-menu'),
     '#empty_option' => t('No Secondary links'),
     '#options' => $menu_options,
     '#tree' => FALSE,

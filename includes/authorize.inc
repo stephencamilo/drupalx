@@ -16,7 +16,7 @@
  */
 function authorize_filetransfer_form($form, &$form_state) {
   global $base_url, $is_https;
-  $form = array();
+  $form = [];
 
   // If possible, we want to post this form securely via HTTPS.
   $form['#https'] = TRUE;
@@ -28,7 +28,7 @@ function authorize_filetransfer_form($form, &$form_state) {
   // Get all the available ways to transfer files.
   if (empty($_SESSION['authorize_filetransfer_info'])) {
     drupal_set_message(t('Unable to continue, no available methods of file transfer'), 'error');
-    return array();
+    return [];
   }
   $available_backends = $_SESSION['authorize_filetransfer_info'];
 
@@ -44,7 +44,7 @@ function authorize_filetransfer_form($form, &$form_state) {
   if (isset($form_state['values']['connection_settings']['authorize_filetransfer_default'])) {
     $authorize_filetransfer_default = $form_state['values']['connection_settings']['authorize_filetransfer_default'];
   }
-  elseif ($authorize_filetransfer_default = variable_get('authorize_filetransfer_default', NULL));
+  elseif ($authorize_filetransfer_default = $bootstrap->variable_get('authorize_filetransfer_default', NULL));
   else {
     $authorize_filetransfer_default = key($available_backends);
   }
@@ -110,7 +110,7 @@ function authorize_filetransfer_form($form, &$form_state) {
       unset($_COOKIE['has_js']);
 
       // Change the submit button to the submit_process one.
-      $form['submit_process']['#attributes'] = array();
+      $form['submit_process']['#attributes'] = [];
       unset($form['submit_connection']);
 
       // Activate the proper filetransfer settings form.
@@ -144,8 +144,8 @@ function authorize_filetransfer_form($form, &$form_state) {
  * @see hook_filetransfer_backends()
  */
 function _authorize_filetransfer_connection_settings($backend) {
-  $defaults = variable_get('authorize_filetransfer_connection_settings_' . $backend, array());
-  $form = array();
+  $defaults = $bootstrap->variable_get('authorize_filetransfer_connection_settings_' . $backend, []);
+  $form = [];
 
   // Create an instance of the file transfer class to get its settings form.
   $filetransfer = authorize_get_filetransfer($backend);
@@ -242,7 +242,7 @@ function authorize_filetransfer_form_submit($form, &$form_state) {
       // likely) be called during the installation process, before the
       // database is set up.
       try {
-        $connection_settings = array();
+        $connection_settings = [];
         foreach ($form_state['values']['connection_settings'][$filetransfer_backend] as $key => $value) {
           // We do *not* want to store passwords in the database, unless the
           // backend explicitly says so via the magic #filetransfer_save form
@@ -316,7 +316,7 @@ function authorize_run_operation($filetransfer) {
  *   An instantiated FileTransfer object for the requested method and settings,
  *   or FALSE if there was an error finding or instantiating it.
  */
-function authorize_get_filetransfer($backend, $settings = array()) {
+function authorize_get_filetransfer($backend, $settings = []) {
   $filetransfer = FALSE;
   if (!empty($_SESSION['authorize_filetransfer_info'][$backend])) {
     $backend_info = $_SESSION['authorize_filetransfer_info'][$backend];
@@ -326,7 +326,7 @@ function authorize_get_filetransfer($backend, $settings = array()) {
     }
     if (class_exists($backend_info['class'])) {
       // PHP 5.2 doesn't support $class::factory() syntax, so we have to
-      // use call_user_func_array() until we can require PHP 5.3.
+      // use call_user_func_[] until we can require PHP 5.3.
       $filetransfer = call_user_func_array(array($backend_info['class'], 'factory'), array(DRUPAL_ROOT, $settings));
     }
   }

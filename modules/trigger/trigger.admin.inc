@@ -24,7 +24,7 @@ function trigger_assign($module_to_display = NULL) {
     drupal_goto('admin/structure/trigger/node');
   }
 
-  $build = array();
+  $build = [];
   $trigger_info = module_invoke_all('trigger_info');
   drupal_alter('trigger_info', $trigger_info);
   foreach ($trigger_info as $module => $hooks) {
@@ -131,8 +131,8 @@ function trigger_assign_form($form, $form_state, $module, $hook, $label) {
   $form['#validate'][] = 'trigger_assign_form_validate';
   $form['#submit'][] = 'trigger_assign_form_submit';
 
-  $options = array();
-  $functions = array();
+  $options = [];
+  $functions = [];
   // Restrict the options list to actions that declare support for this hook.
   foreach (actions_list() as $func => $metadata) {
     if (isset($metadata['triggers']) && array_intersect(array($hook, 'any'), $metadata['triggers'])) {
@@ -156,7 +156,7 @@ function trigger_assign_form($form, $form_state, $module, $hook, $label) {
   // Retrieve actions that are already assigned to this hook combination.
   $actions = trigger_get_assigned_actions($hook);
   $form[$hook]['assigned']['#type'] = 'value';
-  $form[$hook]['assigned']['#value'] = array();
+  $form[$hook]['assigned']['#value'] = [];
   foreach ($actions as $aid => $info) {
     // If action is defined unassign it, otherwise offer to delete all orphaned
     // actions.
@@ -296,11 +296,11 @@ function trigger_assign_form_submit($form, &$form_state) {
 function theme_trigger_display($variables) {
   $element = $variables['element'];
 
-  $header = array();
-  $rows = array();
+  $header = [];
+  $rows = [];
   if (isset($element['assigned']) && count($element['assigned']['#value'])) {
     $header = array(array('data' => t('Name')), array('data' => t('Operation')));
-    $rows = array();
+    $rows = [];
     foreach ($element['assigned']['#value'] as $aid => $info) {
       $rows[] = array(
         check_plain($info['label']),

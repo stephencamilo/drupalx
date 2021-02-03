@@ -343,7 +343,7 @@ function truncate_utf8($string, $max_length, $wordsafe = FALSE, $add_ellipsis = 
   }
 
   if ($wordsafe) {
-    $matches = array();
+    $matches = [];
     // Find the last word boundary, if there is one within $min_wordsafe_length
     // to $max_length characters. preg_match() is always greedy, so it will
     // find the longest string possible.

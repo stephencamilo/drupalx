@@ -187,7 +187,7 @@ function _simpletest_batch_operation($test_list_init, $test_id, &$context) {
     $test_results[$key] += $value;
   }
   $test_results[$test_class]['#name'] = $info['name'];
-  $items = array();
+  $items = [];
   foreach (element_children($test_results) as $class) {
     array_unshift($items, '<div class="simpletest-' . ($test_results[$class]['#fail'] + $test_results[$class]['#exception'] ? 'fail' : 'pass') . '">' . t('@name: @summary', array('@name' => $test_results[$class]['#name'], '@summary' => _simpletest_format_summary_line($test_results[$class]))) . '</div>');
   }
@@ -365,7 +365,7 @@ function simpletest_test_get_all() {
 
       // Check that each class has a getInfo() method and store the information
       // in an array keyed with the group specified in the test information.
-      $groups = array();
+      $groups = [];
       foreach ($classes as $class) {
         // Test classes need to implement getInfo() to be valid.
         if (class_exists($class) && method_exists($class, 'getInfo')) {

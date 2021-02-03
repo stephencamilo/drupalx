@@ -19,12 +19,12 @@ class ActionsConfigurationTestCase extends DrupalWebTestCase {
     $this->drupalLogin($user);
 
     // Make a POST request to admin/config/system/actions/manage.
-    $edit = array();
+    $edit = [];
     $edit['action'] = drupal_hash_base64('system_goto_action');
     $this->drupalPost('admin/config/system/actions/manage', $edit, t('Create'));
 
     // Make a POST request to the individual action configuration page.
-    $edit = array();
+    $edit = [];
     $action_label = $this->randomName();
     $edit['actions_label'] = $action_label;
     $edit['url'] = 'admin';
@@ -38,7 +38,7 @@ class ActionsConfigurationTestCase extends DrupalWebTestCase {
     $this->clickLink(t('configure'));
     preg_match('|admin/config/system/actions/configure/(\d+)|', $this->getUrl(), $matches);
     $aid = $matches[1];
-    $edit = array();
+    $edit = [];
     $new_action_label = $this->randomName();
     $edit['actions_label'] = $new_action_label;
     $edit['url'] = 'admin';
@@ -51,7 +51,7 @@ class ActionsConfigurationTestCase extends DrupalWebTestCase {
 
     // Make sure that deletions work properly.
     $this->clickLink(t('delete'));
-    $edit = array();
+    $edit = [];
     $this->drupalPost("admin/config/system/actions/delete/$aid", $edit, t('Delete'));
 
     // Make sure that the action was actually deleted.
@@ -108,9 +108,9 @@ class ActionLoopTestCase extends DrupalWebTestCase {
    */
   protected function triggerActions() {
     $this->drupalGet('<front>', array('query' => array('trigger_actions_on_watchdog' => TRUE)));
-    $expected = array();
+    $expected = [];
     $expected[] = 'Triggering action loop';
-    for ($i = 1; $i <= variable_get('actions_max_stack', 35); $i++) {
+    for ($i = 1; $i <= $bootstrap->variable_get('actions_max_stack', 35); $i++) {
       $expected[] = "Test log #$i";
     }
     $expected[] = 'Stack overflow: too many calls to actions_do(). Aborting to prevent infinite recursion.';

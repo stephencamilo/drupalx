@@ -27,7 +27,7 @@ class InsertQuery_sqlite extends InsertQuery {
       return parent::execute();
     }
     else {
-      return $this->connection->query('INSERT INTO {' . $this->table . '} DEFAULT VALUES', array(), $this->queryOptions);
+      return $this->connection->query('INSERT INTO {' . $this->table . '} DEFAULT VALUES', [], $this->queryOptions);
     }
   }
 
@@ -36,7 +36,7 @@ class InsertQuery_sqlite extends InsertQuery {
     $comments = $this->connection->makeComment($this->comments);
 
     // Produce as many generic placeholders as necessary.
-    $placeholders = array();
+    $placeholders = [];
     if (!empty($this->insertFields)) {
       $placeholders = array_fill(0, count($this->insertFields), '?');
     }

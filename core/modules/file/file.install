@@ -49,7 +49,7 @@ function file_field_schema($field) {
  * Display information about getting upload progress bars working.
  */
 function file_requirements($phase) {
-  $requirements = array();
+  $requirements = [];
 
   // Check the server's ability to indicate upload progress.
   if ($phase == 'runtime') {

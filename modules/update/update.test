@@ -227,7 +227,7 @@ class UpdateCoreTestCase extends UpdateTestHelper {
    * Tests the Update Manager module when the update server returns 503 errors.
    */
   function testServiceUnavailable() {
-    $this->refreshUpdateStatus(array(), '503-error');
+    $this->refreshUpdateStatus([], '503-error');
     // Ensure that no "Warning: SimpleXMLElement..." parse errors are found.
     $this->assertNoText('SimpleXMLElement');
     $this->assertUniqueText(t('Failed to get available update data for one project.'));
@@ -671,7 +671,7 @@ class UpdateTestContribCase extends UpdateTestHelper {
 
     // Visit the reports page again without the altering and make sure the
     // status is back to normal.
-    variable_set('update_test_update_status', array());
+    variable_set('update_test_update_status', []);
     $this->drupalGet('admin/reports/updates');
     $this->assertRaw('<h3>' . t('Modules') . '</h3>');
     $this->assertNoText(t('Security update required!'));
@@ -683,7 +683,7 @@ class UpdateTestContribCase extends UpdateTestHelper {
     $this->assertText(t('Security update'));
 
     // Turn the altering back off and visit the Update manager UI.
-    variable_set('update_test_update_status', array());
+    variable_set('update_test_update_status', []);
     $this->drupalGet('admin/modules/update');
     $this->assertNoText(t('Security update'));
   }

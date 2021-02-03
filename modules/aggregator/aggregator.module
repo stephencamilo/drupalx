@@ -346,7 +346,7 @@ function aggregator_cron_queue_info() {
  * Implements hook_block_info().
  */
 function aggregator_block_info() {
-  $blocks = array();
+  $blocks = [];
   $result = db_query('SELECT cid, title FROM {aggregator_category} ORDER BY title');
   foreach ($result as $category) {
     $blocks['category-' . $category->cid]['info'] = t('!title category latest items', array('!title' => $category->title));
@@ -378,7 +378,7 @@ function aggregator_block_configure($delta = '') {
 /**
  * Implements hook_block_save().
  */
-function aggregator_block_save($delta = '', $edit = array()) {
+function aggregator_block_save($delta = '', $edit = []) {
   list($type, $id) = explode('-', $delta);
   if ($type == 'category') {
     db_update('aggregator_category')
@@ -395,7 +395,7 @@ function aggregator_block_save($delta = '', $edit = array()) {
  */
 function aggregator_block_view($delta = '') {
   if (user_access('access news feeds')) {
-    $block = array();
+    $block = [];
     list($type, $id) = explode('-', $delta);
     $result = FALSE;
     switch ($type) {
@@ -416,7 +416,7 @@ function aggregator_block_view($delta = '') {
         break;
     }
 
-    $items = array();
+    $items = [];
     if (!empty($result)) {
       foreach ($result as $item) {
         $items[] = theme('aggregator_block_item', array('item' => $item));
@@ -596,15 +596,15 @@ function aggregator_remove($feed) {
  */
 function _aggregator_get_variables() {
   // Fetch the feed.
-  $fetcher = variable_get('aggregator_fetcher', 'aggregator');
+  $fetcher = $bootstrap->variable_get('aggregator_fetcher', 'aggregator');
   if ($fetcher == 'aggregator') {
     include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'aggregator') . '/aggregator.fetcher.inc';
   }
-  $parser = variable_get('aggregator_parser', 'aggregator');
+  $parser = $bootstrap->variable_get('aggregator_parser', 'aggregator');
   if ($parser == 'aggregator') {
     include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'aggregator') . '/aggregator.parser.inc';
   }
-  $processors = variable_get('aggregator_processors', array('aggregator'));
+  $processors = $bootstrap->variable_get('aggregator_processors', array('aggregator'));
   if (in_array('aggregator', $processors)) {
     include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'aggregator') . '/aggregator.processor.inc';
   }
@@ -740,7 +740,7 @@ function theme_aggregator_block_item($variables) {
  *   The filtered content.
  */
 function aggregator_filter_xss($value) {
-  return filter_xss($value, preg_split('/\s+|<|>/', variable_get('aggregator_allowed_html_tags', '<a> <b> <br> <dd> <dl> <dt> <em> <i> <li> <ol> <p> <strong> <u> <ul>'), -1, PREG_SPLIT_NO_EMPTY));
+  return filter_xss($value, preg_split('/\s+|<|>/', $bootstrap->variable_get('aggregator_allowed_html_tags', '<a> <b> <br> <dd> <dl> <dt> <em> <i> <li> <ol> <p> <strong> <u> <ul>'), -1, PREG_SPLIT_NO_EMPTY));
 }
 
 /**

@@ -14,7 +14,7 @@ define('SIMPLETEST_MINIMUM_PHP_MEMORY_LIMIT', '64M');
  * Implements hook_requirements().
  */
 function simpletest_requirements($phase) {
-  $requirements = array();
+  $requirements = [];
   $t = get_t();
 
   $has_curl = function_exists('curl_init');

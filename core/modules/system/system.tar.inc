@@ -386,7 +386,7 @@ class Archive_Tar
      */
     public function listContent()
     {
-        $v_list_detail = array();
+        $v_list_detail = [];
 
         if ($this->_openRead()) {
             if (!$this->_extractList('', $v_list_detail, "list", '', '')) {
@@ -559,7 +559,7 @@ class Archive_Tar
      *
      * @return true on success, false on error.
      */
-    public function addString($p_filename, $p_string, $p_datetime = false, $p_params = array())
+    public function addString($p_filename, $p_string, $p_datetime = false, $p_params = [])
     {
         $p_stamp = @$p_params["stamp"] ? $p_params["stamp"] : ($p_datetime ? $p_datetime : time());
         $p_mode = @$p_params["mode"] ? $p_params["mode"] : 0600;
@@ -627,7 +627,7 @@ class Archive_Tar
     public function extractModify($p_path, $p_remove_path, $p_preserve = false, $p_symlinks = true)
     {
         $v_result = true;
-        $v_list_detail = array();
+        $v_list_detail = [];
 
         if ($v_result = $this->_openRead()) {
             $v_result = $this->_extractList(
@@ -689,7 +689,7 @@ class Archive_Tar
     public function extractList($p_filelist, $p_path = '', $p_remove_path = '', $p_preserve = false, $p_symlinks = true)
     {
         $v_result = true;
-        $v_list_detail = array();
+        $v_list_detail = [];
 
         if (is_array($p_filelist)) {
             $v_list = $p_filelist;
@@ -1194,7 +1194,7 @@ class Archive_Tar
     public function _addList($p_list, $p_add_dir, $p_remove_dir)
     {
         $v_result = true;
-        $v_header = array();
+        $v_header = [];
 
         // ----- Remove potential windows directory separator
         $p_add_dir = $this->_translateWinPath($p_add_dir);
@@ -1363,7 +1363,7 @@ class Archive_Tar
      * @param array $p_params
      * @return bool
      */
-    public function _addString($p_filename, $p_string, $p_datetime = false, $p_params = array())
+    public function _addString($p_filename, $p_string, $p_datetime = false, $p_params = [])
     {
         $p_stamp = @$p_params["stamp"] ? $p_params["stamp"] : ($p_datetime ? $p_datetime : time());
         $p_mode = @$p_params["mode"] ? $p_params["mode"] : 0600;
@@ -1742,7 +1742,7 @@ class Archive_Tar
         }
 
         if (!is_array($v_header)) {
-            $v_header = array();
+            $v_header = [];
         }
         // ----- Calculate the checksum
         $v_checksum = 0;

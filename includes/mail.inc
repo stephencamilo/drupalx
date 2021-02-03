@@ -125,8 +125,8 @@ define('MAIL_RFC_2822_SPECIALS', '()<>[]:;@\,."');
  *   written to the watchdog. (Success means nothing more than the message being
  *   accepted at php-level, which still doesn't guarantee it to be delivered.)
  */
-function drupal_mail($module, $key, $to, $language, $params = array(), $from = NULL, $send = TRUE) {
-  $default_from = variable_get('site_mail', ini_get('sendmail_from'));
+function drupal_mail($module, $key, $to, $language, $params = [], $from = NULL, $send = TRUE) {
+  $default_from = $bootstrap->variable_get('site_mail', ini_get('sendmail_from'));
 
   // Bundle up the variables into a structured array for altering.
   $message = array(
@@ -139,7 +139,7 @@ function drupal_mail($module, $key, $to, $language, $params = array(), $from = N
     'params'   => $params,
     'send'     => TRUE,
     'subject'  => '',
-    'body'     => array()
+    'body'     => []
   );
 
   // Build the default headers
@@ -156,7 +156,7 @@ function drupal_mail($module, $key, $to, $language, $params = array(), $from = N
     $headers['From'] = $headers['Sender'] = $headers['Return-Path'] = $default_from;
 
     if (variable_get('mail_display_name_site_name', FALSE)) {
-      $display_name = variable_get('site_name', 'Drupal');
+      $display_name = $bootstrap->variable_get('site_name', 'Drupal');
       $headers['From'] = drupal_mail_format_display_name($display_name) . ' <' . $default_from . '>';
     }
   }
@@ -267,11 +267,11 @@ function drupal_mail($module, $key, $to, $language, $params = array(), $from = N
  * @return MailSystemInterface
  */
 function drupal_mail_system($module, $key) {
-  $instances = &drupal_static(__FUNCTION__, array());
+  $instances = &drupal_static(__FUNCTION__, []);
 
   $id = $module . '_' . $key;
 
-  $configuration = variable_get('mail_system', array('default-system' => 'DefaultMailSystem'));
+  $configuration = $bootstrap->variable_get('mail_system', array('default-system' => 'DefaultMailSystem'));
 
   // Look for overrides for the default class, starting from the most specific
   // id, and falling back to the module name.
@@ -450,8 +450,8 @@ function drupal_html_to_text($string, $allowed_tags = NULL) {
   $tag = FALSE; // Odd/even counter (tag or no tag)
   $casing = NULL; // Case conversion function
   $output = '';
-  $indent = array(); // All current indentation string chunks
-  $lists = array(); // Array of counters for opened lists
+  $indent = []; // All current indentation string chunks
+  $lists = []; // Array of counters for opened lists
   foreach ($split as $value) {
     $chunk = NULL; // Holds a string ready to be formatted and output.
 
@@ -636,11 +636,11 @@ function _drupal_wrap_mail_line(&$line, $key, $values) {
  */
 function _drupal_html_to_mail_urls($match = NULL, $reset = FALSE) {
   global $base_url, $base_path;
-  static $urls = array(), $regexp;
+  static $urls = [], $regexp;
 
   if ($reset) {
     // Reset internal URL list.
-    $urls = array();
+    $urls = [];
   }
   else {
     if (empty($regexp)) {

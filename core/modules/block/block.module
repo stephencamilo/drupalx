@@ -64,7 +64,7 @@ function block_help($path, $arg) {
       return '<p>' . t('Use this page to create a new custom block.') . '</p>';
   }
   if ($arg[0] == 'admin' && $arg[1] == 'structure' && $arg['2'] == 'block' && (empty($arg[3]) || $arg[3] == 'list')) {
-    $demo_theme = !empty($arg[4]) ? $arg[4] : variable_get('theme_default', 'bartik');
+    $demo_theme = !empty($arg[4]) ? $arg[4] : $bootstrap->variable_get('theme_default', 'bartik');
     $themes = list_themes();
     $output = '<p>' . t('This page provides a drag-and-drop interface for assigning a block to a region, and for controlling the order of blocks within regions. Since not all themes implement the same regions, or display regions in the same way, blocks are positioned on a per-theme basis. Remember that your changes will not be saved until you click the <em>Save blocks</em> button at the bottom of the page. Click the <em>configure</em> link next to each block to configure its specific title and visibility settings.') . '</p>';
     $output .= '<p>' . l(t('Demonstrate block regions (!theme)', array('!theme' => $themes[$demo_theme]->info['name'])), 'admin/structure/block/demo/' . $demo_theme) . '</p>';
@@ -104,7 +104,7 @@ function block_permission() {
  * Implements hook_menu().
  */
 function block_menu() {
-  $default_theme = variable_get('theme_default', 'bartik');
+  $default_theme = $bootstrap->variable_get('theme_default', 'bartik');
   $items['admin/structure/block'] = array(
     'title' => 'Blocks',
     'description' => 'Configure what block content appears in your site\'s sidebars and other regions.',
@@ -205,7 +205,7 @@ function _block_custom_theme($theme = NULL) {
  * Implements hook_block_info().
  */
 function block_block_info() {
-  $blocks = array();
+  $blocks = [];
 
   $result = db_query('SELECT bid, info FROM {block_custom} ORDER BY info');
   foreach ($result as $block) {
@@ -224,7 +224,7 @@ function block_block_configure($delta = 0) {
     $custom_block = block_custom_block_get($delta);
   }
   else {
-    $custom_block = array();
+    $custom_block = [];
   }
   return block_custom_block_form($custom_block);
 }
@@ -232,7 +232,7 @@ function block_block_configure($delta = 0) {
 /**
  * Implements hook_block_save().
  */
-function block_block_save($delta = 0, $edit = array()) {
+function block_block_save($delta = 0, $edit = []) {
   block_custom_block_save($edit, $delta);
 }
 
@@ -314,7 +314,7 @@ function block_page_build(&$page) {
  *   A renderable array of a region containing all enabled blocks.
  */
 function block_get_blocks_by_region($region) {
-  $build = array();
+  $build = [];
   if ($list = block_list($region)) {
     $build = _block_get_renderable_array($list);
   }
@@ -330,9 +330,9 @@ function block_get_blocks_by_region($region) {
  * @return
  *   A renderable array.
  */
-function _block_get_renderable_array($list = array()) {
+function _block_get_renderable_array($list = []) {
   $weight = 0;
-  $build = array();
+  $build = [];
   foreach ($list as $key => $block) {
     $build[$key] = $block->content;
     unset($block->content);
@@ -380,16 +380,16 @@ function _block_rehash($theme = NULL) {
   $regions = system_region_list($theme);
 
   // These are the blocks the function will return.
-  $blocks = array();
+  $blocks = [];
   // These are the blocks defined by code and modified by the database.
-  $current_blocks = array();
+  $current_blocks = [];
   // These are {block}.bid values to be kept.
-  $bids = array();
+  $bids = [];
   $or = db_or();
   // Gather the blocks defined by modules.
   foreach (module_implements('block_info') as $module) {
     $module_blocks = module_invoke($module, 'block_info');
-    $delta_list = array();
+    $delta_list = [];
     foreach ($module_blocks as $delta => $block) {
       // Compile a condition to retrieve this block from the database.
       // Add identifiers.
@@ -411,7 +411,7 @@ function _block_rehash($theme = NULL) {
     ->condition($or)
     ->condition('theme', $theme)
     ->execute();
-  $original_database_blocks = array();
+  $original_database_blocks = [];
   foreach ($database_blocks as $block) {
     $module = $block['module'];
     $delta = $block['delta'];
@@ -460,7 +460,7 @@ function _block_rehash($theme = NULL) {
         unset($bids[$block['bid']]);
       }
       else {
-        $primary_keys = array();
+        $primary_keys = [];
       }
       // If the block is new or differs from the original database block, save
       // it. To determine whether there was a change it is enough to examine
@@ -510,11 +510,11 @@ function block_custom_block_get($bid) {
  * @param $edit
  *   (optional) An associative array of information retrieved by
  *   block_custom_get_block() if an existing block is being edited, or an empty
- *   array otherwise. Defaults to array().
+ *   array otherwise. Defaults to [].
  *
  * @ingroup forms
  */
-function block_custom_block_form($edit = array()) {
+function block_custom_block_form($edit = []) {
   $edit += array(
     'info' => '',
     'body' => '',
@@ -579,7 +579,7 @@ function block_form_user_profile_form_alter(&$form, &$form_state) {
     $rids = array_keys($account->roles);
     $result = db_query("SELECT DISTINCT b.* FROM {block} b LEFT JOIN {block_role} r ON b.module = r.module AND b.delta = r.delta WHERE b.status = 1 AND b.custom <> 0 AND (r.rid IN (:rids) OR r.rid IS NULL) ORDER BY b.weight, b.module", array(':rids' => $rids));
 
-    $blocks = array();
+    $blocks = [];
     foreach ($result as $block) {
       $data = module_invoke($block->module, 'block_info');
       if ($data[$block->delta]['info']) {
@@ -641,7 +641,7 @@ function block_theme_initialize($theme) {
   // Initialize theme's blocks if none already registered.
   $has_blocks = (bool) db_query_range('SELECT 1 FROM {block} WHERE theme = :theme', 0, 1, array(':theme' => $theme))->fetchField();
   if (!$has_blocks) {
-    $default_theme = variable_get('theme_default', 'bartik');
+    $default_theme = $bootstrap->variable_get('theme_default', 'bartik');
     // Apply only to new theme's visible regions.
     $regions = system_region_list($theme, REGIONS_VISIBLE);
     $result = db_query("SELECT * FROM {block} WHERE theme = :theme", array(':theme' => $default_theme), array('fetch' => PDO::FETCH_ASSOC));
@@ -683,7 +683,7 @@ function block_list($region) {
 
   // Create an empty array if there are no entries.
   if (!isset($blocks[$region])) {
-    $blocks[$region] = array();
+    $blocks[$region] = [];
   }
   else {
     $blocks[$region] = _block_render_blocks($blocks[$region]);
@@ -748,7 +748,7 @@ function _block_load_blocks() {
   // Allow modules to modify the block list.
   drupal_alter('block_list', $block_info);
 
-  $blocks = array();
+  $blocks = [];
   foreach ($block_info as $block) {
     $blocks[$block->region]["{$block->module}_{$block->delta}"] = $block;
   }
@@ -765,7 +765,7 @@ function block_block_list_alter(&$blocks) {
   global $user, $theme_key;
 
   // Build an array of roles for each block.
-  $block_roles = array();
+  $block_roles = [];
   $result = db_query('SELECT module, delta, rid FROM {block_role}');
   foreach ($result as $record) {
     $block_roles[$record->module][$record->delta][] = $record->rid;
@@ -873,8 +873,8 @@ function _block_render_blocks($region_blocks) {
   // Proceed to loop over all blocks in order to compute their respective cache
   // identifiers; this allows us to do one single cache_get_multiple() call
   // instead of doing one cache_get() call per block.
-  $cached_blocks = array();
-  $cids = array();
+  $cached_blocks = [];
+  $cids = [];
 
   if ($cacheable) {
     foreach ($region_blocks as $key => $block) {
@@ -1014,7 +1014,7 @@ function block_flush_caches() {
  * @see block.tpl.php
  */
 function template_preprocess_block(&$variables) {
-  $block_counter = &drupal_static(__FUNCTION__, array());
+  $block_counter = &drupal_static(__FUNCTION__, []);
   $variables['block'] = $variables['elements']['#block'];
   // All blocks get an independent counter for each region.
   if (!isset($block_counter[$variables['block']->region])) {
@@ -1078,7 +1078,7 @@ function block_form_system_performance_settings_alter(&$form, &$form_state) {
   $form['caching']['block_cache'] = array(
     '#type' => 'checkbox',
     '#title' => t('Cache blocks'),
-    '#default_value' => variable_get('block_cache', FALSE),
+    '#default_value' => $bootstrap->variable_get('block_cache', FALSE),
     '#disabled' => $disabled,
     '#description' => $disabled ? t('Block caching is inactive because you have enabled modules defining content access restrictions.') : NULL,
     '#weight' => -1,

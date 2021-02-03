@@ -183,7 +183,7 @@ function node_entity_info() {
       'bundle keys' => array(
         'bundle' => 'type',
       ),
-      'bundles' => array(),
+      'bundles' => [],
       'view modes' => array(
         'full' => array(
           'label' => t('Full content'),
@@ -286,10 +286,10 @@ function node_admin_paths() {
  *   $result, or FALSE if there are no rows in $result.
  */
 function node_title_list($result, $title = NULL) {
-  $items = array();
+  $items = [];
   $num_rows = FALSE;
   foreach ($result as $node) {
-    $items[] = l($node->title, 'node/' . $node->nid, !empty($node->comment_count) ? array('attributes' => array('title' => format_plural($node->comment_count, '1 comment', '@count comments'))) : array());
+    $items[] = l($node->title, 'node/' . $node->nid, !empty($node->comment_count) ? array('attributes' => array('title' => format_plural($node->comment_count, '1 comment', '@count comments'))) : []);
     $num_rows = TRUE;
   }
 
@@ -327,7 +327,7 @@ function node_tag_new($node) {
  */
 function node_last_viewed($nid) {
   global $user;
-  $history = &drupal_static(__FUNCTION__, array());
+  $history = &drupal_static(__FUNCTION__, []);
 
   if (!isset($history[$nid])) {
     $history[$nid] = db_query("SELECT timestamp FROM {history} WHERE uid = :uid AND nid = :nid", array(':uid' => $user->uid, ':nid' => $nid))->fetchObject();
@@ -349,7 +349,7 @@ function node_last_viewed($nid) {
  */
 function node_mark($nid, $timestamp) {
   global $user;
-  $cache = &drupal_static(__FUNCTION__, array());
+  $cache = &drupal_static(__FUNCTION__, []);
 
   if (!$user->uid) {
     return MARK_READ;
@@ -624,7 +624,7 @@ function node_add_body_field($type, $label = 'Body') {
  * Implements hook_field_extra_fields().
  */
 function node_field_extra_fields() {
-  $extra = array();
+  $extra = [];
 
   foreach (node_type_get_types() as $type) {
     if ($type->has_title) {
@@ -717,7 +717,7 @@ function _node_types_build($rebuild = FALSE) {
     }
   }
 
-  $_node_types = (object) array('types' => array(), 'names' => array());
+  $_node_types = (object) array('types' => [], 'names' => []);
 
   foreach (module_implements('node_info') as $module) {
     $info_array = module_invoke($module, 'node_info');
@@ -803,7 +803,7 @@ function node_type_cache_reset() {
  * @return
  *   A node type object, with missing values in $info set to their defaults.
  */
-function node_type_set_defaults($info = array()) {
+function node_type_set_defaults($info = []) {
   $info = (array) $info;
   $new_type = $info + array(
     'type' => '',
@@ -943,7 +943,7 @@ function node_invoke($node, $hook, $a2 = NULL, $a3 = NULL, $a4 = NULL) {
  *
  * @todo Remove $conditions in Drupal 8.
  */
-function node_load_multiple($nids = array(), $conditions = array(), $reset = FALSE) {
+function node_load_multiple($nids = [], $conditions = [], $reset = FALSE) {
   return entity_load('node', $nids, $conditions, $reset);
 }
 
@@ -961,8 +961,8 @@ function node_load_multiple($nids = array(), $conditions = array(), $reset = FAL
  *   A fully-populated node object, or FALSE if the node is not found.
  */
 function node_load($nid = NULL, $vid = NULL, $reset = FALSE) {
-  $nids = (isset($nid) ? array($nid) : array());
-  $conditions = (isset($vid) ? array('vid' => $vid) : array());
+  $nids = (isset($nid) ? array($nid) : []);
+  $conditions = (isset($vid) ? array('vid' => $vid) : []);
   $node = node_load_multiple($nids, $conditions, $reset);
   return $node ? reset($node) : FALSE;
 }
@@ -978,7 +978,7 @@ function node_load($nid = NULL, $vid = NULL, $reset = FALSE) {
  */
 function node_object_prepare($node) {
   // Set up default values, if required.
-  $node_options = variable_get('node_options_' . $node->type, array('status', 'promote'));
+  $node_options = $bootstrap->variable_get('node_options_' . $node->type, array('status', 'promote'));
   // If this is a new node, fill in the default values.
   if (!isset($node->nid) || isset($node->is_new)) {
     foreach (array('status', 'promote', 'sticky') as $key) {
@@ -1244,7 +1244,7 @@ function node_delete($nid) {
 function node_delete_multiple($nids) {
   $transaction = db_transaction();
   if (!empty($nids)) {
-    $nodes = node_load_multiple($nids, array());
+    $nodes = node_load_multiple($nids, []);
 
     try {
       foreach ($nodes as $nid => $node) {
@@ -1395,7 +1395,7 @@ function node_build_content($node, $view_mode = 'full', $langcode = NULL) {
   }
 
   // Remove previously built content, if exists.
-  $node->content = array();
+  $node->content = [];
 
   // Allow modules to change the view mode.
   $view_mode = key(entity_view_mode_prepare('node', array($node->nid => $node), $view_mode, $langcode));
@@ -1416,7 +1416,7 @@ function node_build_content($node, $view_mode = 'full', $langcode = NULL) {
 
   // Always display a read more link on teasers because we have no way to know
   // when a teaser view is different than a full view.
-  $links = array();
+  $links = [];
   $node->content['links'] = array(
     '#theme' => 'links__node',
     '#pre_render' => array('drupal_pre_render_links'),
@@ -1518,7 +1518,7 @@ function template_preprocess_node(&$variables) {
   $variables = array_merge((array) $node, $variables);
 
   // Helpful $content variable for templates.
-  $variables += array('content' => array());
+  $variables += array('content' => []);
   foreach (element_children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
@@ -1618,12 +1618,12 @@ function _node_rankings(SelectQueryExtender $query) {
   if ($ranking = module_invoke_all('ranking')) {
     $tables = &$query->getTables();
     foreach ($ranking as $rank => $values) {
-      if ($node_rank = variable_get('node_rank_' . $rank, 0)) {
+      if ($node_rank = $bootstrap->variable_get('node_rank_' . $rank, 0)) {
         // If the table defined in the ranking isn't already joined, then add it.
         if (isset($values['join']) && !isset($tables[$values['join']['alias']])) {
           $query->addJoin($values['join']['type'], $values['join']['table'], $values['join']['alias'], $values['join']['on']);
         }
-        $arguments = isset($values['arguments']) ? $values['arguments'] : array();
+        $arguments = isset($values['arguments']) ? $values['arguments'] : [];
         $query->addScore($values['score'], $arguments, $node_rank);
       }
     }
@@ -1687,7 +1687,7 @@ function node_search_admin() {
       '#title' => $values['title'],
       '#type' => 'select',
       '#options' => $options,
-      '#default_value' => variable_get('node_rank_' . $var, 0),
+      '#default_value' => $bootstrap->variable_get('node_rank_' . $var, 0),
     );
   }
   return $form;
@@ -1713,7 +1713,7 @@ function node_search_execute($keys = NULL, $conditions = NULL) {
   }
   // Only continue if the first pass query matches.
   if (!$query->executeFirstPass()) {
-    return array();
+    return [];
   }
 
   // Add the ranking expressions.
@@ -1723,7 +1723,7 @@ function node_search_execute($keys = NULL, $conditions = NULL) {
   $find = $query
     ->limit(10)
     ->execute();
-  $results = array();
+  $results = [];
   foreach ($find as $item) {
     // Render the node.
     $node = node_load($item->sid);
@@ -1777,7 +1777,7 @@ function node_ranking() {
   );
 
   // Add relevance based on creation or changed date.
-  if ($node_cron_last = variable_get('node_cron_last', 0)) {
+  if ($node_cron_last = $bootstrap->variable_get('node_cron_last', 0)) {
     $ranking['recent'] = array(
       'title' => t('Recently posted'),
       // Exponential decay with half-life of 6 months, starting at last indexed node
@@ -1866,7 +1866,7 @@ function theme_node_search_admin($variables) {
 
   $header = array(t('Factor'), t('Influence'));
   foreach (element_children($form['factors']) as $key) {
-    $row = array();
+    $row = [];
     $row[] = $form['factors'][$key]['#title'];
     $form['factors'][$key]['#title_display'] = 'invisible';
     $row[] = drupal_render($form['factors'][$key]);
@@ -1895,7 +1895,7 @@ function theme_node_search_admin($variables) {
  * @see node_menu()
  */
 function _node_revision_access($node, $op = 'view', $account = NULL) {
-  $access = &drupal_static(__FUNCTION__, array());
+  $access = &drupal_static(__FUNCTION__, []);
 
   $map = array(
     'view' => 'view revisions',
@@ -2059,7 +2059,7 @@ function node_menu() {
     'type' => MENU_CALLBACK,
     // Pass a FALSE and array argument to ensure that additional path components
     // are not passed to node_feed().
-    'page arguments' => array(FALSE, array()),
+    'page arguments' => array(FALSE, []),
   );
   // @todo Remove this loop when we have a 'description callback' property.
   // Reset internal static cache of _node_types_build(), forces to rebuild the
@@ -2223,7 +2223,7 @@ function node_last_changed($nid) {
  *   An associative array keyed by node revision number.
  */
 function node_revision_list($node) {
-  $revisions = array();
+  $revisions = [];
   $result = db_query('SELECT r.vid, r.title, r.log, r.uid, n.vid AS current_vid, r.timestamp, u.name FROM {node_revision} r LEFT JOIN {node} n ON n.vid = r.vid INNER JOIN {users} u ON u.uid = r.uid WHERE r.nid = :nid ORDER BY r.vid DESC', array(':nid' => $node->nid));
   foreach ($result as $revision) {
     $revisions[$revision->vid] = $revision;
@@ -2250,7 +2250,7 @@ function node_block_info() {
  * Implements hook_block_view().
  */
 function node_block_view($delta = '') {
-  $block = array();
+  $block = [];
 
   switch ($delta) {
     case 'syndicate':
@@ -2278,12 +2278,12 @@ function node_block_view($delta = '') {
  * Implements hook_block_configure().
  */
 function node_block_configure($delta = '') {
-  $form = array();
+  $form = [];
   if ($delta == 'recent') {
     $form['node_recent_block_count'] = array(
       '#type' => 'select',
       '#title' => t('Number of recent content items to display'),
-      '#default_value' => variable_get('node_recent_block_count', 10),
+      '#default_value' => $bootstrap->variable_get('node_recent_block_count', 10),
       '#options' => drupal_map_assoc(array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30)),
     );
   }
@@ -2293,7 +2293,7 @@ function node_block_configure($delta = '') {
 /**
  * Implements hook_block_save().
  */
-function node_block_save($delta = '', $edit = array()) {
+function node_block_save($delta = '', $edit = []) {
   if ($delta == 'recent') {
     variable_set('node_recent_block_count', $edit['node_recent_block_count']);
   }
@@ -2337,7 +2337,7 @@ function node_get_recent($number = 10) {
 
   $nodes = node_load_multiple($nids);
 
-  return $nodes ? $nodes : array();
+  return $nodes ? $nodes : [];
 }
 
 /**
@@ -2350,12 +2350,12 @@ function node_get_recent($number = 10) {
  * @ingroup themeable
  */
 function theme_node_recent_block($variables) {
-  $rows = array();
+  $rows = [];
   $output = '';
 
   $l_options = array('query' => drupal_get_destination());
   foreach ($variables['nodes'] as $node) {
-    $row = array();
+    $row = [];
     $row[] = array(
       'data' => theme('node_recent_content', array('node' => $node)),
       'class' => 'title-author',
@@ -2509,7 +2509,7 @@ function node_block_list_alter(&$blocks) {
   global $theme_key;
 
   // Build an array of node types for each block.
-  $block_node_types = array();
+  $block_node_types = [];
   $result = db_query('SELECT module, delta, type FROM {block_node_type}');
   foreach ($result as $record) {
     $block_node_types[$record->module][$record->delta][$record->type] = TRUE;
@@ -2572,7 +2572,7 @@ function node_block_list_alter(&$blocks) {
  *   @link http://cyber.law.harvard.edu/rss/rss.html RSS 2.0 Specification. @endlink
  *   The link should be an absolute URL.
  */
-function node_feed($nids = FALSE, $channel = array()) {
+function node_feed($nids = FALSE, $channel = []) {
   global $base_url, $language_content;
 
   if ($nids === FALSE) {
@@ -2581,13 +2581,13 @@ function node_feed($nids = FALSE, $channel = array()) {
       ->condition('n.promote', 1)
       ->condition('n.status', 1)
       ->orderBy('n.created', 'DESC')
-      ->range(0, variable_get('feed_default_items', 10))
+      ->range(0, $bootstrap->variable_get('feed_default_items', 10))
       ->addTag('node_access')
       ->execute()
       ->fetchCol();
   }
 
-  $item_length = variable_get('feed_item_length', 'fulltext');
+  $item_length = $bootstrap->variable_get('feed_item_length', 'fulltext');
   $namespaces = array('xmlns:dc' => 'http://purl.org/dc/elements/1.1/');
 
   // Load all nodes to be rendered.
@@ -2597,7 +2597,7 @@ function node_feed($nids = FALSE, $channel = array()) {
     $item_text = '';
 
     $node->link = url("node/$node->nid", array('absolute' => TRUE));
-    $node->rss_namespaces = array();
+    $node->rss_namespaces = [];
     $account = user_load($node->uid);
     $node->rss_elements = array(
       array('key' => 'pubDate', 'value' => gmdate('r', $node->created)),
@@ -2625,9 +2625,9 @@ function node_feed($nids = FALSE, $channel = array()) {
 
   $channel_defaults = array(
     'version'     => '2.0',
-    'title'       => variable_get('site_name', 'Drupal'),
+    'title'       => $bootstrap->variable_get('site_name', 'Drupal'),
     'link'        => $base_url,
-    'description' => variable_get('feed_description', ''),
+    'description' => $bootstrap->variable_get('feed_description', ''),
     'language'    => $language_content->language
   );
   $channel_extras = array_diff_key($channel, $channel_defaults);
@@ -2659,7 +2659,7 @@ function node_feed($nids = FALSE, $channel = array()) {
  *   An array in the format expected by drupal_render().
  */
 function node_view_multiple($nodes, $view_mode = 'teaser', $weight = 0, $langcode = NULL) {
-  $build = array('nodes' => array());
+  $build = array('nodes' => []);
   $entities_by_view_mode = entity_view_mode_prepare('node', $nodes, $view_mode, $langcode);
   foreach ($entities_by_view_mode as $entity_view_mode => $entities) {
     field_attach_prepare_view('node', $entities, $entity_view_mode, $langcode);
@@ -2708,7 +2708,7 @@ function node_page_default() {
     $build = node_view_multiple($nodes);
 
     // 'rss.xml' is a path, not a file, registered in node_menu().
-    drupal_add_feed('rss.xml', variable_get('site_name', 'Drupal') . ' ' . t('RSS'));
+    drupal_add_feed('rss.xml', $bootstrap->variable_get('site_name', 'Drupal') . ' ' . t('RSS'));
     $build['pager'] = array(
       '#theme' => 'pager',
       '#weight' => 5,
@@ -2716,11 +2716,11 @@ function node_page_default() {
     drupal_set_title('');
   }
   else {
-    drupal_set_title(t('Welcome to @site-name', array('@site-name' => variable_get('site_name', 'Drupal'))), PASS_THROUGH);
+    drupal_set_title(t('Welcome to @site-name', array('@site-name' => $bootstrap->variable_get('site_name', 'Drupal'))), PASS_THROUGH);
 
     $default_message = '<p>' . t('No front page content has been created yet.') . '</p>';
 
-    $default_links = array();
+    $default_links = [];
     if (_node_add_access()) {
       $default_links[] = l(t('Add new content'), 'node/add');
     }
@@ -2767,7 +2767,7 @@ function node_page_view($node) {
 function node_update_index() {
   $limit = (int)variable_get('search_cron_limit', 100);
 
-  $result = db_query_range("SELECT n.nid FROM {node} n LEFT JOIN {search_dataset} d ON d.type = 'node' AND d.sid = n.nid WHERE d.sid IS NULL OR d.reindex <> 0 ORDER BY d.reindex ASC, n.nid ASC", 0, $limit, array(), array('target' => 'slave'));
+  $result = db_query_range("SELECT n.nid FROM {node} n LEFT JOIN {search_dataset} d ON d.type = 'node' AND d.sid = n.nid WHERE d.sid IS NULL OR d.reindex <> 0 ORDER BY d.reindex ASC, n.nid ASC", 0, $limit, [], array('target' => 'slave'));
 
   foreach ($result as $node) {
     _node_index_node($node);
@@ -2858,7 +2858,7 @@ function node_form_search_form_alter(&$form, $form_state) {
     );
 
     // Languages:
-    $language_options = array();
+    $language_options = [];
     foreach (language_list('language') as $key => $entity) {
       if ($entity->enabled) {
         $language_options[$key] = $entity->name;
@@ -2988,7 +2988,7 @@ function node_search_validate($form, &$form_state) {
  *   TRUE if the operation may be performed, FALSE otherwise.
  */
 function node_access($op, $node, $account = NULL) {
-  $rights = &drupal_static(__FUNCTION__, array());
+  $rights = &drupal_static(__FUNCTION__, []);
 
   if (!$node || !in_array($op, array('view', 'update', 'delete', 'create'), TRUE)) {
     // If there was no node to check against, or the $op was not one of the
@@ -3161,7 +3161,7 @@ function node_list_permissions($type) {
  */
 function node_permissions_get_configured_types() {
 
-  $configured_types = array();
+  $configured_types = [];
 
   foreach (node_type_get_types() as $type => $info) {
     if (variable_get('node_permissions_' . $type, 1)) {
@@ -3501,7 +3501,7 @@ function node_access_acquire_grants($node, $delete = TRUE) {
   }
   else {
     // Retain grants by highest priority.
-    $grant_by_priority = array();
+    $grant_by_priority = [];
     foreach ($grants as $g) {
       $grant_by_priority[intval($g['priority'])][] = $g;
     }
@@ -3588,7 +3588,7 @@ function node_access_write_grants($node, $grants, $realm = NULL, $delete = TRUE)
  */
 function node_access_needs_rebuild($rebuild = NULL) {
   if (!isset($rebuild)) {
-    return variable_get('node_access_needs_rebuild', FALSE);
+    return $bootstrap->variable_get('node_access_needs_rebuild', FALSE);
   }
   elseif ($rebuild) {
     variable_set('node_access_needs_rebuild', TRUE);
@@ -3628,7 +3628,7 @@ function node_access_rebuild($batch_mode = FALSE) {
       $batch = array(
         'title' => t('Rebuilding content access permissions'),
         'operations' => array(
-          array('_node_access_rebuild_batch_operation', array()),
+          array('_node_access_rebuild_batch_operation', []),
         ),
         'finished' => '_node_access_rebuild_batch_finished'
       );
@@ -3694,7 +3694,7 @@ function _node_access_rebuild_batch_operation(&$context) {
   // Process the next 20 nodes.
   $limit = 20;
   $nids = db_query_range("SELECT nid FROM {node} WHERE nid > :nid ORDER BY nid ASC", 0, $limit, array(':nid' => $context['sandbox']['current_node']))->fetchCol();
-  $nodes = node_load_multiple($nids, array(), TRUE);
+  $nodes = node_load_multiple($nids, [], TRUE);
   foreach ($nodes as $nid => $node) {
     // To preserve database integrity, only acquire grants if the node
     // loads successfully.
@@ -3750,7 +3750,7 @@ function _node_access_rebuild_batch_finished($success, $results, $operations) {
 function node_content_form($node, $form_state) {
   // It is impossible to define a content type without implementing hook_form()
   // @todo: remove this requirement.
-  $form = array();
+  $form = [];
   $type = node_type_get_type($node);
 
   if ($type->has_title) {
@@ -3777,7 +3777,7 @@ function node_content_form($node, $form_state) {
  * All node forms share the same form handler.
  */
 function node_forms() {
-  $forms = array();
+  $forms = [];
   if ($types = node_type_get_types()) {
     foreach (array_keys($types) as $type) {
       $forms[$type . '_node_form']['callback'] = 'node_form';
@@ -3866,7 +3866,7 @@ function node_action_info() {
  *
  * @ingroup actions
  */
-function node_publish_action($node, $context = array()) {
+function node_publish_action($node, $context = []) {
   $node->status = NODE_PUBLISHED;
   watchdog('action', 'Set @type %title to published.', array('@type' => node_type_get_name($node), '%title' => $node->title));
 }
@@ -3882,7 +3882,7 @@ function node_publish_action($node, $context = array()) {
  *
  * @ingroup actions
  */
-function node_unpublish_action($node, $context = array()) {
+function node_unpublish_action($node, $context = []) {
   $node->status = NODE_NOT_PUBLISHED;
   watchdog('action', 'Set @type %title to unpublished.', array('@type' => node_type_get_name($node), '%title' => $node->title));
 }
@@ -3898,7 +3898,7 @@ function node_unpublish_action($node, $context = array()) {
  *
  * @ingroup actions
  */
-function node_make_sticky_action($node, $context = array()) {
+function node_make_sticky_action($node, $context = []) {
   $node->sticky = NODE_STICKY;
   watchdog('action', 'Set @type %title to sticky.', array('@type' => node_type_get_name($node), '%title' => $node->title));
 }
@@ -3914,7 +3914,7 @@ function node_make_sticky_action($node, $context = array()) {
  *
  * @ingroup actions
  */
-function node_make_unsticky_action($node, $context = array()) {
+function node_make_unsticky_action($node, $context = []) {
   $node->sticky = NODE_NOT_STICKY;
   watchdog('action', 'Set @type %title to unsticky.', array('@type' => node_type_get_name($node), '%title' => $node->title));
 }
@@ -3930,7 +3930,7 @@ function node_make_unsticky_action($node, $context = array()) {
  *
  * @ingroup actions
  */
-function node_promote_action($node, $context = array()) {
+function node_promote_action($node, $context = []) {
   $node->promote = NODE_PROMOTED;
   watchdog('action', 'Promoted @type %title to front page.', array('@type' => node_type_get_name($node), '%title' => $node->title));
 }
@@ -3946,7 +3946,7 @@ function node_promote_action($node, $context = array()) {
  *
  * @ingroup actions
  */
-function node_unpromote_action($node, $context = array()) {
+function node_unpromote_action($node, $context = []) {
   $node->promote = NODE_NOT_PROMOTED;
   watchdog('action', 'Removed @type %title from front page.', array('@type' => node_type_get_name($node), '%title' => $node->title));
 }
@@ -4007,7 +4007,7 @@ function node_assign_owner_action_form($context) {
 
   // Use dropdown for fewer than 200 users; textbox for more than that.
   if (intval($count) < 200) {
-    $options = array();
+    $options = [];
     $result = db_query("SELECT uid, name FROM {users} WHERE uid > 0 ORDER BY name");
     foreach ($result as $data) {
       $options[$data->name] = $data->name;
@@ -4112,7 +4112,7 @@ function node_unpublish_by_keyword_action($node, $context) {
  * Implements hook_requirements().
  */
 function node_requirements($phase) {
-  $requirements = array();
+  $requirements = [];
   if ($phase === 'runtime') {
     // Only show rebuild button if there are either 0, or 2 or more, rows
     // in the {node_access} table, or if there are modules that
@@ -4157,7 +4157,7 @@ class NodeController extends DrupalDefaultEntityController {
   protected function attachLoad(&$nodes, $revision_id = FALSE) {
     // Create an array of nodes for each content type and pass this to the
     // object type specific callback.
-    $typed_nodes = array();
+    $typed_nodes = [];
     foreach ($nodes as $id => $entity) {
       $typed_nodes[$entity->type][$id] = $entity;
     }
@@ -4176,7 +4176,7 @@ class NodeController extends DrupalDefaultEntityController {
     parent::attachLoad($nodes, $revision_id);
   }
 
-  protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
+  protected function buildQuery($ids, $conditions = [], $revision_id = FALSE) {
     // Ensure that uid is taken from the {node} table,
     // alias timestamp to revision_timestamp and add revision_uid.
     $query = parent::buildQuery($ids, $conditions, $revision_id);

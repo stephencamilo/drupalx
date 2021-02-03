@@ -36,7 +36,7 @@ class ArchiverTar implements ArchiverInterface {
     return $this;
   }
 
-  public function extract($path, Array $files = array()) {
+  public function extract($path, Array $files = []) {
     if ($files) {
       $this->tar->extractList($files, $path, '', FALSE, FALSE);
     }
@@ -48,7 +48,7 @@ class ArchiverTar implements ArchiverInterface {
   }
 
   public function listContents() {
-    $files = array();
+    $files = [];
     foreach ($this->tar->listContent() as $file_data) {
       $files[] = $file_data['filename'];
     }
@@ -104,7 +104,7 @@ class ArchiverZip implements ArchiverInterface {
     return $this;
   }
 
-  public function extract($path, Array $files = array()) {
+  public function extract($path, Array $files = []) {
     if ($files) {
       $this->zip->extractTo($path, $files);
     }
@@ -116,7 +116,7 @@ class ArchiverZip implements ArchiverInterface {
   }
 
   public function listContents() {
-    $files = array();
+    $files = [];
     for ($i=0; $i < $this->zip->numFiles; $i++) {
       $files[] = $this->zip->getNameIndex($i);
     }

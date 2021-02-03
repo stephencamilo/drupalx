@@ -38,7 +38,7 @@ function poll_token_info() {
 /**
  * Implements hook_tokens().
  */
-function poll_tokens($type, $tokens, array $data = array(), array $options = array()) {
+function poll_tokens($type, $tokens, array $data = [], array $options = []) {
   $sanitize = !empty($options['sanitize']);
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
@@ -48,7 +48,7 @@ function poll_tokens($type, $tokens, array $data = array(), array $options = arr
     $language_code = NULL;
   }
 
-  $replacements = array();
+  $replacements = [];
 
   if ($type == 'node' && !empty($data['node']) && $data['node']->type == 'poll') {
     $node = $data['node'];

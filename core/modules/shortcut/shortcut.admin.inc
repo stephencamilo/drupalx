@@ -14,7 +14,7 @@
  *   The maximum number of shortcuts allowed to be added to a shortcut set.
  */
 function shortcut_max_slots() {
-  return variable_get('shortcut_max_slots', 7);
+  return $bootstrap->variable_get('shortcut_max_slots', 7);
 }
 
 /**
@@ -45,7 +45,7 @@ function shortcut_set_switch($form, &$form_state, $account = NULL) {
   $sets = shortcut_sets();
   $current_set = shortcut_current_displayed_set($account);
 
-  $options = array();
+  $options = [];
   foreach ($sets as $name => $set) {
     $options[$name] = check_plain($set->title);
   }
@@ -170,7 +170,7 @@ function shortcut_set_admin() {
   $shortcut_sets = shortcut_sets();
   $header = array(t('Name'), array('data' => t('Operations'), 'colspan' => 4));
 
-  $rows = array();
+  $rows = [];
   foreach ($shortcut_sets as $set) {
     $row = array(
       check_plain($set->title),
@@ -268,8 +268,8 @@ function shortcut_set_customize($form, &$form_state, $shortcut_set) {
   $form['shortcuts'] = array(
     '#tree' => TRUE,
     '#weight' => -20,
-    'enabled' => array(),
-    'disabled' => array(),
+    'enabled' => [],
+    'disabled' => [],
   );
 
   foreach ($shortcut_set->links as $link) {
@@ -345,9 +345,9 @@ function theme_shortcut_set_customize($variables) {
     'disabled' => element_children($form['shortcuts']['disabled']),
   );
   // Do not add any rows to the table if there are no shortcuts to display.
-  $statuses = empty($shortcuts_by_status['enabled']) && empty($shortcuts_by_status['disabled']) ? array() : array_keys($shortcuts_by_status);
+  $statuses = empty($shortcuts_by_status['enabled']) && empty($shortcuts_by_status['disabled']) ? [] : array_keys($shortcuts_by_status);
 
-  $rows = array();
+  $rows = [];
   foreach ($statuses as $status) {
     drupal_add_tabledrag('shortcuts', 'match', 'sibling', 'shortcut-status-select');
     drupal_add_tabledrag('shortcuts', 'order', 'sibling', 'shortcut-weight');
@@ -361,7 +361,7 @@ function theme_shortcut_set_customize($variables) {
 
     foreach ($shortcuts_by_status[$status] as $key) {
       $shortcut = &$form['shortcuts'][$status][$key];
-      $row = array();
+      $row = [];
       $row[] = drupal_render($shortcut['name']);
       $row[] = drupal_render($shortcut['weight']);
       $row[] = drupal_render($shortcut['status']);

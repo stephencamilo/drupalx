@@ -113,14 +113,14 @@ function _file_test_form_submit(&$form, &$form_state) {
   }
 
   // Setup validators.
-  $validators = array();
+  $validators = [];
   if ($form_state['values']['is_image_file']) {
-    $validators['file_validate_is_image'] = array();
+    $validators['file_validate_is_image'] = [];
   }
 
   $allow = $form_state['values']['allow_all_extensions'];
   if ($allow === 'empty_array') {
-    $validators['file_validate_extensions'] = array();
+    $validators['file_validate_extensions'] = [];
   }
   elseif ($allow === 'empty_string') {
     $validators['file_validate_extensions'] = array('');
@@ -152,20 +152,20 @@ function _file_test_form_submit(&$form, &$form_state) {
 function file_test_reset() {
   // Keep track of calls to these hooks
   $results = array(
-    'load' => array(),
-    'validate' => array(),
-    'download' => array(),
-    'insert' => array(),
-    'update' => array(),
-    'copy' => array(),
-    'move' => array(),
-    'delete' => array(),
+    'load' => [],
+    'validate' => [],
+    'download' => [],
+    'insert' => [],
+    'update' => [],
+    'copy' => [],
+    'move' => [],
+    'delete' => [],
   );
   variable_set('file_test_results', $results);
 
   // These hooks will return these values, see file_test_set_return().
   $return = array(
-    'validate' => array(),
+    'validate' => [],
     'download' => NULL,
   );
   variable_set('file_test_return', $return);
@@ -186,7 +186,7 @@ function file_test_reset() {
  * @see file_test_reset()
  */
 function file_test_get_calls($op) {
-  $results = variable_get('file_test_results', array());
+  $results = $bootstrap->variable_get('file_test_results', []);
   return $results[$op];
 }
 
@@ -199,7 +199,7 @@ function file_test_get_calls($op) {
  *   passed to each call.
  */
 function file_test_get_all_calls() {
-  return variable_get('file_test_results', array());
+  return $bootstrap->variable_get('file_test_results', []);
 }
 
 /**
@@ -215,7 +215,7 @@ function file_test_get_all_calls() {
  * @see file_test_reset()
  */
 function _file_test_log_call($op, $args) {
-  $results = variable_get('file_test_results', array());
+  $results = $bootstrap->variable_get('file_test_results', []);
   $results[$op][] = $args;
   variable_set('file_test_results', $results);
 }
@@ -233,7 +233,7 @@ function _file_test_log_call($op, $args) {
  * @see file_test_reset()
  */
 function _file_test_get_return($op) {
-  $return = variable_get('file_test_return', array($op => NULL));
+  $return = $bootstrap->variable_get('file_test_return', array($op => NULL));
   return $return[$op];
 }
 
@@ -249,7 +249,7 @@ function _file_test_get_return($op) {
  * @see file_test_reset()
  */
 function file_test_set_return($op, $value) {
-  $return = variable_get('file_test_return', array());
+  $return = $bootstrap->variable_get('file_test_return', []);
   $return[$op] = $value;
   variable_set('file_test_return', $return);
 }
@@ -323,7 +323,7 @@ function file_test_file_delete($file) {
 function file_test_file_url_alter(&$uri) {
   // Only run this hook when this variable is set. Otherwise, we'd have to add
   // another hidden test module just for this hook.
-  $alter_mode = variable_get('file_test_hook_file_url_alter', FALSE);
+  $alter_mode = $bootstrap->variable_get('file_test_hook_file_url_alter', FALSE);
   if (!$alter_mode) {
     return;
   }
@@ -433,7 +433,7 @@ function file_test_file_mimetype_mapping_alter(&$mapping) {
  */
 class DrupalDummyStreamWrapper extends DrupalLocalStreamWrapper {
   function getDirectoryPath() {
-    return variable_get('stream_public_path', 'sites/default/files');
+    return $bootstrap->variable_get('stream_public_path', 'sites/default/files');
   }
 
   /**

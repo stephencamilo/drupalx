@@ -76,13 +76,13 @@
  * @return
  *   Text with tokens replaced.
  */
-function token_replace($text, array $data = array(), array $options = array()) {
+function token_replace($text, array $data = [], array $options = []) {
   $text_tokens = token_scan($text);
   if (empty($text_tokens)) {
     return $text;
   }
 
-  $replacements = array();
+  $replacements = [];
   foreach ($text_tokens as $type => $tokens) {
     $replacements += token_generate($type, $tokens, $data, $options);
     if (!empty($options['clear'])) {
@@ -129,7 +129,7 @@ function token_scan($text) {
   // Iterate through the matches, building an associative array containing
   // $tokens grouped by $types, pointing to the version of the token found in
   // the source text. For example, $results['node']['title'] = '[node:title]';
-  $results = array();
+  $results = [];
   for ($i = 0; $i < count($tokens); $i++) {
     $results[$types[$i]][$tokens[$i]] = $matches[0][$i];
   }
@@ -173,7 +173,7 @@ function token_scan($text) {
  * @see hook_tokens()
  * @see hook_tokens_alter()
  */
-function token_generate($type, array $tokens, array $data = array(), array $options = array()) {
+function token_generate($type, array $tokens, array $data = [], array $options = []) {
   $options += array('sanitize' => TRUE);
   $replacements = module_invoke_all('tokens', $type, $tokens, $data, $options);
 
@@ -217,7 +217,7 @@ function token_generate($type, array $tokens, array $data = array(), array $opti
  *   stripped from the key.
  */
 function token_find_with_prefix(array $tokens, $prefix, $delimiter = ':') {
-  $results = array();
+  $results = [];
   foreach ($tokens as $token => $raw) {
     $parts = explode($delimiter, $token, 2);
     if (count($parts) == 2 && $parts[0] == $prefix) {

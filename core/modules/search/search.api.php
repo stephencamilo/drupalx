@@ -123,7 +123,7 @@ function hook_search_admin() {
       '#title' => $values['title'],
       '#type' => 'select',
       '#options' => $options,
-      '#default_value' => variable_get('node_rank_' . $var, 0),
+      '#default_value' => $bootstrap->variable_get('node_rank_' . $var, 0),
     );
   }
   return $form;
@@ -185,7 +185,7 @@ function hook_search_execute($keys = NULL, $conditions = NULL) {
   }
   // Only continue if the first pass query matches.
   if (!$query->executeFirstPass()) {
-    return array();
+    return [];
   }
 
   // Add the ranking expressions.
@@ -195,7 +195,7 @@ function hook_search_execute($keys = NULL, $conditions = NULL) {
   $find = $query
     ->limit(10)
     ->execute();
-  $results = array();
+  $results = [];
   foreach ($find as $item) {
     // Build the node body.
     $node = node_load($item->sid);
@@ -302,7 +302,7 @@ function hook_search_preprocess($text) {
  * When implementing this hook, your module should index content items that
  * were modified or added since the last run. PHP has a time limit
  * for cron, though, so it is advisable to limit how many items you index
- * per run using variable_get('search_cron_limit') (see example below). Also,
+ * per run using $bootstrap->variable_get('search_cron_limit') (see example below). Also,
  * since the cron run could time out and abort in the middle of your run, you
  * should update your module's internal bookkeeping on when items have last
  * been indexed as you go rather than waiting to the end of indexing.
@@ -365,7 +365,7 @@ function hook_update_index() {
  * @ingroup search
  */
 function callback_search_conditions($keys) {
-  $conditions = array();
+  $conditions = [];
 
   if (!empty($_REQUEST['keys'])) {
     $conditions['keys'] = $_REQUEST['keys'];

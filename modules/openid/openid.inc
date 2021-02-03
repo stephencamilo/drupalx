@@ -73,7 +73,7 @@ define('OPENID_NS_XRD', 'xri://$xrd*($v*2.0)');
  * Performs an HTTP 302 redirect (for the 1.x protocol).
  */
 function openid_redirect_http($url, $message) {
-  $query = array();
+  $query = [];
   foreach ($message as $key => $val) {
     $query[] = $key . '=' . urlencode($val);
   }
@@ -137,7 +137,7 @@ function openid_redirect_form($form, &$form_state, $url, $message) {
  *   An array of service entries.
  */
 function _openid_xrds_parse($raw_xml) {
-  $services = array();
+  $services = [];
 
   // For PHP version >= 5.2.11, we can use this function to protect against
   // malicious doctype declarations and other unexpected entity loading.
@@ -155,12 +155,12 @@ function _openid_xrds_parse($raw_xml) {
   // stop parsing here and treat the XML as invalid since XRDS documents do not
   // require, and are not expected to have, a DOCTYPE.
   if (isset($dom->doctype)) {
-    return array();
+    return [];
   }
 
   // Also stop parsing if there is an unreasonably large number of tags.
-  if ($dom->getElementsByTagName('*')->length > variable_get('openid_xrds_maximum_tag_count', 30000)) {
-    return array();
+  if ($dom->getElementsByTagName('*')->length > $bootstrap->variable_get('openid_xrds_maximum_tag_count', 30000)) {
+    return [];
   }
 
   // Parse the DOM document for the information we need.
@@ -169,7 +169,7 @@ function _openid_xrds_parse($raw_xml) {
       foreach ($xrd->children(OPENID_NS_XRD)->Service as $service_element) {
         $service = array(
           'priority' => $service_element->attributes()->priority ? (int)$service_element->attributes()->priority : PHP_INT_MAX,
-          'types' => array(),
+          'types' => [],
           'uri' => (string)$service_element->children(OPENID_NS_XRD)->URI,
           'service' => $service_element,
           'xrd' => $xrd,
@@ -369,7 +369,7 @@ function _openid_encode_message($message) {
  * into an associative array.
  */
 function _openid_parse_message($message) {
-  $parsed_message = array();
+  $parsed_message = [];
 
   $items = explode("\n", $message);
   foreach ($items as $item) {
@@ -435,7 +435,7 @@ function _openid_meta_httpequiv($equiv, $html) {
  */
 function _openid_signature($association, $message_array, $keys_to_sign) {
   $signature = '';
-  $sign_data = array();
+  $sign_data = [];
 
   foreach ($keys_to_sign as $key) {
     if (isset($message_array['openid.' . $key])) {
@@ -496,7 +496,7 @@ function _openid_dh_long_to_binary($long) {
     return "\x00";
   }
 
-  $bytes = array();
+  $bytes = [];
 
   while (_openid_math_cmp($long, 0) > 0) {
     array_unshift($bytes, _openid_math_mod($long, 256));
@@ -527,7 +527,7 @@ function _openid_dh_xorsecret($shared, $secret) {
 }
 
 function _openid_dh_rand($stop) {
-  $duplicate_cache = &drupal_static(__FUNCTION__, array());
+  $duplicate_cache = &drupal_static(__FUNCTION__, []);
 
   // Used as the key for the duplicate cache
   $rbytes = _openid_dh_long_to_binary($stop);
@@ -550,7 +550,7 @@ function _openid_dh_rand($stop) {
     $duplicate = _openid_math_mod($mxrand, $stop);
 
     if (count($duplicate_cache) > 10) {
-      $duplicate_cache = array();
+      $duplicate_cache = [];
     }
 
     $duplicate_cache[$rbytes] = array($duplicate, $nbytes);
@@ -570,7 +570,7 @@ function _openid_get_bytes($num_bytes) {
 }
 
 function _openid_response($str = NULL) {
-  $data = array();
+  $data = [];
 
   if (isset($_SERVER['REQUEST_METHOD'])) {
     $data = _openid_get_params($_SERVER['QUERY_STRING']);
@@ -578,7 +578,7 @@ function _openid_response($str = NULL) {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $str = file_get_contents('php://input');
 
-      $post = array();
+      $post = [];
       if ($str !== FALSE) {
         $post = _openid_get_params($str);
       }
@@ -593,7 +593,7 @@ function _openid_response($str = NULL) {
 function _openid_get_params($str) {
   $chunks = explode("&", $str);
 
-  $data = array();
+  $data = [];
   foreach ($chunks as $chunk) {
     $parts = explode("=", $chunk, 2);
 
@@ -662,7 +662,7 @@ function openid_extract_namespace($response, $extension_namespace, $fallback_pre
   }
 
   // Now extract the namespace keys from the response.
-  $output = array();
+  $output = [];
   if (!isset($prefix)) {
     return $output;
   }
@@ -695,7 +695,7 @@ function openid_extract_namespace($response, $extension_namespace, $fallback_pre
  * @see http://openid.net/specs/openid-attribute-exchange-1_0.html#fetch_response
  */
 function openid_extract_ax_values($values, $uris) {
-  $output = array();
+  $output = [];
   foreach ($values as $key => $value) {
     if (in_array($value, $uris) && preg_match('/^type\.([^.]+)$/', $key, $matches)) {
       $alias = $matches[1];

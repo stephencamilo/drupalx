@@ -297,7 +297,7 @@ function system_test_exit() {
 function system_test_system_info_alter(&$info, $file, $type) {
   // We need a static otherwise the last test will fail to alter common_test.
   static $test;
-  if (($dependencies = variable_get('dependencies', array())) || $test) {
+  if (($dependencies = $bootstrap->variable_get('dependencies', [])) || $test) {
     if ($file->name == 'module_test') {
       $info['hidden'] = FALSE;
       $info['dependencies'][] = array_shift($dependencies);
@@ -439,7 +439,7 @@ class SystemTestFileTransfer {
   }
 
   public function getSettingsForm() {
-    $form = array();
+    $form = [];
     $form['system_test_username'] = array(
       '#type' => 'textfield',
       '#title' => t('System Test Username'),
@@ -455,7 +455,7 @@ class SystemTestFileTransfer {
  */
 function system_test_authorize_init_page($page_title) {
   $authorize_url = $GLOBALS['base_url'] . '/authorize.php';
-  system_authorized_init('system_test_authorize_run', drupal_get_path('module', 'system_test') . '/system_test.module', array(), $page_title);
+  system_authorized_init('system_test_authorize_run', drupal_get_path('module', 'system_test') . '/system_test.module', [], $page_title);
   drupal_goto($authorize_url);
 }
 
@@ -506,7 +506,7 @@ function system_test_drupal_get_filename() {
   // for examination by the tests.
   define('SIMPLETEST_COLLECT_ERRORS', FALSE);
 
-  $module_name = variable_get('system_test_drupal_get_filename_test_module_name');
+  $module_name = $bootstrap->variable_get('system_test_drupal_get_filename_test_module_name');
   drupal_get_filename('module', $module_name);
 
   return '';
@@ -545,7 +545,7 @@ function system_test_watchdog($log_entry) {
   if ($log_entry['type'] != 'php' || $log_entry['severity'] != WATCHDOG_WARNING) {
     return;
   }
-  $module_name = variable_get('system_test_drupal_get_filename_test_module_name');
+  $module_name = $bootstrap->variable_get('system_test_drupal_get_filename_test_module_name');
   if (!isset($log_entry['variables']['!message']) || strpos($log_entry['variables']['!message'], format_string('The following module is missing from the file system: %name', array('%name' => $module_name))) === FALSE) {
     return;
   }

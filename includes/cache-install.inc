@@ -27,7 +27,7 @@ class DrupalFakeCache extends DrupalDatabaseCache implements DrupalCacheInterfac
    * Overrides DrupalDatabaseCache::getMultiple().
    */
   function getMultiple(&$cids) {
-    return array();
+    return [];
   }
 
   /**

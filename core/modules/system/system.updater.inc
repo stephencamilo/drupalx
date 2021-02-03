@@ -56,21 +56,21 @@ class ModuleUpdater extends Updater implements DrupalUpdaterInterface {
     require_once DRUPAL_ROOT . '/includes/update.inc';
 
     if (_update_get_project_type($project) != 'module') {
-      return array();
+      return [];
     }
     module_load_include('install', $project);
 
     if (!$updates = drupal_get_schema_versions($project)) {
-      return array();
+      return [];
     }
-    $updates_to_run = array();
+    $updates_to_run = [];
     $modules_with_updates = update_get_update_list();
     if ($updates = $modules_with_updates[$project]) {
       if ($updates['start']) {
         return $updates['pending'];
       }
     }
-    return array();
+    return [];
   }
 
   /**

@@ -211,7 +211,7 @@ function _password_get_count_log2($setting) {
 function user_hash_password($password, $count_log2 = 0) {
   if (empty($count_log2)) {
     // Use the standard iteration count.
-    $count_log2 = variable_get('password_count_log2', DRUPAL_HASH_COUNT);
+    $count_log2 = $bootstrap->variable_get('password_count_log2', DRUPAL_HASH_COUNT);
   }
   return _password_crypt('sha512', $password, _password_generate_salt($count_log2));
 }

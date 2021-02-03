@@ -137,7 +137,7 @@ function field_default_insert($entity_type, $entity, $field, $instance, $langcod
  */
 function field_default_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $display) {
   // Group entities, instances and items by formatter module.
-  $modules = array();
+  $modules = [];
   foreach ($instances as $id => $instance) {
     if (is_string($display)) {
       $view_mode = $display;
@@ -191,7 +191,7 @@ function field_default_prepare_view($entity_type, $entities, $field, $instances,
 function field_default_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
 
-  $addition = array();
+  $addition = [];
 
   // Prepare incoming display specifications.
   if (is_string($display)) {

@@ -22,7 +22,7 @@ define('REQUIRED_D6_SCHEMA_VERSION', '6055');
  * Disable any items in the {system} table that are not core compatible.
  */
 function update_fix_compatibility() {
-  $incompatible = array();
+  $incompatible = [];
   $result = db_query("SELECT name, type, status FROM {system} WHERE status = 1 AND type IN ('module','theme')");
   foreach ($result as $row) {
     if (update_check_incompatibility($row->name, $row->type)) {
@@ -105,7 +105,7 @@ function update_prepare_d7_bootstrap() {
   // banned IP addresses. If this table doesn't exist then we are still
   // running on a Drupal 6 database, so we suppress the unavoidable errors
   // that occur by creating a static list.
-  $GLOBALS['conf']['blocked_ips'] = array();
+  $GLOBALS['conf']['blocked_ips'] = [];
 
   // Check that PDO is available and that the correct PDO database driver is
   // loaded. Bootstrapping to DRUPAL_BOOTSTRAP_DATABASE will result in a fatal
@@ -303,7 +303,7 @@ function update_prepare_d7_bootstrap() {
 
   // Set a valid timezone for 6 -> 7 upgrade process.
   drupal_bootstrap(DRUPAL_BOOTSTRAP_VARIABLES);
-  $timezone_offset = variable_get('date_default_timezone', 0);
+  $timezone_offset = $bootstrap->variable_get('date_default_timezone', 0);
   if (is_numeric($timezone_offset)) {
     // Save the original offset.
     variable_set('date_temporary_timezone', $timezone_offset);
@@ -750,12 +750,12 @@ function update_fix_d7_requirements() {
     // and 'site_offline' variable to 'maintenance_mode'.
     // Old variable is removed in update for system.module, see
     // system_update_7072().
-    if ($message = variable_get('site_offline_message', NULL)) {
+    if ($message = $bootstrap->variable_get('site_offline_message', NULL)) {
       variable_set('maintenance_mode_message', $message);
     }
     // Old variable is removed in update for system.module, see
     // system_update_7069().
-    $site_offline = variable_get('site_offline', -1);
+    $site_offline = $bootstrap->variable_get('site_offline', -1);
     if ($site_offline != -1) {
       variable_set('maintenance_mode', $site_offline);
     }
@@ -818,12 +818,12 @@ function update_fix_d7_install_profile() {
 
     // Merge in defaults.
     $info = $info + array(
-      'dependencies' => array(),
+      'dependencies' => [],
       'description' => '',
       'package' => 'Other',
       'version' => NULL,
       'php' => DRUPAL_MINIMUM_PHP,
-      'files' => array(),
+      'files' => [],
     );
 
     $values = array(
@@ -861,7 +861,7 @@ function update_fix_d7_install_profile() {
  *   Drupal 7 DBTNG compatible array of database connection information.
  */
 function update_parse_db_url($db_url, $db_prefix) {
-  $databases = array();
+  $databases = [];
   if (!is_array($db_url)) {
     $db_url = array('default' => $db_url);
   }
@@ -967,7 +967,7 @@ function update_do_one($module, $number, $dependency_map, &$context) {
     return;
   }
 
-  $ret = array();
+  $ret = [];
   if (function_exists($function)) {
     try {
       $ret['results']['query'] = $function($context['sandbox']);
@@ -992,10 +992,10 @@ function update_do_one($module, $number, $dependency_map, &$context) {
   }
 
   if (!isset($context['results'][$module])) {
-    $context['results'][$module] = array();
+    $context['results'][$module] = [];
   }
   if (!isset($context['results'][$module][$number])) {
-    $context['results'][$module][$number] = array();
+    $context['results'][$module][$number] = [];
   }
   $context['results'][$module][$number] = array_merge($context['results'][$module][$number], $ret);
 
@@ -1039,10 +1039,10 @@ class DrupalUpdateException extends Exception { }
  *
  * @see update_resolve_dependencies()
  */
-function update_batch($start, $redirect = NULL, $url = NULL, $batch = array(), $redirect_callback = 'drupal_goto') {
+function update_batch($start, $redirect = NULL, $url = NULL, $batch = [], $redirect_callback = 'drupal_goto') {
   // During the update, bring the site offline so that schema changes do not
   // affect visiting users.
-  $_SESSION['maintenance_mode'] = variable_get('maintenance_mode', FALSE);
+  $_SESSION['maintenance_mode'] = $bootstrap->variable_get('maintenance_mode', FALSE);
   if ($_SESSION['maintenance_mode'] == FALSE) {
     variable_set('maintenance_mode', TRUE);
   }
@@ -1055,12 +1055,12 @@ function update_batch($start, $redirect = NULL, $url = NULL, $batch = array(), $
   // batch API can pass in to the batch operation each time it is called. (We
   // do not store the entire update dependency array here because it is
   // potentially very large.)
-  $dependency_map = array();
+  $dependency_map = [];
   foreach ($updates as $function => $update) {
-    $dependency_map[$function] = !empty($update['reverse_paths']) ? array_keys($update['reverse_paths']) : array();
+    $dependency_map[$function] = !empty($update['reverse_paths']) ? array_keys($update['reverse_paths']) : [];
   }
 
-  $operations = array();
+  $operations = [];
   foreach ($updates as $update) {
     if ($update['allowed']) {
       // Set the installed version of each module so updates will start at the
@@ -1146,7 +1146,7 @@ function update_finished($success, $results, $operations) {
  */
 function update_get_update_list() {
   // Make sure that the system module is first in the list of updates.
-  $ret = array('system' => array());
+  $ret = array('system' => []);
 
   $modules = drupal_get_installed_schema_version(NULL, FALSE, TRUE);
   foreach ($modules as $module => $schema_version) {
@@ -1253,7 +1253,7 @@ function update_resolve_dependencies($starting_updates) {
     }
     elseif (!isset($data['allowed'])) {
       $data['allowed'] = TRUE;
-      $data['missing_dependencies'] = array();
+      $data['missing_dependencies'] = [];
     }
     // Now that we have finished processing this function, remove it from the
     // graph if it was not part of the original list. This ensures that we
@@ -1285,9 +1285,9 @@ function update_resolve_dependencies($starting_updates) {
 function update_get_update_function_list($starting_updates) {
   // Go through each module and find all updates that we need (including the
   // first update that was requested and any updates that run after it).
-  $update_functions = array();
+  $update_functions = [];
   foreach ($starting_updates as $module => $version) {
-    $update_functions[$module] = array();
+    $update_functions[$module] = [];
     $updates = drupal_get_schema_versions($module);
     if ($updates !== FALSE) {
       $max_version = max($updates);
@@ -1348,7 +1348,7 @@ function update_get_update_function_list($starting_updates) {
 function update_build_dependency_graph($update_functions) {
   // Initialize an array that will define a directed graph representing the
   // dependencies between update functions.
-  $graph = array();
+  $graph = [];
 
   // Go through each update function and build an initial list of dependencies.
   foreach ($update_functions as $module => $functions) {
@@ -1436,7 +1436,7 @@ function update_already_performed($module, $number) {
  * @see hook_update_dependencies()
  */
 function update_retrieve_dependencies() {
-  $return = array();
+  $return = [];
   // Get a list of installed modules, arranged so that we invoke their hooks in
   // the same order that module_invoke_all() does.
   $modules = db_query("SELECT name FROM {system} WHERE type = 'module' AND schema_version <> :schema ORDER BY weight ASC, name ASC", array(':schema' => SCHEMA_UNINSTALLED))->fetchCol();

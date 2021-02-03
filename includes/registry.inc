@@ -40,7 +40,7 @@ function _registry_update() {
   // Get current list of modules and their files.
   $modules = db_query("SELECT * FROM {system} WHERE type = 'module'")->fetchAll();
   // Get the list of files we are going to parse.
-  $files = array();
+  $files = [];
   foreach ($modules as &$module) {
     $module->info = unserialize($module->info);
     $dir = dirname($module->filename);
@@ -60,7 +60,7 @@ function _registry_update() {
   }
 
   // Initialize an empty array for the unchanged files.
-  $unchanged_files = array();
+  $unchanged_files = [];
 
   $transaction = db_transaction();
   try {
@@ -101,8 +101,8 @@ function _registry_update() {
     // Add unchanged files to the files.
     $files += $unchanged_files;
 
-    $unchanged_resources = array();
-    $lookup_cache = array();
+    $unchanged_resources = [];
+    $lookup_cache = [];
     if ($cache = cache_get('lookup_cache', 'cache_bootstrap')) {
       $lookup_cache = $cache->data;
     }
@@ -138,7 +138,7 @@ function _registry_update() {
  * Return the list of files in registry_file
  */
 function registry_get_parsed_files() {
-  $files = array();
+  $files = [];
   // We want the result as a keyed array.
   $files = db_query("SELECT * FROM {registry_file}")->fetchAllAssoc('filename', PDO::FETCH_ASSOC);
   return $files;
@@ -154,7 +154,7 @@ function registry_get_parsed_files() {
  *  The list of files to check and parse.
  */
 function _registry_parse_files($files) {
-  $parsed_files = array();
+  $parsed_files = [];
   foreach ($files as $filename => $file) {
     if (file_exists($filename)) {
       $hash = hash_file('sha256', $filename);

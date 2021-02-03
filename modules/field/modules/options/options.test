@@ -117,7 +117,7 @@ class OptionsWidgetsTestCase extends FieldTestCase {
     // Unselect option.
     $edit = array("card_1[$langcode]" => '_none');
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertFieldValues($entity_init, 'card_1', $langcode, array());
+    $this->assertFieldValues($entity_init, 'card_1', $langcode, []);
 
     // Check that required radios with one option is auto-selected.
     $this->card_1['settings']['allowed_values'] = array(99 => 'Only allowed value');
@@ -204,7 +204,7 @@ class OptionsWidgetsTestCase extends FieldTestCase {
     );
     $this->drupalPost(NULL, $edit, t('Save'));
     // Check that the value was saved.
-    $this->assertFieldValues($entity_init, 'card_2', $langcode, array());
+    $this->assertFieldValues($entity_init, 'card_2', $langcode, []);
 
     // Required checkbox with one option is auto-selected.
     $this->card_2['settings']['allowed_values'] = array(99 => 'Only allowed value');
@@ -280,11 +280,11 @@ class OptionsWidgetsTestCase extends FieldTestCase {
     // Submit form: Unselect the option.
     $edit = array("card_1[$langcode]" => '_none');
     $this->drupalPost('test-entity/manage/' . $entity->ftid . '/edit', $edit, t('Save'));
-    $this->assertFieldValues($entity_init, 'card_1', $langcode, array());
+    $this->assertFieldValues($entity_init, 'card_1', $langcode, []);
 
     // Test optgroups.
 
-    $this->card_1['settings']['allowed_values'] = array();
+    $this->card_1['settings']['allowed_values'] = [];
     $this->card_1['settings']['allowed_values_function'] = 'list_test_allowed_values_callback';
     field_update_field($this->card_1);
 
@@ -310,7 +310,7 @@ class OptionsWidgetsTestCase extends FieldTestCase {
     // Submit form: Unselect the option.
     $edit = array("card_1[$langcode]" => '_none');
     $this->drupalPost('test-entity/manage/' . $entity->ftid . '/edit', $edit, t('Save'));
-    $this->assertFieldValues($entity_init, 'card_1', $langcode, array());
+    $this->assertFieldValues($entity_init, 'card_1', $langcode, []);
   }
 
   /**
@@ -370,9 +370,9 @@ class OptionsWidgetsTestCase extends FieldTestCase {
     $this->assertText('this field cannot hold more than 2 values', 'Validation error was displayed.');
 
     // Submit form: uncheck all options.
-    $edit = array("card_2[$langcode][]" => array());
+    $edit = array("card_2[$langcode][]" => []);
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertFieldValues($entity_init, 'card_2', $langcode, array());
+    $this->assertFieldValues($entity_init, 'card_2', $langcode, []);
 
     // Test the 'None' option.
 
@@ -385,7 +385,7 @@ class OptionsWidgetsTestCase extends FieldTestCase {
     // Check that selecting the 'none' option empties the field.
     $edit = array("card_2[$langcode][]" => array('_none' => '_none'));
     $this->drupalPost('test-entity/manage/' . $entity->ftid . '/edit', $edit, t('Save'));
-    $this->assertFieldValues($entity_init, 'card_2', $langcode, array());
+    $this->assertFieldValues($entity_init, 'card_2', $langcode, []);
 
     // A required select list does not have an empty key.
     $instance['required'] = TRUE;
@@ -399,7 +399,7 @@ class OptionsWidgetsTestCase extends FieldTestCase {
     // Test optgroups.
 
     // Use a callback function defining optgroups.
-    $this->card_2['settings']['allowed_values'] = array();
+    $this->card_2['settings']['allowed_values'] = [];
     $this->card_2['settings']['allowed_values_function'] = 'list_test_allowed_values_callback';
     field_update_field($this->card_2);
     $instance['required'] = FALSE;
@@ -427,7 +427,7 @@ class OptionsWidgetsTestCase extends FieldTestCase {
     // Submit form: Unselect the option.
     $edit = array("card_2[$langcode][]" => array('_none' => '_none'));
     $this->drupalPost('test-entity/manage/' . $entity->ftid . '/edit', $edit, t('Save'));
-    $this->assertFieldValues($entity_init, 'card_2', $langcode, array());
+    $this->assertFieldValues($entity_init, 'card_2', $langcode, []);
   }
 
   /**

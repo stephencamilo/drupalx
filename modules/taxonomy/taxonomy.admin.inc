@@ -70,13 +70,13 @@ function taxonomy_overview_vocabularies_submit($form, &$form_state) {
 function theme_taxonomy_overview_vocabularies($variables) {
   $form = $variables['form'];
 
-  $rows = array();
+  $rows = [];
 
   foreach (element_children($form) as $key) {
     if (isset($form[$key]['name'])) {
       $vocabulary = &$form[$key];
 
-      $row = array();
+      $row = [];
       $row[] = drupal_render($vocabulary['name']);
       if (isset($vocabulary['weight'])) {
         $vocabulary['weight']['#attributes']['class'] = array('vocabulary-weight');
@@ -105,7 +105,7 @@ function theme_taxonomy_overview_vocabularies($variables) {
  * @see taxonomy_form_vocabulary_submit()
  * @see taxonomy_form_vocabulary_validate()
  */
-function taxonomy_form_vocabulary($form, &$form_state, $edit = array()) {
+function taxonomy_form_vocabulary($form, &$form_state, $edit = []) {
   // During initial form build, add the entity to the form state for use
   // during form building and processing. During a rebuild, use what is in the
   // form state.
@@ -259,7 +259,7 @@ function taxonomy_overview_terms($form, &$form_state, $vocabulary) {
   $form['#parent_fields'] = FALSE;
 
   $page            = isset($_GET['page']) ? $_GET['page'] : 0;
-  $page_increment  = variable_get('taxonomy_terms_per_page_admin', 100);  // Number of terms per page.
+  $page_increment  = $bootstrap->variable_get('taxonomy_terms_per_page_admin', 100);  // Number of terms per page.
   $page_entries    = 0;   // Elements shown on this page.
   $before_entries  = 0;   // Elements at the root level before this page.
   $after_entries   = 0;   // Elements at the root level after this page.
@@ -272,10 +272,10 @@ function taxonomy_overview_terms($form, &$form_state, $vocabulary) {
   $forward_step = 0;
 
   // An array of the terms to be displayed on this page.
-  $current_page = array();
+  $current_page = [];
 
   $delta = 0;
-  $term_deltas = array();
+  $term_deltas = [];
   $tree = taxonomy_get_tree($vocabulary->vid);
   $term = current($tree);
   do {
@@ -412,7 +412,7 @@ function taxonomy_overview_terms($form, &$form_state, $vocabulary) {
       '#type' => 'submit',
       '#value' => t('Reset to alphabetical')
     );
-    $form_state['redirect'] = array($_GET['q'], (isset($_GET['page']) ? array('query' => array('page' => $_GET['page'])) : array()));
+    $form_state['redirect'] = array($_GET['q'], (isset($_GET['page']) ? array('query' => array('page' => $_GET['page'])) : []));
   }
 
   return $form;
@@ -451,7 +451,7 @@ function taxonomy_overview_terms_submit($form, &$form_state) {
   $vocabulary = $form['#vocabulary'];
   $hierarchy = 0; // Update the current hierarchy type as we go.
 
-  $changed_terms = array();
+  $changed_terms = [];
   $tree = taxonomy_get_tree($vocabulary->vid);
 
   if (empty($tree)) {
@@ -473,7 +473,7 @@ function taxonomy_overview_terms_submit($form, &$form_state) {
   }
 
   // Renumber the current page weights and assign any new parents.
-  $level_weights = array();
+  $level_weights = [];
   foreach ($form_state['values'] as $tid => $values) {
     if (isset($form[$tid]['#term'])) {
       $term = $form[$tid]['#term'];
@@ -563,13 +563,13 @@ function theme_taxonomy_overview_terms($variables) {
   }
   drupal_add_tabledrag('taxonomy', 'order', 'sibling', 'term-weight');
 
-  $errors = form_get_errors() != FALSE ? form_get_errors() : array();
-  $rows = array();
+  $errors = form_get_errors() != FALSE ? form_get_errors() : [];
+  $rows = [];
   foreach (element_children($form) as $key) {
     if (isset($form[$key]['#term'])) {
       $term = &$form[$key];
 
-      $row = array();
+      $row = [];
       $row[] = (isset($term['#term']['depth']) && $term['#term']['depth'] > 0 ? theme('indentation', array('size' => $term['#term']['depth'])) : ''). drupal_render($term['view']);
       if ($form['#parent_fields']) {
         $term['tid']['#attributes']['class'] = array('term-id');
@@ -588,7 +588,7 @@ function theme_taxonomy_overview_terms($variables) {
   // Add necessary classes to rows.
   $row_position = 0;
   foreach ($rows as $key => $row) {
-    $rows[$key]['class'] = array();
+    $rows[$key]['class'] = [];
     if (isset($form['#parent_fields'])) {
       $rows[$key]['class'][] = 'draggable';
     }
@@ -634,7 +634,7 @@ function theme_taxonomy_overview_terms($variables) {
  * @ingroup forms
  * @see taxonomy_form_term_submit()
  */
-function taxonomy_form_term($form, &$form_state, $edit = array(), $vocabulary = NULL) {
+function taxonomy_form_term($form, &$form_state, $edit = [], $vocabulary = NULL) {
   // During initial form build, add the term entity to the form state for use
   // during form building and processing. During a rebuild, use what is in the
   // form state.
@@ -831,7 +831,7 @@ function taxonomy_form_term_submit($form, &$form_state) {
   // Root doesn't count if it's the only parent.
   if ($current_parent_count == 1 && isset($form_state['values']['parent'][0])) {
     $current_parent_count = 0;
-    $form_state['values']['parent'] = array();
+    $form_state['values']['parent'] = [];
   }
 
   // If the number of parents has been reduced to one or none, do a check on the

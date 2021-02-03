@@ -49,7 +49,7 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
    *
    * @var Array
    */
-  protected $data = array();
+  protected $data = [];
 
   /**
    * The current row, retrieved in PDO::FETCH_ASSOC format.
@@ -101,7 +101,7 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
    */
   protected $fetchOptions = array(
     'class' => 'stdClass',
-    'constructor_args' => array(),
+    'constructor_args' => [],
     'object' => NULL,
     'column' => 0,
   );
@@ -120,12 +120,12 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
    */
   protected $defaultFetchOptions = array(
     'class' => 'stdClass',
-    'constructor_args' => array(),
+    'constructor_args' => [],
     'object' => NULL,
     'column' => 0,
   );
 
-  public function __construct(DatabaseConnection $connection, $query, array $driver_options = array()) {
+  public function __construct(DatabaseConnection $connection, $query, array $driver_options = []) {
     $this->dbh = $connection;
     $this->queryString = $query;
     $this->driverOptions = $driver_options;
@@ -141,7 +141,7 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
    * @return
    *   TRUE on success, or FALSE on failure.
    */
-  public function execute($args = array(), $options = array()) {
+  public function execute($args = [], $options = []) {
     if (isset($options['fetch'])) {
       if (is_string($options['fetch'])) {
         // Default to an object. Note: db fields will be added to the object
@@ -184,7 +184,7 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
       $this->columnNames = array_keys($this->data[0]);
     }
     else {
-      $this->columnNames = array();
+      $this->columnNames = [];
     }
 
     if (!empty($logger)) {
@@ -222,7 +222,7 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
    * @return PDOStatement
    *   A PDOStatement object.
    */
-  protected function getStatement($query, &$args = array()) {
+  protected function getStatement($query, &$args = []) {
     return $this->dbh->prepare($query);
   }
 
@@ -386,7 +386,7 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
     return $this->fetchColumn($index);
   }
 
-  public function fetchObject($class_name = NULL, $constructor_args = array()) {
+  public function fetchObject($class_name = NULL, $constructor_args = []) {
     if (isset($this->currentRow)) {
       if (!isset($class_name)) {
         // Directly cast to an object to avoid a function call.
@@ -432,7 +432,7 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
       $this->fetchOptions['constructor_args'] = $constructor_args;
     }
 
-    $result = array();
+    $result = [];
     // Traverse the array as PHP would have done.
     while (isset($this->currentRow)) {
       // Grab the row in the format specified above.
@@ -449,7 +449,7 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
   public function fetchCol($index = 0) {
     if (isset($this->columnNames[$index])) {
       $column = $this->columnNames[$index];
-      $result = array();
+      $result = [];
       // Traverse the array as PHP would have done.
       while (isset($this->currentRow)) {
         $result[] = $this->currentRow[$this->columnNames[$index]];
@@ -458,18 +458,18 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
       return $result;
     }
     else {
-      return array();
+      return [];
     }
   }
 
   public function fetchAllKeyed($key_index = 0, $value_index = 1) {
     if (!isset($this->columnNames[$key_index]) || !isset($this->columnNames[$value_index]))
-      return array();
+      return [];
 
     $key = $this->columnNames[$key_index];
     $value = $this->columnNames[$value_index];
 
-    $result = array();
+    $result = [];
     // Traverse the array as PHP would have done.
     while (isset($this->currentRow)) {
       $result[$this->currentRow[$key]] = $this->currentRow[$value];
@@ -482,7 +482,7 @@ class DatabaseStatementPrefetch implements Iterator, DatabaseStatementInterface 
     $this->fetchStyle = isset($fetch_style) ? $fetch_style : $this->defaultFetchStyle;
     $this->fetchOptions = $this->defaultFetchOptions;
 
-    $result = array();
+    $result = [];
     // Traverse the array as PHP would have done.
     while (isset($this->currentRow)) {
       // Grab the row in its raw PDO::FETCH_ASSOC format.

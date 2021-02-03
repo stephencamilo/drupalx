@@ -368,7 +368,7 @@ function forum_update_7002() {
  * Rename field to 'taxonomy_forums'.
  */
 function forum_update_7003() {
-  $messages = array();
+  $messages = [];
 
   $new_field_name = 'taxonomy_forums';
 
@@ -380,7 +380,7 @@ function forum_update_7003() {
   }
 
   // Calculate the old field name.
-  $vid = variable_get('forum_nav_vocabulary', 0);
+  $vid = $bootstrap->variable_get('forum_nav_vocabulary', 0);
   $vocabulary_machine_name = db_select('taxonomy_vocabulary', 'tv')
     ->fields('tv', array('machine_name'))
     ->condition('vid', $vid)

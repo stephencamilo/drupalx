@@ -25,7 +25,7 @@ function taxonomy_term_page($term) {
   );
   // @todo This overrides any other possible breadcrumb and is a pure hard-coded
   //   presumption. Make this behavior configurable per vocabulary or term.
-  $breadcrumb = array();
+  $breadcrumb = [];
   while ($parents = taxonomy_get_parents($current->tid)) {
     $current = array_shift($parents);
     $breadcrumb[] = l($current->name, 'taxonomy/term/' . $current->tid);
@@ -52,7 +52,7 @@ function taxonomy_term_page($term) {
     'term' => taxonomy_term_view($term, 'full'),
   );
 
-  if ($nids = taxonomy_select_nodes($term->tid, TRUE, variable_get('default_nodes_main', 10))) {
+  if ($nids = taxonomy_select_nodes($term->tid, TRUE, $bootstrap->variable_get('default_nodes_main', 10))) {
     $nodes = node_load_multiple($nids);
     $build += node_view_multiple($nodes);
     $build['pager'] = array(
@@ -78,11 +78,11 @@ function taxonomy_term_page($term) {
  */
 function taxonomy_term_feed($term) {
   $channel['link'] = url('taxonomy/term/' . $term->tid, array('absolute' => TRUE));
-  $channel['title'] = variable_get('site_name', 'Drupal') . ' - ' . $term->name;
+  $channel['title'] = $bootstrap->variable_get('site_name', 'Drupal') . ' - ' . $term->name;
   // Only display the description if we have a single term, to avoid clutter and confusion.
   // HTML will be removed from feed description.
   $channel['description'] = check_markup($term->description, $term->format, '', TRUE);
-  $nids = taxonomy_select_nodes($term->tid, FALSE, variable_get('feed_default_items', 10));
+  $nids = taxonomy_select_nodes($term->tid, FALSE, $bootstrap->variable_get('feed_default_items', 10));
 
   node_feed($nids, $channel);
 }
@@ -138,11 +138,11 @@ function taxonomy_autocomplete($field_name = '', $tags_typed = '') {
   $tags_typed = drupal_explode_tags($tags_typed);
   $tag_last = drupal_strtolower(array_pop($tags_typed));
 
-  $term_matches = array();
+  $term_matches = [];
   if ($tag_last != '') {
 
     // Part of the criteria for the query come from the field's own settings.
-    $vids = array();
+    $vids = [];
     $vocabularies = taxonomy_vocabulary_get_names();
     foreach ($field['settings']['allowed_values'] as $tree) {
       $vids[] = $vocabularies[$tree['vocabulary']]->vid;

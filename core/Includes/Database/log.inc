@@ -25,14 +25,14 @@ class DatabaseLog {
    *
    * array(
    *   $logging_key = array(
-   *     array(query => '', args => array(), caller => '', target => '', time => 0),
-   *     array(query => '', args => array(), caller => '', target => '', time => 0),
+   *     array(query => '', args => [], caller => '', target => '', time => 0),
+   *     array(query => '', args => [], caller => '', target => '', time => 0),
    *   ),
    * );
    *
    * @var array
    */
-  protected $queryLog = array();
+  protected $queryLog = [];
 
   /**
    * The connection key for which this object is logging.
@@ -89,7 +89,7 @@ class DatabaseLog {
    *   The logging key to empty.
    */
   public function clear($logging_key) {
-    $this->queryLog[$logging_key] = array();
+    $this->queryLog[$logging_key] = [];
   }
 
   /**
@@ -129,7 +129,7 @@ class DatabaseLog {
    *
    * We define "the routine that called this query" as the first entry in
    * the call stack that is not inside includes/database and does have a file
-   * (which excludes call_user_func_array(), anonymous functions and similar).
+   * (which excludes call_user_func_[], anonymous functions and similar).
    * That makes the climbing logic very simple, and handles the variable stack
    * depth caused by the query builders.
    *
@@ -146,7 +146,7 @@ class DatabaseLog {
     $stack_count = count($stack);
     for ($i = 0; $i < $stack_count; ++$i) {
       if (!empty($stack[$i]['file']) && strpos($stack[$i]['file'], 'includes' . DIRECTORY_SEPARATOR . 'database') === FALSE) {
-        $stack[$i] += array('args' => array());
+        $stack[$i] += array('args' => []);
         return array(
           'file' => $stack[$i]['file'],
           'line' => $stack[$i]['line'],

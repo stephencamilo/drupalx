@@ -22,7 +22,7 @@ abstract class OpenIDWebTestCase extends DrupalWebTestCase {
     $this->assertTitle(t('OpenID redirect'), 'OpenID redirect page was displayed.');
 
     // Submit form to the OpenID Provider Endpoint.
-    $this->drupalPost(NULL, array(), t('Send'));
+    $this->drupalPost(NULL, [], t('Send'));
   }
 
   /**
@@ -54,7 +54,7 @@ class OpenIDFunctionalTestCase extends OpenIDWebTestCase {
     parent::setUp('openid', 'openid_test');
 
     // User doesn't need special permissions; only the ability to log in.
-    $this->web_user = $this->drupalCreateUser(array());
+    $this->web_user = $this->drupalCreateUser([]);
   }
 
   /**
@@ -96,7 +96,7 @@ class OpenIDFunctionalTestCase extends OpenIDWebTestCase {
     // part is present in the identifier, it should be retained.
     variable_set('openid_test_response', array('openid.claimed_id' => $identity, 'openid.identity' => openid_normalize($identity)));
     $this->addIdentity(url('openid-test/yadis/xrds/server', array('absolute' => TRUE)), 2, 'http://specs.openid.net/auth/2.0/identifier_select', $identity);
-    variable_set('openid_test_response', array());
+    variable_set('openid_test_response', []);
 
     // Identifier is the URL of an HTML page that is sent with an HTTP header
     // that contains the URL of an XRDS document.
@@ -174,7 +174,7 @@ class OpenIDFunctionalTestCase extends OpenIDWebTestCase {
     $this->assertTitle(t('OpenID redirect'), 'OpenID redirect page was displayed.');
 
     // Submit form to the OpenID Provider Endpoint.
-    $this->drupalPost(NULL, array(), t('Send'));
+    $this->drupalPost(NULL, [], t('Send'));
 
     $this->assertLink(t('Log out'), 0, 'User was logged in.');
 
@@ -214,7 +214,7 @@ class OpenIDFunctionalTestCase extends OpenIDWebTestCase {
     $this->assertTitle(t('OpenID redirect'), 'OpenID redirect page was displayed.');
 
     // Submit form to the OpenID Provider Endpoint.
-    $this->drupalPost(NULL, array(), t('Send'));
+    $this->drupalPost(NULL, [], t('Send'));
 
     $this->assertLink(t('Log out'), 0, 'User was logged in.');
 
@@ -236,7 +236,7 @@ class OpenIDFunctionalTestCase extends OpenIDWebTestCase {
 
     // Delete the newly added identity.
     $this->clickLink(t('Delete'));
-    $this->drupalPost(NULL, array(), t('Confirm'));
+    $this->drupalPost(NULL, [], t('Confirm'));
 
     $this->assertText(t('OpenID deleted.'), 'Identity deleted');
     $this->assertNoText($identity, 'Identity no longer appears in list.');
@@ -301,7 +301,7 @@ class OpenIDFunctionalTestCase extends OpenIDWebTestCase {
       $this->assertTitle(t('OpenID redirect'), 'OpenID redirect page was displayed.');
 
       // Submit form to the OpenID Provider Endpoint.
-      $this->drupalPost(NULL, array(), t('Send'));
+      $this->drupalPost(NULL, [], t('Send'));
     }
 
     if (!isset($claimed_id)) {
@@ -365,7 +365,7 @@ class OpenIDFunctionalTestCase extends OpenIDWebTestCase {
     // Sign all mandatory fields and a custom field.
     $keys_to_sign = array('op_endpoint', 'claimed_id', 'identity', 'return_to', 'response_nonce', 'assoc_handle', 'foo');
     $association = new stdClass();
-    $association->mac_key = variable_get('mac_key');
+    $association->mac_key = $bootstrap->variable_get('mac_key');
     $response = array(
       'openid.op_endpoint' => url('openid-test/endpoint', array('absolute' => TRUE)),
       'openid.claimed_id' => $identity,
@@ -440,7 +440,7 @@ class OpenIDRegistrationTestCase extends OpenIDWebTestCase {
 
     // Follow the one-time login that was sent in the welcome e-mail.
     $this->drupalGet($reset_url);
-    $this->drupalPost(NULL, array(), t('Log in'));
+    $this->drupalPost(NULL, [], t('Log in'));
 
     $this->drupalLogout();
 
@@ -480,7 +480,7 @@ class OpenIDRegistrationTestCase extends OpenIDWebTestCase {
    */
   function testRegisterUserWithInvalidSreg() {
     // Tell openid_test.module to respond with these SREG fields.
-    $web_user = $this->drupalCreateUser(array());
+    $web_user = $this->drupalCreateUser([]);
     variable_set('openid_test_response', array('openid.sreg.nickname' => $web_user->name, 'openid.sreg.email' => 'mail@invalid#'));
 
     // Use a User-supplied Identity that is the URL of an XRDS document.
@@ -503,7 +503,7 @@ class OpenIDRegistrationTestCase extends OpenIDWebTestCase {
 
     // Follow the one-time login that was sent in the welcome e-mail.
     $this->drupalGet($reset_url);
-    $this->drupalPost(NULL, array(), t('Log in'));
+    $this->drupalPost(NULL, [], t('Log in'));
 
     // The user is taken to user/%uid/edit.
     $this->assertFieldByName('mail', 'john@example.com', 'User was registered with right e-mail address.');
@@ -539,7 +539,7 @@ class OpenIDRegistrationTestCase extends OpenIDWebTestCase {
 
     // Follow the one-time login that was sent in the welcome e-mail.
     $this->drupalGet($reset_url);
-    $this->drupalPost(NULL, array(), t('Log in'));
+    $this->drupalPost(NULL, [], t('Log in'));
 
     // The user is taken to user/%uid/edit.
     $this->assertFieldByName('mail', 'john@example.com', 'User was registered with right e-mail address.');
@@ -779,7 +779,7 @@ class OpenIDTestCase extends DrupalWebTestCase {
     );
 
     $values = openid_extract_namespace($response, 'http://example.com/ns/dummy', NULL, FALSE);
-    $this->assertEqual($values, array(), 'Nothing found for unused namespace.');
+    $this->assertEqual($values, [], 'Nothing found for unused namespace.');
 
     $values = openid_extract_namespace($response, 'http://example.com/ns/dummy', 'sreg', FALSE);
     $this->assertEqual($values, array('nickname' => 'john'), 'Value found for fallback prefix.');
@@ -797,6 +797,6 @@ class OpenIDTestCase extends DrupalWebTestCase {
     // ext2.foo and ext2.bar are ignored, because ns.ext2 is not signed. The
     // fallback prefix is not used, because the namespace is specified.
     $values = openid_extract_namespace($response, 'http://example.com/ns/ext2', 'sreg', TRUE);
-    $this->assertEqual($values, array(), 'Unsigned fields ignored.');
+    $this->assertEqual($values, [], 'Unsigned fields ignored.');
   }
 }

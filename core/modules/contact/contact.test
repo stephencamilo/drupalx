@@ -33,7 +33,7 @@ class ContactSitewideTestCase extends DrupalWebTestCase {
     variable_set('contact_threshold_window', 600);
 
     // Set settings.
-    $edit = array();
+    $edit = [];
     $edit['contact_default_status'] = TRUE;
     $this->drupalPost('admin/config/people/accounts', $edit, t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'), 'Setting successfully saved.');
@@ -153,7 +153,7 @@ class ContactSitewideTestCase extends DrupalWebTestCase {
     // Submit contact form one over limit.
     $this->drupalGet('contact');
     $this->assertResponse(403, 'Access denied to anonymous user after reaching message treshold.');
-    $this->assertRaw(t('You cannot send more than %number messages in @interval. Try again later.', array('%number' => variable_get('contact_threshold_limit', 3), '@interval' => format_interval(600))), 'Message threshold reached.');
+    $this->assertRaw(t('You cannot send more than %number messages in @interval. Try again later.', array('%number' => $bootstrap->variable_get('contact_threshold_limit', 3), '@interval' => format_interval(600))), 'Message threshold reached.');
 
     // Delete created categories.
     $this->drupalLogin($admin_user);
@@ -215,7 +215,7 @@ class ContactSitewideTestCase extends DrupalWebTestCase {
    *   Boolean indicating whether the category should be selected by default.
    */
   function addCategory($category, $recipients, $reply, $selected) {
-    $edit = array();
+    $edit = [];
     $edit['category'] = $category;
     $edit['recipients'] = $recipients;
     $edit['reply'] = $reply;
@@ -238,7 +238,7 @@ class ContactSitewideTestCase extends DrupalWebTestCase {
    */
   function updateCategory($categories, $category, $recipients, $reply, $selected) {
     $category_id = $categories[array_rand($categories)];
-    $edit = array();
+    $edit = [];
     $edit['category'] = $category;
     $edit['recipients'] = $recipients;
     $edit['reply'] = $reply;
@@ -262,7 +262,7 @@ class ContactSitewideTestCase extends DrupalWebTestCase {
    *   The message body.
    */
   function submitContact($name, $mail, $subject, $cid, $message) {
-    $edit = array();
+    $edit = [];
     $edit['name'] = $name;
     $edit['mail'] = $mail;
     $edit['subject'] = $subject;
@@ -278,7 +278,7 @@ class ContactSitewideTestCase extends DrupalWebTestCase {
     $categories = $this->getCategories();
     foreach ($categories as $category) {
       $category_name = db_query("SELECT category FROM {contact} WHERE cid = :cid", array(':cid' => $category))->fetchField();
-      $this->drupalPost('admin/structure/contact/delete/' . $category, array(), t('Delete'));
+      $this->drupalPost('admin/structure/contact/delete/' . $category, [], t('Delete'));
       $this->assertRaw(t('Category %category has been deleted.', array('%category' => $category_name)), 'Category deleted successfully.');
     }
   }
@@ -446,7 +446,7 @@ class ContactPersonalTestCase extends DrupalWebTestCase {
    * @param $message
    *   An optional array with the form fields being used.
    */
-  protected function submitPersonalContact($account, array $message = array()) {
+  protected function submitPersonalContact($account, array $message = []) {
     $message += array(
       'subject' => $this->randomName(16),
       'message' => $this->randomName(64),

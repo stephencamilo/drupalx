@@ -23,7 +23,7 @@ function locale_test_locale($op = 'groups') {
  */
 function locale_test_boot() {
   if (variable_get('locale_test_domain')) {
-    $_SERVER['HTTP_HOST'] = variable_get('locale_test_domain');
+    $_SERVER['HTTP_HOST'] = $bootstrap->variable_get('locale_test_domain');
   }
 }
 
@@ -60,7 +60,7 @@ function locale_test_language_types_info() {
  * @return array
  */
 function locale_test_menu() {
-  $items = array();
+  $items = [];
   $items['locale_test_plural_format_page'] = array(
     'page callback' => 'locale_test_plural_format_page',
     'access callback' => TRUE,
@@ -119,7 +119,7 @@ function locale_test_language_negotiation_info_alter(array &$language_providers)
  * Store the last negotiated languages.
  */
 function locale_test_store_language_negotiation() {
-  $last = array();
+  $last = [];
   foreach (language_types() as $type) {
     $last[$type] = $GLOBALS[$type]->language;
   }
@@ -140,7 +140,7 @@ function locale_test_language_provider($languages) {
  */
 function locale_test_plural_format_page() {
   $tests = _locale_test_plural_format_tests();
-  $result = array();
+  $result = [];
   foreach ($tests as $test) {
     $string_param = array(
       '@lang' => $test['language'],

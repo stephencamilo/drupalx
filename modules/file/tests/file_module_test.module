@@ -9,7 +9,7 @@
  * Implements hook_menu().
  */
 function file_module_test_menu() {
-  $items = array();
+  $items = [];
 
   $items['file/test'] = array(
     'title' => 'Managed file test',

@@ -4,7 +4,7 @@
  * Implements hook_requirements().
  */
 function requirements1_test_requirements($phase) {
-  $requirements = array();
+  $requirements = [];
   // Ensure translations don't break during installation.
   $t = get_t();
 

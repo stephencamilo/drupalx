@@ -69,7 +69,7 @@ class ListFieldTestCase extends FieldTestCase {
       $this->pass(t('Cannot update a list field to not include keys with existing data.'));
     }
     // Empty the value, so that we can actually remove the option.
-    $entity->{$this->field_name}[$langcode] = array();
+    $entity->{$this->field_name}[$langcode] = [];
     field_test_entity_save($entity);
 
     // Removed options do not appear.

@@ -88,8 +88,8 @@ function taxonomy_token_info() {
 /**
  * Implements hook_tokens().
  */
-function taxonomy_tokens($type, $tokens, array $data = array(), array $options = array()) {
-  $replacements = array();
+function taxonomy_tokens($type, $tokens, array $data = [], array $options = []) {
+  $replacements = [];
   $sanitize = !empty($options['sanitize']);
 
   if ($type == 'term' && !empty($data['term'])) {

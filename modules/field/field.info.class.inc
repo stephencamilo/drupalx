@@ -40,14 +40,14 @@ class FieldInfo {
    *
    * @var array
    */
-  protected $fieldsById = array();
+  protected $fieldsById = [];
 
   /**
    * Mapping of field names to the ID of the corresponding non-deleted field.
    *
    * @var array
    */
-  protected $fieldIdsByName = array();
+  protected $fieldIdsByName = [];
 
   /**
    * Whether $fieldsById contains all field definitions or a subset.
@@ -61,14 +61,14 @@ class FieldInfo {
    *
    * @var array
    */
-  protected $unknownFields = array();
+  protected $unknownFields = [];
 
   /**
    * Instance definitions by bundle.
    *
    * @var array
    */
-  protected $bundleInstances = array();
+  protected $bundleInstances = [];
 
   /**
    * Whether $bundleInstances contains all instances definitions or a subset.
@@ -82,14 +82,14 @@ class FieldInfo {
    *
    * @var array
    */
-  protected $emptyBundles = array();
+  protected $emptyBundles = [];
 
   /**
    * Extra fields by bundle.
    *
    * @var array
    */
-  protected $bundleExtraFields = array();
+  protected $bundleExtraFields = [];
 
   /**
    * Clears the "static" and persistent caches.
@@ -97,16 +97,16 @@ class FieldInfo {
   public function flush() {
     $this->fieldMap = NULL;
 
-    $this->fieldsById = array();
-    $this->fieldIdsByName = array();
+    $this->fieldsById = [];
+    $this->fieldIdsByName = [];
     $this->loadedAllFields = FALSE;
-    $this->unknownFields = array();
+    $this->unknownFields = [];
 
-    $this->bundleInstances = array();
+    $this->bundleInstances = [];
     $this->loadedAllInstances = FALSE;
-    $this->emptyBundles = array();
+    $this->emptyBundles = [];
 
-    $this->bundleExtraFields = array();
+    $this->bundleExtraFields = [];
 
     cache_clear_all('field_info:', 'cache_field', TRUE);
   }
@@ -136,7 +136,7 @@ class FieldInfo {
       return $map;
     }
 
-    $map = array();
+    $map = [];
 
     $query = db_query('SELECT fc.type, fci.field_name, fci.entity_type, fci.bundle FROM {field_config_instance} fci INNER JOIN {field_config} fc ON fc.id = fci.field_id WHERE fc.active = 1 AND fc.storage_active = 1 AND fc.deleted = 0 AND fci.deleted = 0');
     foreach ($query as $row) {
@@ -172,7 +172,7 @@ class FieldInfo {
     }
     else {
       // Collect and prepare fields.
-      foreach (field_read_fields(array(), array('include_deleted' => TRUE)) as $field) {
+      foreach (field_read_fields([], array('include_deleted' => TRUE)) as $field) {
         $this->fieldsById[$field['id']] = $this->prepareField($field);
       }
 
@@ -226,7 +226,7 @@ class FieldInfo {
         // field_info_instances() before http://drupal.org/node/1915646.
         foreach (field_info_bundles() as $existing_entity_type => $bundles) {
           foreach ($bundles as $bundle => $bundle_info) {
-            $this->bundleInstances[$existing_entity_type][$bundle] = array();
+            $this->bundleInstances[$existing_entity_type][$bundle] = [];
           }
         }
 
@@ -247,7 +247,7 @@ class FieldInfo {
     }
 
     if (isset($entity_type)) {
-      return isset($this->bundleInstances[$entity_type]) ? $this->bundleInstances[$entity_type] : array();
+      return isset($this->bundleInstances[$entity_type]) ? $this->bundleInstances[$entity_type] : [];
     }
     else {
       return $this->bundleInstances;
@@ -353,7 +353,7 @@ class FieldInfo {
       return $this->bundleInstances[$entity_type][$bundle];
     }
     if (isset($this->emptyBundles[$entity_type][$bundle])) {
-      return array();
+      return [];
     }
 
     // Read from the persistent cache.
@@ -386,7 +386,7 @@ class FieldInfo {
 
     // Cache miss: collect from the definitions.
 
-    $instances = array();
+    $instances = [];
 
     // Collect the fields in the bundle.
     $params = array('entity_type' => $entity_type, 'bundle' => $bundle);
@@ -423,7 +423,7 @@ class FieldInfo {
     // involved in the bundle.
     $cache = array(
       'instances' => $instances,
-      'fields' => array()
+      'fields' => []
     );
     foreach ($instances as $instance) {
       $cache['fields'][] = $this->fieldsById[$instance['field_id']];
@@ -463,7 +463,7 @@ class FieldInfo {
     // Cache miss: read from hook_field_extra_fields(). Note: given the current
     // shape of the hook, we have no other way than collecting extra fields on
     // all bundles.
-    $info = array();
+    $info = [];
     $extra = module_invoke_all('field_extra_fields');
     drupal_alter('field_extra_fields', $extra);
     // Merge in saved settings.
@@ -501,7 +501,7 @@ class FieldInfo {
     $field['storage']['details'] = $details;
 
     // Populate the list of bundles using the field.
-    $field['bundles'] = array();
+    $field['bundles'] = [];
     if (!$field['deleted']) {
       $map = $this->getFieldMap();
       if (isset($map[$field['field_name']])) {
@@ -551,7 +551,7 @@ class FieldInfo {
           $instance['display'][$view_mode] = array(
             'type' => 'hidden',
             'label' => 'above',
-            'settings' => array(),
+            'settings' => [],
             'weight' => 0,
           );
         }
@@ -578,7 +578,7 @@ class FieldInfo {
     // Fill in default values.
     $widget += array(
       'type' => $field_type_info['default_widget'],
-      'settings' => array(),
+      'settings' => [],
       'weight' => 0,
     );
 
@@ -612,7 +612,7 @@ class FieldInfo {
     // Fill in default values.
     $display += array(
       'label' => 'above',
-      'settings' => array(),
+      'settings' => [],
       'weight' => 0,
     );
     if (empty($display['type'])) {
@@ -649,12 +649,12 @@ class FieldInfo {
   public function prepareExtraFields($extra_fields, $entity_type, $bundle) {
     $entity_type_info = entity_get_info($entity_type);
     $bundle_settings = field_bundle_settings($entity_type, $bundle);
-    $extra_fields += array('form' => array(), 'display' => array());
+    $extra_fields += array('form' => [], 'display' => []);
 
-    $result = array();
+    $result = [];
     // Extra fields in forms.
     foreach ($extra_fields['form'] as $name => $field_data) {
-      $settings = isset($bundle_settings['extra_fields']['form'][$name]) ? $bundle_settings['extra_fields']['form'][$name] : array();
+      $settings = isset($bundle_settings['extra_fields']['form'][$name]) ? $bundle_settings['extra_fields']['form'][$name] : [];
       if (isset($settings['weight'])) {
         $field_data['weight'] = $settings['weight'];
       }
@@ -664,7 +664,7 @@ class FieldInfo {
     // Extra fields in displayed entities.
     $data = $extra_fields['display'];
     foreach ($extra_fields['display'] as $name => $field_data) {
-      $settings = isset($bundle_settings['extra_fields']['display'][$name]) ? $bundle_settings['extra_fields']['display'][$name] : array();
+      $settings = isset($bundle_settings['extra_fields']['display'][$name]) ? $bundle_settings['extra_fields']['display'][$name] : [];
       $view_modes = array_merge(array('default'), array_keys($entity_type_info['view modes']));
       foreach ($view_modes as $view_mode) {
         if (isset($settings[$view_mode])) {

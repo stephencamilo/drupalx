@@ -61,7 +61,7 @@ define('INSTALL_TASK_RUN_IF_NOT_COMPLETED', 3);
  *
  * @see install_state_defaults()
  */
-function install_drupal($settings = array()) {
+function install_drupal($settings = []) {
   global $install_state;
   // Initialize the installation state with the settings that were passed in,
   // as well as a boolean indicating whether or not this is an interactive
@@ -135,7 +135,7 @@ function install_state_defaults() {
     // installation task that the form submission is for, and the values are
     // used as the $form_state['values'] array that is passed on to the form
     // submission via drupal_form_submit().
-    'forms' => array(),
+    'forms' => [],
     // This becomes TRUE only at the end of the installation process, after
     // all available tasks have been completed and Drupal is fully installed.
     // It is used by the installer to store correct information in the database
@@ -147,27 +147,27 @@ function install_state_defaults() {
     // be set to FALSE if settings are passed in to install_drupal().
     'interactive' => TRUE,
     // An array of available languages for the installation.
-    'locales' => array(),
+    'locales' => [],
     // An array of parameters for the installation, pre-populated by the URL
     // or by the settings passed in to install_drupal(). This is primarily
     // used to store 'profile' (the name of the chosen installation profile)
     // and 'locale' (the name of the chosen installation language), since
     // these settings need to persist from page request to page request before
     // the database is available for storage.
-    'parameters' => array(),
+    'parameters' => [],
     // Whether or not the parameters have changed during the current page
     // request. For interactive installations, this will trigger a page
     // redirect.
     'parameters_changed' => FALSE,
     // An array of information about the chosen installation profile. This will
     // be filled in based on the profile's .info file.
-    'profile_info' => array(),
+    'profile_info' => [],
     // An array of available installation profiles.
-    'profiles' => array(),
+    'profiles' => [],
     // An array of server variables that will be substituted into the global
     // $_SERVER array via drupal_override_server_variables(). Used by
     // non-interactive installations only.
-    'server' => array(),
+    'server' => [],
     // This becomes TRUE only when a valid database connection can be
     // established.
     'settings_verified' => FALSE,
@@ -192,7 +192,7 @@ function install_state_defaults() {
     'task_not_complete' => FALSE,
     // A list of installation tasks which have already been performed during
     // the current page request.
-    'tasks_performed' => array(),
+    'tasks_performed' => [],
   );
   return $defaults;
 }
@@ -242,7 +242,7 @@ function install_begin_request(&$install_state) {
   require_once DRUPAL_ROOT . '/includes/common.inc';
   require_once DRUPAL_ROOT . '/includes/file.inc';
   require_once DRUPAL_ROOT . '/includes/install.inc';
-  require_once DRUPAL_ROOT . '/' . variable_get('path_inc', 'includes/path.inc');
+  require_once DRUPAL_ROOT . '/' . $bootstrap->variable_get('path_inc', 'includes/path.inc');
 
   // Load module basics (needed for hook invokes).
   include_once DRUPAL_ROOT . '/includes/module.inc';
@@ -382,7 +382,7 @@ function install_run_task($task, &$install_state) {
       // marking the form submission task complete.
       $form_state = array(
         // We need to pass $install_state by reference in order for forms to
-        // modify it, since the form API will use it in call_user_func_array(),
+        // modify it, since the form API will use it in call_user_func_[],
         // which requires that referenced variables be passed explicitly.
         'build_info' => array('args' => array(&$install_state)),
         'no_redirect' => TRUE,
@@ -403,9 +403,9 @@ function install_run_task($task, &$install_state) {
       // values taken from the installation state. Throw an exception if any
       // errors were encountered.
       $form_state = array(
-        'values' => !empty($install_state['forms'][$function]) ? $install_state['forms'][$function] : array(),
+        'values' => !empty($install_state['forms'][$function]) ? $install_state['forms'][$function] : [],
         // We need to pass $install_state by reference in order for forms to
-        // modify it, since the form API will use it in call_user_func_array(),
+        // modify it, since the form API will use it in call_user_func_[],
         // which requires that referenced variables be passed explicitly.
         'build_info' => array('args' => array(&$install_state)),
       );
@@ -420,7 +420,7 @@ function install_run_task($task, &$install_state) {
   elseif ($task['type'] == 'batch') {
     // Start a new batch based on the task function, if one is not running
     // already.
-    $current_batch = variable_get('install_current_batch');
+    $current_batch = $bootstrap->variable_get('install_current_batch');
     if (!$install_state['interactive'] || !$current_batch) {
       $batch = $function($install_state);
       if (empty($batch)) {
@@ -641,7 +641,7 @@ function install_tasks($install_state) {
  * @see theme_task_list()
  */
 function install_tasks_to_display($install_state) {
-  $displayed_tasks = array();
+  $displayed_tasks = [];
   foreach (install_tasks($install_state) as $name => $task) {
     if ($task['display']) {
       $displayed_tasks[$name] = $task['display_name'];
@@ -760,7 +760,7 @@ function install_verify_requirements(&$install_state) {
     }
     else {
       // Throw an exception showing any unmet requirements.
-      $failures = array();
+      $failures = [];
       foreach ($requirements as $requirement) {
         // Skip warnings altogether for non-interactive installations; these
         // proceed in a single request so there is no good opportunity (and no
@@ -892,7 +892,7 @@ function install_settings_form($form, &$form_state, &$install_state) {
   drupal_static_reset('conf_path');
   $conf_path = './' . conf_path(FALSE);
   $settings_file = $conf_path . '/settings.php';
-  $database = isset($databases['default']['default']) ? $databases['default']['default'] : array();
+  $database = isset($databases['default']['default']) ? $databases['default']['default'] : [];
 
   drupal_set_title(st('Database configuration'));
 
@@ -938,7 +938,7 @@ function install_settings_form($form, &$form_state, &$install_state) {
     '#submit' => array('install_settings_form_submit'),
   );
 
-  $form['errors'] = array();
+  $form['errors'] = [];
   $form['settings_file'] = array('#type' => 'value', '#value' => $settings_file);
 
   return $form;
@@ -971,7 +971,7 @@ function install_settings_form_validate($form, &$form_state) {
  */
 function install_database_errors($database, $settings_file) {
   global $databases;
-  $errors = array();
+  $errors = [];
 
   // Check database type.
   $database_types = drupal_get_database_types();
@@ -1141,8 +1141,8 @@ function _install_select_profile($profiles) {
  * @ingroup forms
  */
 function install_select_profile_form($form, &$form_state, $profile_files) {
-  $profiles = array();
-  $names = array();
+  $profiles = [];
+  $names = [];
 
   foreach ($profile_files as $profile) {
     // TODO: is this right?
@@ -1405,14 +1405,14 @@ function install_bootstrap_full(&$install_state) {
  *   The batch definition.
  */
 function install_profile_modules(&$install_state) {
-  $modules = variable_get('install_profile_modules', array());
+  $modules = $bootstrap->variable_get('install_profile_modules', []);
   $files = system_rebuild_module_data();
   variable_del('install_profile_modules');
 
   // Always install required modules first. Respect the dependencies between
   // the modules.
-  $required = array();
-  $non_required = array();
+  $required = [];
+  $non_required = [];
   // Although the profile module is marked as required, it needs to go after
   // every dependency, including non-required ones. So clear its required
   // flag for now to allow it to install late.
@@ -1435,7 +1435,7 @@ function install_profile_modules(&$install_state) {
   arsort($required);
   arsort($non_required);
 
-  $operations = array();
+  $operations = [];
   foreach ($required + $non_required as $module => $weight) {
     $operations[] = array('_install_module_batch', array($module, $files[$module]->info['name']));
   }
@@ -1549,7 +1549,7 @@ function install_import_locales_remaining(&$install_state) {
   // Collect files to import for this language. Skip components already covered
   // in the initial batch set.
   $install_locale = $install_state['parameters']['locale'];
-  $batch = locale_batch_by_language($install_locale, NULL, variable_get('install_locale_batch_components', array()));
+  $batch = locale_batch_by_language($install_locale, NULL, $bootstrap->variable_get('install_locale_batch_components', []));
   // Remove temporary variable.
   variable_del('install_locale_batch_components');
   return $batch;
@@ -1819,7 +1819,7 @@ function _install_configure_form($form, &$form_state, &$install_state) {
     '#type' => 'select',
     '#title' => st('Default country'),
     '#empty_value' => '',
-    '#default_value' => variable_get('site_default_country', NULL),
+    '#default_value' => $bootstrap->variable_get('site_default_country', NULL),
     '#options' => $countries,
     '#description' => st('Select the default country for the site.'),
     '#weight' => 0,
@@ -1910,7 +1910,7 @@ function install_configure_form_submit($form, &$form_state) {
 
   // We precreated user 1 with placeholder values. Let's save the real values.
   $account = user_load(1);
-  $merge_data = array('init' => $form_state['values']['account']['mail'], 'roles' => !empty($account->roles) ? $account->roles : array(), 'status' => 1, 'timezone' => $form_state['values']['date_default_timezone']);
+  $merge_data = array('init' => $form_state['values']['account']['mail'], 'roles' => !empty($account->roles) ? $account->roles : [], 'status' => 1, 'timezone' => $form_state['values']['date_default_timezone']);
   user_save($account, array_merge($form_state['values']['account'], $merge_data));
   // Load global $user and perform final login tasks.
   $user = user_load(1);

@@ -16,7 +16,7 @@ function update_settings($form) {
   $form['update_check_frequency'] = array(
     '#type' => 'radios',
     '#title' => t('Check for updates'),
-    '#default_value' => variable_get('update_check_frequency', 1),
+    '#default_value' => $bootstrap->variable_get('update_check_frequency', 1),
     '#options' => array(
       '1' => t('Daily'),
       '7' => t('Weekly'),
@@ -27,10 +27,10 @@ function update_settings($form) {
   $form['update_check_disabled'] = array(
     '#type' => 'checkbox',
     '#title' => t('Check for updates of disabled and uninstalled modules and themes'),
-    '#default_value' => variable_get('update_check_disabled', FALSE),
+    '#default_value' => $bootstrap->variable_get('update_check_disabled', FALSE),
   );
 
-  $notify_emails = variable_get('update_notify_emails', array());
+  $notify_emails = $bootstrap->variable_get('update_notify_emails', []);
   $form['update_notify_emails'] = array(
     '#type' => 'textarea',
     '#title' => t('E-mail addresses to notify when updates are available'),
@@ -42,7 +42,7 @@ function update_settings($form) {
   $form['update_notification_threshold'] = array(
     '#type' => 'radios',
     '#title' => t('E-mail notification threshold'),
-    '#default_value' => variable_get('update_notification_threshold', 'all'),
+    '#default_value' => $bootstrap->variable_get('update_notification_threshold', 'all'),
     '#options' => array(
       'all' => t('All newer versions'),
       'security' => t('Only security updates'),
@@ -69,8 +69,8 @@ function update_settings($form) {
  */
 function update_settings_validate($form, &$form_state) {
   if (!empty($form_state['values']['update_notify_emails'])) {
-    $valid = array();
-    $invalid = array();
+    $valid = [];
+    $invalid = [];
     foreach (explode("\n", trim($form_state['values']['update_notify_emails'])) as $email) {
       $email = trim($email);
       if (!empty($email)) {
@@ -120,7 +120,7 @@ function update_settings_submit($form, $form_state) {
 
   // See if the update_check_disabled setting is being changed, and if so,
   // invalidate all cached update status data.
-  $check_disabled = variable_get('update_check_disabled', FALSE);
+  $check_disabled = $bootstrap->variable_get('update_check_disabled', FALSE);
   if ($form_state['values']['update_check_disabled'] != $check_disabled) {
     _update_cache_clear();
   }

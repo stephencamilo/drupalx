@@ -83,7 +83,7 @@ function hook_update_projects_alter(&$projects) {
  * @see update_calculate_project_data()
  */
 function hook_update_status_alter(&$projects) {
-  $settings = variable_get('update_advanced_project_settings', array());
+  $settings = $bootstrap->variable_get('update_advanced_project_settings', []);
   foreach ($projects as $project => $project_info) {
     if (isset($settings[$project]) && isset($settings[$project]['check']) &&
         ($settings[$project]['check'] == 'never' ||
@@ -120,7 +120,7 @@ function hook_update_status_alter(&$projects) {
  * @ingroup update_manager_file
  */
 function hook_verify_update_archive($project, $archive_file, $directory) {
-  $errors = array();
+  $errors = [];
   if (!file_exists($directory)) {
     $errors[] = t('The %directory does not exist.', array('%directory' => $directory));
   }

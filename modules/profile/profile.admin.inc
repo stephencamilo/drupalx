@@ -14,7 +14,7 @@
 function profile_admin_overview($form) {
   $result = db_query('SELECT title, name, type, category, fid, weight FROM {profile_field} ORDER BY category, weight');
 
-  $categories = array();
+  $categories = [];
   foreach ($result as $field) {
     // Collect all category information
     $categories[] = $field->category;
@@ -28,7 +28,7 @@ function profile_admin_overview($form) {
       '#title' => t('Category for @title', array('@title' => $field->title)),
       '#title_display' => 'invisible',
       '#default_value' => $field->category,
-      '#options' => array(),
+      '#options' => [],
     );
     $form[$field->fid]['weight'] = array(
       '#type' => 'weight',
@@ -120,8 +120,8 @@ function theme_profile_admin_overview($variables) {
     drupal_add_js(drupal_get_path('module', 'profile') . '/profile.js');
   }
 
-  $rows = array();
-  $categories = array();
+  $rows = [];
+  $categories = [];
   $category_number = 0;
   foreach (element_children($form) as $key) {
     // Don't take form control structures.
@@ -150,7 +150,7 @@ function theme_profile_admin_overview($variables) {
       $field['category']['#attributes']['class'] = array('profile-category', 'profile-category-' . $categories[$category]);
 
       // Add the row
-      $row = array();
+      $row = [];
       $row[] = drupal_render($field['title']);
       $row[] = drupal_render($field['name']);
       $row[] = drupal_render($field['type']);
@@ -432,7 +432,7 @@ function profile_field_delete_submit($form, &$form_state) {
  * Retrieve a pipe delimited string of autocomplete suggestions for profile categories
  */
 function profile_admin_settings_autocomplete($string) {
-  $matches = array();
+  $matches = [];
   $result = db_select('profile_field')
     ->fields('profile_field', array('category'))
     ->condition('category', db_like($string) . '%', 'LIKE')

@@ -31,7 +31,7 @@ function field_test_field_info() {
       'settings' => array(
         'foreign_key_name' => 'shape',
       ),
-      'instance_settings' => array(),
+      'instance_settings' => [],
       'default_widget' => 'test_field_widget',
       'default_formatter' => 'field_test_default',
     ),
@@ -39,8 +39,8 @@ function field_test_field_info() {
       'no_ui' => TRUE,
       'label' => t('Hidden from UI test field'),
       'description' => t('Dummy hidden field type used for tests.'),
-      'settings' => array(),
-      'instance_settings' => array(),
+      'settings' => [],
+      'instance_settings' => [],
       'default_widget' => 'test_field_widget',
       'default_formatter' => 'field_test_default',
     ),
@@ -196,7 +196,7 @@ function field_test_field_widget_form(&$form, &$form_state, $field, $instance, $
       return array('value' => $element);
 
     case 'test_field_widget_multiple':
-      $values = array();
+      $values = [];
       foreach ($items as $delta => $value) {
         $values[] = $value['value'];
       }
@@ -214,7 +214,7 @@ function field_test_field_widget_form(&$form, &$form_state, $field, $instance, $
  */
 function field_test_widget_multiple_validate($element, &$form_state) {
   $values = array_map('trim', explode(',', $element['#value']));
-  $items = array();
+  $items = [];
   foreach ($values as $value) {
     $items[] = array('value' => $value);
   }
@@ -295,7 +295,7 @@ function field_test_field_formatter_settings_form($field, $instance, $view_mode,
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
-  $element = array();
+  $element = [];
 
   // The name of the setting depends on the formatter type.
   $map = array(
@@ -365,7 +365,7 @@ function field_test_field_formatter_prepare_view($entity_type, $entities, $field
  * Implements hook_field_formatter_view().
  */
 function field_test_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
+  $element = [];
   $settings = $display['settings'];
 
   switch ($display['type']) {
@@ -383,7 +383,7 @@ function field_test_field_formatter_view($entity_type, $entity, $field, $instanc
 
     case 'field_test_multiple':
       if (!empty($items)) {
-        $array = array();
+        $array = [];
         foreach ($items as $delta => $item) {
           $array[] = $delta . ':' . $item['value'];
         }

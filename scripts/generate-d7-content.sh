@@ -31,7 +31,7 @@ include_once './includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
 // Enable requested modules.
-require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+require_once DRUPAL_ROOT . '/' . $bootstrap->variable_get('password_inc', 'includes/password.inc');
 include_once './modules/system/system.admin.inc';
 $form = system_modules();
 foreach ($modules_to_enable as $module) {
@@ -58,7 +58,7 @@ $query->execute();
 // Create vocabularies and terms.
 
 if (module_exists('taxonomy')) {
-  $terms = array();
+  $terms = [];
 
   // All possible combinations of these vocabulary properties.
   $hierarchy = array(0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2);
@@ -102,10 +102,10 @@ if (module_exists('taxonomy')) {
         'field_name' => $field['field_name'],
         'bundle' => $bundle,
         'entity_type' => 'node',
-        'settings' => array(),
+        'settings' => [],
         'description' => $vocabulary->help,
         'required' => $vocabulary->required,
-        'widget' => array(),
+        'widget' => [],
         'display' => array(
           'default' => array(
             'type' => 'taxonomy_term_reference_link',
@@ -130,12 +130,12 @@ if (module_exists('taxonomy')) {
       else {
         $instance['widget'] = array(
           'type' => 'options_select',
-          'settings' => array(),
+          'settings' => [],
         );
       }
       field_create_instance($instance);
     }
-    $parents = array();
+    $parents = [];
     // Vocabularies without hierarchy get one term; single parent vocabularies
     // get one parent and one child term. Multiple parent vocabularies get
     // three terms: t0, t1, t2 where t0 is a parent of both t1 and t2.
@@ -144,7 +144,7 @@ if (module_exists('taxonomy')) {
       $term->vocabulary_machine_name = $vocabulary->machine_name;
       // For multiple parent vocabularies, omit the t0-t1 relation, otherwise
       // every parent in the vocabulary is a parent.
-      $term->parent = $vocabulary->hierarchy == 2 && i == 1 ? array() : $parents;
+      $term->parent = $vocabulary->hierarchy == 2 && i == 1 ? [] : $parents;
       ++$term_id;
       $term->name = "term $term_id of vocabulary $voc_id (j=$j)";
       $term->description = 'description of ' . $term->name;
@@ -184,7 +184,7 @@ for ($i = 0; $i < 24; $i++) {
   // Make every term association different a little. For nodes with revisions,
   // make the initial revision have a different set of terms than the
   // newest revision.
-  $items = array();
+  $items = [];
   if (module_exists('taxonomy')) {
     if ($node->revision) {
       $node_terms = array($terms[$i], $terms[47-$i]);
@@ -259,7 +259,7 @@ if (module_exists('poll')) {
       $_SERVER['REMOTE_ADDR'] = "127.0.$v.1";
       $GLOBALS['user'] = drupal_anonymous_user();// We should have already allowed anon to vote.
       $c = $v % $nbchoices;
-      $form_state = array();
+      $form_state = [];
       $form_state['values']['choice'] = $choices[$c];
       $form_state['values']['op'] = t('Vote');
       drupal_form_submit('poll_view_voting', $form_state, $node);

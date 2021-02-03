@@ -264,12 +264,12 @@ function field_valid_language($langcode, $default = TRUE) {
  *   keyed by field name otherwise.
  */
 function field_language($entity_type, $entity, $field_name = NULL, $langcode = NULL) {
-  $display_languages = &drupal_static(__FUNCTION__, array());
+  $display_languages = &drupal_static(__FUNCTION__, []);
   list($id, , $bundle) = entity_extract_ids($entity_type, $entity);
   $langcode = field_valid_language($langcode, FALSE);
 
   if (!isset($display_languages[$entity_type][$id][$langcode])) {
-    $display_language = array();
+    $display_language = [];
 
     // By default display language is set to LANGUAGE_NONE if the field
     // translation is not available. It is up to translation handlers to

@@ -182,7 +182,7 @@ function menu_enable() {
   $base_link = db_query("SELECT mlid AS plid, menu_name FROM {menu_links} WHERE link_path = 'admin/structure/menu' AND module = 'system'")->fetchAssoc();
   $base_link['router_path'] = 'admin/structure/menu/manage/%';
   $base_link['module'] = 'menu';
-  $result = db_query("SELECT * FROM {menu_custom}", array(), array('fetch' => PDO::FETCH_ASSOC));
+  $result = db_query("SELECT * FROM {menu_custom}", [], array('fetch' => PDO::FETCH_ASSOC));
   foreach ($result as $menu) {
     // $link is passed by reference to menu_link_save(), so we make a copy of $base_link.
     $link = $base_link;
@@ -271,7 +271,7 @@ function menu_save($menu) {
       // Make sure the menu is present in the active menus variable so that its
       // items may appear in the menu active trail.
       // @see menu_set_active_menu_names()
-      $active_menus = variable_get('menu_default_active_menus', array_keys(menu_get_menus()));
+      $active_menus = $bootstrap->variable_get('menu_default_active_menus', array_keys(menu_get_menus()));
       if (!in_array($menu['menu_name'], $active_menus)) {
         $active_menus[] = $menu['menu_name'];
         variable_set('menu_default_active_menus', $active_menus);
@@ -315,7 +315,7 @@ function menu_delete($menu) {
   menu_delete_links($menu['menu_name']);
 
   // Remove menu from active menus variable.
-  $active_menus = variable_get('menu_default_active_menus', array_keys(menu_get_menus()));
+  $active_menus = $bootstrap->variable_get('menu_default_active_menus', array_keys(menu_get_menus()));
   foreach ($active_menus as $i => $menu_name) {
     if ($menu['menu_name'] == $menu_name) {
       unset($active_menus[$i]);
@@ -356,10 +356,10 @@ function menu_parent_options($menus, $item, $type = '') {
   // hook_form_alter is too late in itself because all the possible parents are
   // retrieved here, unless menu_override_parent_selector is set to TRUE.
   if (variable_get('menu_override_parent_selector', FALSE)) {
-    return array();
+    return [];
   }
 
-  $available_menus = array();
+  $available_menus = [];
   if (!is_array($item)) {
     // If $item is not an array then it is a node type.
     // Use it as $type and prepare a dummy menu item for _menu_get_options().
@@ -372,7 +372,7 @@ function menu_parent_options($menus, $item, $type = '') {
   }
   else {
     // If a node type is set, use all available menus for this type.
-    $type_menus = variable_get('menu_options_' . $type, array('main-menu' => 'main-menu'));
+    $type_menus = $bootstrap->variable_get('menu_options_' . $type, array('main-menu' => 'main-menu'));
     foreach ($type_menus as $menu) {
       $available_menus[$menu] = $menu;
     }
@@ -386,7 +386,7 @@ function menu_parent_options($menus, $item, $type = '') {
  * Get all the available menus and menu items as a JavaScript array.
  */
 function menu_parent_options_js() {
-  $available_menus = array();
+  $available_menus = [];
   if (isset($_POST['menus']) && count($_POST['menus'])) {
     foreach ($_POST['menus'] as $menu) {
       $available_menus[$menu] = $menu;
@@ -409,7 +409,7 @@ function _menu_get_options($menus, $available_menus, $item) {
     $limit = _menu_parent_depth_limit($item);
   }
 
-  $options = array();
+  $options = [];
   foreach ($menus as $menu_name => $title) {
     if (isset($available_menus[$menu_name])) {
       $tree = menu_tree_all_data($menu_name, NULL);
@@ -468,7 +468,7 @@ function menu_reset_item($link) {
 function menu_block_info() {
   $menus = menu_get_menus(FALSE);
 
-  $blocks = array();
+  $blocks = [];
   foreach ($menus as $name => $title) {
     $blocks[$name]['info'] = check_plain($title);
     // Menu blocks can't be cached because each menu item can have
@@ -566,11 +566,11 @@ function menu_node_prepare($node) {
   if (empty($node->menu)) {
     // Prepare the node for the edit form so that $node->menu always exists.
     $menu_name = strtok(variable_get('menu_parent_' . $node->type, 'main-menu:0'), ':');
-    $item = array();
+    $item = [];
     if (isset($node->nid)) {
       $mlid = FALSE;
       // Give priority to the default menu
-      $type_menus = variable_get('menu_options_' . $node->type, array('main-menu' => 'main-menu'));
+      $type_menus = $bootstrap->variable_get('menu_options_' . $node->type, array('main-menu' => 'main-menu'));
       if (in_array($menu_name, $type_menus)) {
         $mlid = db_query_range("SELECT mlid FROM {menu_links} WHERE link_path = :path AND menu_name = :menu_name AND module = 'menu' ORDER BY mlid ASC", 0, 1, array(
           ':path' => 'node/' . $node->nid,
@@ -595,7 +595,7 @@ function menu_node_prepare($node) {
       'plid' => 0,
       'menu_name' => $menu_name,
       'weight' => 0,
-      'options' => array(),
+      'options' => [],
       'module' => 'menu',
       'expanded' => 0,
       'hidden' => 0,
@@ -686,7 +686,7 @@ function menu_form_node_form_alter(&$form, $form_state) {
     '#description' => t('Shown when hovering over the menu link.'),
   );
 
-  $default = ($link['mlid'] ? $link['menu_name'] . ':' . $link['plid'] : variable_get('menu_parent_' . $type, 'main-menu:0'));
+  $default = ($link['mlid'] ? $link['menu_name'] . ':' . $link['plid'] : $bootstrap->variable_get('menu_parent_' . $type, 'main-menu:0'));
   // If the current parent menu item is not present in options, use the first
   // available option as default value.
   // @todo User should not be allowed to access menu link settings in such a
@@ -745,7 +745,7 @@ function menu_form_node_type_form_alter(&$form, $form_state) {
   $form['menu']['menu_options'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Available menus'),
-    '#default_value' => variable_get('menu_options_' . $type->type, array('main-menu')),
+    '#default_value' => $bootstrap->variable_get('menu_options_' . $type->type, array('main-menu')),
     '#options' => $menu_options,
     '#description' => t('The menus available to place links in for this content type.'),
   );
@@ -757,7 +757,7 @@ function menu_form_node_type_form_alter(&$form, $form_state) {
   $form['menu']['menu_parent'] = array(
     '#type' => 'select',
     '#title' => t('Default parent item'),
-    '#default_value' => variable_get('menu_parent_' . $type->type, 'main-menu:0'),
+    '#default_value' => $bootstrap->variable_get('menu_parent_' . $type->type, 'main-menu:0'),
     '#options' => $options,
     '#description' => t('Choose the menu item to be the default parent for a new link in the content authoring form.'),
     '#attributes' => array('class' => array('menu-title-select')),

@@ -106,7 +106,7 @@ class PollTestCase extends DrupalWebTestCase {
   }
 
   function _generateChoices($count = 7) {
-    $choices = array();
+    $choices = [];
     for ($i = 1; $i <= $count; $i++) {
       $choices[] = $this->randomName();
     }
@@ -130,7 +130,7 @@ class PollTestCase extends DrupalWebTestCase {
    * @see PollTestCase::_pollGenerateEdit()
    */
   function assertPollChoiceOrder(array $choices, $index = 0, $preview = FALSE) {
-    $expected = array();
+    $expected = [];
     $weight = 0;
     foreach ($choices as $id => $label) {
       if ($id < $index) {
@@ -316,7 +316,7 @@ class PollVoteTestCase extends PollTestCase {
     $this->drupalLogin($vote_user);
 
     // Record a vote without selecting any choice.
-    $edit = array();
+    $edit = [];
     $this->drupalPost('node/' . $poll_nid, $edit, t('Vote'));
     $this->assertText(t('Your vote could not be recorded because you did not select any of the choices.'), 'Found the empty poll submission error message.');
 
@@ -340,7 +340,7 @@ class PollVoteTestCase extends PollTestCase {
     $this->assertText('1 vote', 'Poll has 1 vote.');
 
     // Cancel a vote.
-    $this->drupalPost('node/' . $poll_nid, array(), t('Cancel your vote'));
+    $this->drupalPost('node/' . $poll_nid, [], t('Cancel your vote'));
     $this->assertText('Your vote was cancelled.', 'Your vote was cancelled.');
     $this->assertNoText('Cancel your vote', "Cancel vote button doesn't appear.");
 
@@ -391,7 +391,7 @@ class PollBlockTestCase extends PollTestCase {
     $this->assertText(t('The block configuration has been saved.'), 'Block configuration set.');
 
     // Set the block to a region to confirm block is available.
-    $edit = array();
+    $edit = [];
     $edit['blocks[poll_recent][region]'] = 'footer';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
     $this->assertText(t('The block settings have been updated.'), 'Block successfully move to footer region.');
@@ -680,7 +680,7 @@ class PollTokenReplaceTestCase extends PollTestCase {
     $poll = node_load($poll_nid, NULL, TRUE);
 
     // Generate and test sanitized tokens.
-    $tests = array();
+    $tests = [];
     $tests['[node:poll-votes]'] = 4;
     $tests['[node:poll-winner]'] = filter_xss($poll->choice[1]['chtext']);
     $tests['[node:poll-winner-votes]'] = 2;
@@ -733,7 +733,7 @@ class PollExpirationTestCase extends PollTestCase {
     $this->assertTrue(isset($elements[0]['value']) && $elements[0]['value'] == 0, 'Poll expiration set to unlimited.');
 
     // Set the expiration to one week.
-    $edit = array();
+    $edit = [];
     $poll_expiration = 604800; // One week.
     $edit['runtime'] = $poll_expiration;
     $this->drupalPost(NULL, $edit, t('Save'));
@@ -840,21 +840,21 @@ class PollTranslateTestCase extends PollTestCase {
 
     // Enable a second language.
     $this->drupalGet('admin/config/regional/language');
-    $edit = array();
+    $edit = [];
     $edit['langcode'] = 'nl';
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
     $this->assertRaw(t('The language %language has been created and can now be used.', array('%language' => 'Dutch')), 'Language Dutch has been created.');
 
     // Set "Poll" content type to use multilingual support with translation.
     $this->drupalGet('admin/structure/types/manage/poll');
-    $edit = array();
+    $edit = [];
     $edit['language_content_type'] = 2;
     $this->drupalPost('admin/structure/types/manage/poll', $edit, t('Save content type'));
     $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Poll')), 'Poll content type has been updated.');
 
     // Edit poll.
     $this->drupalGet("node/$poll_nid/edit");
-    $edit = array();
+    $edit = [];
     // Set the poll's first choice count to 200.
     $edit['choice[chid:1][chvotes]'] = 200;
     // Set the language to Dutch.

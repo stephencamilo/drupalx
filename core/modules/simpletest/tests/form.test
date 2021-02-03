@@ -31,7 +31,7 @@ class FormsTestCase extends DrupalWebTestCase {
     // Originates from http://drupal.org/node/117748
     // Sets of empty strings and arrays.
     $empty_strings = array('""' => "", '"\n"' => "\n", '" "' => " ", '"\t"' => "\t", '" \n\t "' => " \n\t ", '"\n\n\n\n\n"' => "\n\n\n\n\n");
-    $empty_arrays = array('array()' => array());
+    $empty_arrays = array('[]' => []);
     $empty_checkbox = array(NULL);
 
     $elements['textfield']['element'] = array('#title' => $this->randomName(), '#type' => 'textfield');
@@ -72,7 +72,7 @@ class FormsTestCase extends DrupalWebTestCase {
       foreach ($data['empty_values'] as $key => $empty) {
         foreach (array(TRUE, FALSE) as $required) {
           $form_id = $this->randomName();
-          $form = array();
+          $form = [];
           $form_state = form_state_defaults();
           form_clear_error();
           $form['op'] = array('#type' => 'submit', '#value' => t('Submit'));
@@ -135,16 +135,16 @@ class FormsTestCase extends DrupalWebTestCase {
    * @see form_test_validate_required_form()
    */
   function testRequiredCheckboxesRadio() {
-    $form = $form_state = array();
+    $form = $form_state = [];
     $form = form_test_validate_required_form($form, $form_state);
 
     // Attempt to submit the form with no required fields set.
-    $edit = array();
+    $edit = [];
     $this->drupalPost('form-test/validate-required', $edit, 'Submit');
 
     // The only error messages that should appear are the relevant 'required'
     // messages for each field.
-    $expected = array();
+    $expected = [];
     foreach (array('textfield', 'checkboxes', 'select', 'radios') as $key) {
       $expected[] = t('!name field is required.', array('!name' => $form[$key]['#title']));
     }
@@ -204,11 +204,11 @@ class FormsTestCase extends DrupalWebTestCase {
    * @see form_test_validate_required_form_no_title()
    */
   function testRequiredTextfieldNoTitle() {
-    $form = $form_state = array();
+    $form = $form_state = [];
     $form = form_test_validate_required_form_no_title($form, $form_state);
 
     // Attempt to submit the form with no required field set.
-    $edit = array();
+    $edit = [];
     $this->drupalPost('form-test/validate-required-no-title', $edit, 'Submit');
     $this->assertNoRaw("The form_test_validate_required_form_no_title form was submitted successfully.", 'Validation form submitted successfully.');
 
@@ -232,7 +232,7 @@ class FormsTestCase extends DrupalWebTestCase {
    */
   function testCheckboxProcessing() {
     // First, try to submit without the required checkbox.
-    $edit = array();
+    $edit = [];
     $this->drupalPost('form-test/checkbox', $edit, t('Submit'));
     $this->assertRaw(t('!name field is required.', array('!name' => 'required_checkbox')), 'A required checkbox is actually mandatory');
 
@@ -259,13 +259,13 @@ class FormsTestCase extends DrupalWebTestCase {
    * Tests validation of #type 'select' elements.
    */
   function testSelect() {
-    $form = $form_state = array();
+    $form = $form_state = [];
     $form = form_test_select($form, $form_state);
     $error = '!name field is required.';
     $this->drupalGet('form-test/select');
 
     // Posting without any values should throw validation errors.
-    $this->drupalPost(NULL, array(), 'Submit');
+    $this->drupalPost(NULL, [], 'Submit');
     $this->assertNoText(t($error, array('!name' => $form['select']['#title'])));
     $this->assertNoText(t($error, array('!name' => $form['select_required']['#title'])));
     $this->assertNoText(t($error, array('!name' => $form['select_optional']['#title'])));
@@ -307,7 +307,7 @@ class FormsTestCase extends DrupalWebTestCase {
       'no_default_empty_value_one' => 'three',
       'no_default_empty_value_optional' => 0,
       'multiple' => array('two' => 'two'),
-      'multiple_no_default' => array(),
+      'multiple_no_default' => [],
       'multiple_no_default_required' => array('three' => 'three'),
     );
     foreach ($expected as $key => $value) {
@@ -326,12 +326,12 @@ class FormsTestCase extends DrupalWebTestCase {
    */
   function testDisabledElements() {
     // Get the raw form in its original state.
-    $form_state = array();
-    $form = _form_test_disabled_elements(array(), $form_state);
+    $form_state = [];
+    $form = _form_test_disabled_elements([], $form_state);
 
     // Build a submission that tries to hijack the form by submitting input for
     // elements that are disabled.
-    $edit = array();
+    $edit = [];
     foreach (element_children($form) as $key) {
       if (isset($form[$key]['#test_hijack_value'])) {
         if (is_array($form[$key]['#test_hijack_value'])) {
@@ -347,14 +347,14 @@ class FormsTestCase extends DrupalWebTestCase {
 
     // Submit the form with no input, as the browser does for disabled elements,
     // and fetch the $form_state['values'] that is passed to the submit handler.
-    $this->drupalPost('form-test/disabled-elements', array(), t('Submit'));
+    $this->drupalPost('form-test/disabled-elements', [], t('Submit'));
     $returned_values['normal'] = drupal_json_decode($this->content);
 
     // Do the same with input, as could happen if JavaScript un-disables an
     // element. drupalPost() emulates a browser by not submitting input for
     // disabled elements, so we need to un-disable those elements first.
     $this->drupalGet('form-test/disabled-elements');
-    $disabled_elements = array();
+    $disabled_elements = [];
     foreach ($this->xpath('//*[@disabled]') as $element) {
       $disabled_elements[] = (string) $element['name'];
       unset($element['disabled']);
@@ -406,8 +406,8 @@ class FormsTestCase extends DrupalWebTestCase {
    */
   function testDisabledMarkup() {
     $this->drupalGet('form-test/disabled-elements');
-    $form_state = array();
-    $form = _form_test_disabled_elements(array(), $form_state);
+    $form_state = [];
+    $form = _form_test_disabled_elements([], $form_state);
     $type_map = array(
       'textarea' => 'textarea',
       'select' => 'select',
@@ -507,7 +507,7 @@ class FormsTestCase extends DrupalWebTestCase {
    */
   protected function checkFormValue($element_type, $input_value, $expected_value) {
     $form_id = $this->randomName();
-    $form = array();
+    $form = [];
     $form_state = form_state_defaults();
     $form['op'] = array('#type' => 'submit', '#value' => t('Submit'));
     $form[$element_type] = array(
@@ -518,7 +518,7 @@ class FormsTestCase extends DrupalWebTestCase {
     $form_state['input'][$element_type] = $input_value;
     $form_state['input']['form_id'] = $form_id;
     $form_state['method'] = 'post';
-    $form_state['values'] = array();
+    $form_state['values'] = [];
     drupal_prepare_form($form_id, $form, $form_state);
 
     // Set the CSRF token in the user-provided input.
@@ -635,7 +635,7 @@ class FormAlterTestCase extends DrupalWebTestCase {
       'form_test_form_form_test_alter_form_alter() executed.',
       'system_form_form_test_alter_form_alter() executed.',
     );
-    $content = preg_replace('/\s+/', ' ', filter_xss($this->content, array()));
+    $content = preg_replace('/\s+/', ' ', filter_xss($this->content, []));
     $this->assert(strpos($content, implode(' ', $expected)) !== FALSE, 'Form alter hooks executed in the expected order.');
   }
 }
@@ -689,7 +689,7 @@ class FormValidationTestCase extends DrupalWebTestCase {
     $this->assertText('Name value: element_validate_access', 'Value for inaccessible form element exists.');
 
     // Verify that value for inaccessible form element persists.
-    $this->drupalPost(NULL, array(), 'Save');
+    $this->drupalPost(NULL, [], 'Save');
     $this->assertNoFieldByName('name', 'Form element was hidden.');
     $this->assertText('Name value: element_validate_access', 'Value for inaccessible form element exists.');
 
@@ -710,7 +710,7 @@ class FormValidationTestCase extends DrupalWebTestCase {
    * Tests that a form with a disabled CSRF token can be validated.
    */
   function testDisabledToken() {
-    $this->drupalPost('form-test/validate-no-token', array(), 'Save');
+    $this->drupalPost('form-test/validate-no-token', [], 'Save');
     $this->assertText('The form_test_validate_no_token form has been submitted successfully.');
   }
 
@@ -761,7 +761,7 @@ class FormValidationTestCase extends DrupalWebTestCase {
    */
   function testMultiFormSameNameErrorClass() {
     $this->drupalGet('form-test/double-form');
-    $edit = array();
+    $edit = [];
     $this->drupalPost(NULL, $edit, t('Save'));
     $this->assertFieldByXpath('//input[@id="edit-name" and contains(@class, "error")]', NULL, 'Error input form element class found for first element.');
     $this->assertNoFieldByXpath('//input[@id="edit-name--2" and contains(@class, "error")]', NULL, 'No error input form element class found for second element.');
@@ -922,7 +922,7 @@ class FormsElementsTableSelectFunctionalTest extends DrupalWebTestCase {
   function testMultipleTrueSubmit() {
 
     // Test a submission with one checkbox checked.
-    $edit = array();
+    $edit = [];
     $edit['tableselect[row1]'] = TRUE;
     $this->drupalPost('form_test/tableselect/multiple-true', $edit, 'Submit');
 
@@ -1238,11 +1238,11 @@ class FormsFormStorageTestCase extends DrupalWebTestCase {
   function testFormStatePersist() {
     // Test the form one time with caching activated and one time without.
     $run_options = array(
-      array(),
+      [],
       array('query' => array('cache' => 1)),
     );
     foreach ($run_options as $options) {
-      $this->drupalPost('form-test/state-persist', array(), t('Submit'), $options);
+      $this->drupalPost('form-test/state-persist', [], t('Submit'), $options);
       // The submit handler outputs the value in $form_state, assert it's there.
       $this->assertText('State persisted.');
 
@@ -1460,7 +1460,7 @@ class FormsFormCacheTestCase extends DrupalWebTestCase {
     $form_state = array('foo' => 'bar', 'build_info' => array('baz'));
     form_set_cache($form['#build_id'], $form, $form_state);
 
-    $cached_form_state = array();
+    $cached_form_state = [];
     $cached_form = form_get_cache($form['#build_id'], $cached_form_state);
 
     $this->assertEqual($cached_form['#build_id'], $form['#build_id'], 'Form retrieved from cache_form successfully.');
@@ -1481,7 +1481,7 @@ class FormsFormCacheTestCase extends DrupalWebTestCase {
     // just stored. Without this, the form will still be retrieved from cache.
     cache_clear_all(NULL, 'cache_form');
 
-    $cached_form_state = array();
+    $cached_form_state = [];
     $cached_form = form_get_cache($form['#build_id'], $cached_form_state);
 
     $this->assertNull($cached_form, 'Expired form was not returned from cache.');
@@ -1535,7 +1535,7 @@ class FormStateValuesCleanTestCase extends DrupalWebTestCase {
    * Tests form_state_values_clean().
    */
   function testFormStateValuesClean() {
-    $values = drupal_json_decode($this->drupalPost('form_test/form-state-values-clean', array(), t('Submit')));
+    $values = drupal_json_decode($this->drupalPost('form_test/form-state-values-clean', [], t('Submit')));
 
     // Setup the expected result.
     $result = array(
@@ -1681,7 +1681,7 @@ class FormsRebuildTestCase extends DrupalWebTestCase {
     // submission and verify it worked by ensuring the updated page has two text
     // field items in the field for which we just added an item.
     $this->drupalGet('node/add/page');
-    $this->drupalPostAJAX(NULL, array(), array('field_ajax_test_add_more' => t('Add another item')), 'system/ajax', array(), array(), 'page-node-form');
+    $this->drupalPostAJAX(NULL, [], array('field_ajax_test_add_more' => t('Add another item')), 'system/ajax', [], [], 'page-node-form');
     $this->assert(count($this->xpath('//div[contains(@class, "field-name-field-ajax-test")]//input[@type="text"]')) == 2, 'AJAX submission succeeded.');
 
     // Submit the form with the non-Ajax "Save" button, leaving the title field
@@ -1689,7 +1689,7 @@ class FormsRebuildTestCase extends DrupalWebTestCase {
     // occurred, because this test is for testing what happens when a form is
     // re-rendered without being re-built, which is what happens when there's
     // a validation error.
-    $this->drupalPost(NULL, array(), t('Save'));
+    $this->drupalPost(NULL, [], t('Save'));
     $this->assertText('Title field is required.', 'Non-AJAX submission correctly triggered a validation error.');
 
     // Ensure that the form contains two items in the multi-valued field, so we
@@ -1733,7 +1733,7 @@ class FormsRedirectTestCase extends DrupalWebTestCase {
       'destination' => $this->randomName(),
     );
     $this->drupalPost($path, $edit, t('Submit'));
-    $this->assertUrl($edit['destination'], array(), 'Basic redirection works.');
+    $this->assertUrl($edit['destination'], [], 'Basic redirection works.');
 
 
     // Test without redirection.
@@ -1741,7 +1741,7 @@ class FormsRedirectTestCase extends DrupalWebTestCase {
       'redirection' => FALSE,
     );
     $this->drupalPost($path, $edit, t('Submit'));
-    $this->assertUrl($path, array(), 'When redirect is set to FALSE, there should be no redirection.');
+    $this->assertUrl($path, [], 'When redirect is set to FALSE, there should be no redirection.');
 
     // Test redirection with query parameters.
     $edit = array(
@@ -1749,7 +1749,7 @@ class FormsRedirectTestCase extends DrupalWebTestCase {
       'destination' => $this->randomName(),
     );
     $this->drupalPost($path, $edit, t('Submit'), $options);
-    $this->assertUrl($edit['destination'], array(), 'Redirection with query parameters works.');
+    $this->assertUrl($edit['destination'], [], 'Redirection with query parameters works.');
 
     // Test without redirection but with query parameters.
     $edit = array(
@@ -1764,7 +1764,7 @@ class FormsRedirectTestCase extends DrupalWebTestCase {
       'destination' => '',
     );
     $this->drupalPost($path, $edit, t('Submit'));
-    $this->assertUrl($path, array(), 'When using an empty redirection string, there should be no redirection.');
+    $this->assertUrl($path, [], 'When using an empty redirection string, there should be no redirection.');
 
     // Test redirection back to the original path with query parameters.
     $edit = array(
@@ -1801,13 +1801,13 @@ class FormsProgrammaticTestCase extends DrupalWebTestCase {
     // Backup the current batch status and reset it to avoid conflicts while
     // processing the dummy form submit handler.
     $current_batch = $batch =& batch_get();
-    $batch = array();
+    $batch = [];
 
     // Test that a programmatic form submission is rejected when a required
     // textfield is omitted and correctly processed when it is provided.
-    $this->submitForm(array(), FALSE);
+    $this->submitForm([], FALSE);
     $this->submitForm(array('textfield' => 'test 1'), TRUE);
-    $this->submitForm(array(), FALSE);
+    $this->submitForm([], FALSE);
     $this->submitForm(array('textfield' => 'test 2'), TRUE);
 
     // Test that a programmatic form submission can turn on and off checkboxes
@@ -1858,7 +1858,7 @@ class FormsProgrammaticTestCase extends DrupalWebTestCase {
    *   the call to drupal_form_submit(). The $values parameter is added to
    *   $form_state['values'] by default, if it is not already set.
    */
-  private function submitForm($values, $valid_input, $expected_values = NULL, $form_state = array()) {
+  private function submitForm($values, $valid_input, $expected_values = NULL, $form_state = []) {
     // Programmatically submit the given values.
     $form_state += array('values' => $values);
     drupal_form_submit('form_test_programmatic_form', $form_state);
@@ -1911,13 +1911,13 @@ class FormsTriggeringElementTestCase extends DrupalWebTestCase {
    */
   function testNoButtonInfoInPost() {
     $path = 'form-test/clicked-button';
-    $edit = array();
+    $edit = [];
     $form_html_id = 'form-test-clicked-button';
 
     // Ensure submitting a form with no buttons results in no
     // $form_state['triggering_element'] and the form submit handler not
     // running.
-    $this->drupalPost($path, $edit, NULL, array(), array(), $form_html_id);
+    $this->drupalPost($path, $edit, NULL, [], [], $form_html_id);
     $this->assertText('There is no clicked button.', '$form_state[\'triggering_element\'] set to NULL.');
     $this->assertNoText('Submit handler for form_test_clicked_button executed.', 'Form submit handler did not execute.');
 
@@ -1925,15 +1925,15 @@ class FormsTriggeringElementTestCase extends DrupalWebTestCase {
     // $form_state['triggering_element'] being set to the first one the user has
     // access to. An argument with 'r' in it indicates a restricted
     // (#access=FALSE) button.
-    $this->drupalPost($path . '/s', $edit, NULL, array(), array(), $form_html_id);
+    $this->drupalPost($path . '/s', $edit, NULL, [], [], $form_html_id);
     $this->assertText('The clicked button is button1.', '$form_state[\'triggering_element\'] set to only button.');
     $this->assertText('Submit handler for form_test_clicked_button executed.', 'Form submit handler executed.');
 
-    $this->drupalPost($path . '/s/s', $edit, NULL, array(), array(), $form_html_id);
+    $this->drupalPost($path . '/s/s', $edit, NULL, [], [], $form_html_id);
     $this->assertText('The clicked button is button1.', '$form_state[\'triggering_element\'] set to first button.');
     $this->assertText('Submit handler for form_test_clicked_button executed.', 'Form submit handler executed.');
 
-    $this->drupalPost($path . '/rs/s', $edit, NULL, array(), array(), $form_html_id);
+    $this->drupalPost($path . '/rs/s', $edit, NULL, [], [], $form_html_id);
     $this->assertText('The clicked button is button2.', '$form_state[\'triggering_element\'] set to first available button.');
     $this->assertText('Submit handler for form_test_clicked_button executed.', 'Form submit handler executed.');
 
@@ -1942,15 +1942,15 @@ class FormsTriggeringElementTestCase extends DrupalWebTestCase {
     // regardless of type. For the FAPI 'button' type, this should result in the
     // submit handler not executing. The types are 's'(ubmit), 'b'(utton), and
     // 'i'(mage_button).
-    $this->drupalPost($path . '/s/b/i', $edit, NULL, array(), array(), $form_html_id);
+    $this->drupalPost($path . '/s/b/i', $edit, NULL, [], [], $form_html_id);
     $this->assertText('The clicked button is button1.', '$form_state[\'triggering_element\'] set to first button.');
     $this->assertText('Submit handler for form_test_clicked_button executed.', 'Form submit handler executed.');
 
-    $this->drupalPost($path . '/b/s/i', $edit, NULL, array(), array(), $form_html_id);
+    $this->drupalPost($path . '/b/s/i', $edit, NULL, [], [], $form_html_id);
     $this->assertText('The clicked button is button1.', '$form_state[\'triggering_element\'] set to first button.');
     $this->assertNoText('Submit handler for form_test_clicked_button executed.', 'Form submit handler did not execute.');
 
-    $this->drupalPost($path . '/i/s/b', $edit, NULL, array(), array(), $form_html_id);
+    $this->drupalPost($path . '/i/s/b', $edit, NULL, [], [], $form_html_id);
     $this->assertText('The clicked button is button1.', '$form_state[\'triggering_element\'] set to first button.');
     $this->assertText('Submit handler for form_test_clicked_button executed.', 'Form submit handler executed.');
   }
@@ -1973,7 +1973,7 @@ class FormsTriggeringElementTestCase extends DrupalWebTestCase {
     // data we want into $_POST.
     $elements = $this->xpath('//form[@id="' . $form_html_id . '"]//input[@name="text"]');
     $elements[0]['name'] = 'button1';
-    $this->drupalPost(NULL, array('button1' => 'button1'), NULL, array(), array(), $form_html_id);
+    $this->drupalPost(NULL, array('button1' => 'button1'), NULL, [], [], $form_html_id);
 
     // Ensure that $form_state['triggering_element'] was not set to the
     // restricted button. Do this with both a negative and positive assertion,
@@ -2072,7 +2072,7 @@ class FormsFileInclusionTestCase extends DrupalWebTestCase {
    * Tests loading an include specified in hook_menu().
    */
   function testLoadMenuInclude() {
-    $this->drupalPostAJAX('form-test/load-include-menu', array(), array('op' => t('Save')), 'system/ajax', array(), array(), 'form-test-load-include-menu');
+    $this->drupalPostAJAX('form-test/load-include-menu', [], array('op' => t('Save')), 'system/ajax', [], [], 'form-test-load-include-menu');
     $this->assertText('Submit callback called.');
   }
 
@@ -2080,7 +2080,7 @@ class FormsFileInclusionTestCase extends DrupalWebTestCase {
    * Tests loading a custom specified inlcude.
    */
   function testLoadCustomInclude() {
-    $this->drupalPost('form-test/load-include-custom', array(), t('Save'));
+    $this->drupalPost('form-test/load-include-custom', [], t('Save'));
     $this->assertText('Submit callback called.');
   }
 }
@@ -2138,7 +2138,7 @@ class FormCheckboxTestCase extends DrupalWebTestCase {
 
     // Ensure that $form_state['values'] is populated correctly for a checkboxes
     // group that includes a 0-indexed array of options.
-    $results = json_decode($this->drupalPost('form-test/checkboxes-zero', array(), 'Save'));
+    $results = json_decode($this->drupalPost('form-test/checkboxes-zero', [], 'Save'));
     $this->assertIdentical($results->checkbox_off, array(0, 0, 0), 'All three in checkbox_off are zeroes: off.');
     $this->assertIdentical($results->checkbox_zero_default, array('0', 0, 0), 'The first choice is on in checkbox_zero_default');
     $this->assertIdentical($results->checkbox_string_zero_default, array('0', 0, 0), 'The first choice is on in checkbox_string_zero_default');
@@ -2148,7 +2148,7 @@ class FormCheckboxTestCase extends DrupalWebTestCase {
 
     // Ensure that each checkbox is rendered correctly for a checkboxes group
     // that includes a 0-indexed array of options.
-    $this->drupalPost('form-test/checkboxes-zero/0', array(), 'Save');
+    $this->drupalPost('form-test/checkboxes-zero/0', [], 'Save');
     $checkboxes = $this->xpath('//input[@type="checkbox"]');
     foreach ($checkboxes as $checkbox) {
       $checked = isset($checkbox['checked']);
@@ -2191,8 +2191,8 @@ class HTMLIdTestCase extends DrupalWebTestCase {
     $this->assertNoDuplicateIds('There are no duplicate IDs');
 
     // Submit second form with empty title.
-    $edit = array();
-    $this->drupalPost(NULL, $edit, 'Save', array(), array(), 'form-test-html-id--2');
+    $edit = [];
+    $this->drupalPost(NULL, $edit, 'Save', [], [], 'form-test-html-id--2');
     $this->assertNoDuplicateIds('There are no duplicate IDs');
   }
 }
@@ -2214,8 +2214,8 @@ class FormTextareaTestCase extends DrupalUnitTestCase {
    * Tests that textarea value is properly set.
    */
   public function testValueCallback() {
-    $element = array();
-    $form_state = array();
+    $element = [];
+    $form_state = [];
     $test_cases = array(
       array(NULL, FALSE),
       array(NULL, NULL),

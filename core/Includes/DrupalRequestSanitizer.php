@@ -21,31 +21,31 @@ class DrupalRequestSanitizer {
    */
   public static function sanitize() {
     if (!self::$sanitized) {
-      $whitelist = variable_get('sanitize_input_whitelist', array());
-      $log_sanitized_keys = variable_get('sanitize_input_logging', FALSE);
+      $whitelist = $bootstrap->variable_get('sanitize_input_whitelist', []);
+      $log_sanitized_keys = $bootstrap->variable_get('sanitize_input_logging', FALSE);
 
       // Process query string parameters.
-      $get_sanitized_keys = array();
+      $get_sanitized_keys = [];
       $_GET = self::stripDangerousValues($_GET, $whitelist, $get_sanitized_keys);
       if ($log_sanitized_keys && $get_sanitized_keys) {
         _drupal_trigger_error_with_delayed_logging(format_string('Potentially unsafe keys removed from query string parameters (GET): @keys', array('@keys' => implode(', ', $get_sanitized_keys))), E_USER_NOTICE);
       }
 
       // Process request body parameters.
-      $post_sanitized_keys = array();
+      $post_sanitized_keys = [];
       $_POST = self::stripDangerousValues($_POST, $whitelist, $post_sanitized_keys);
       if ($log_sanitized_keys && $post_sanitized_keys) {
         _drupal_trigger_error_with_delayed_logging(format_string('Potentially unsafe keys removed from request body parameters (POST): @keys', array('@keys' => implode(', ', $post_sanitized_keys))), E_USER_NOTICE);
       }
 
       // Process cookie parameters.
-      $cookie_sanitized_keys = array();
+      $cookie_sanitized_keys = [];
       $_COOKIE = self::stripDangerousValues($_COOKIE, $whitelist, $cookie_sanitized_keys);
       if ($log_sanitized_keys && $cookie_sanitized_keys) {
         _drupal_trigger_error_with_delayed_logging(format_string('Potentially unsafe keys removed from cookie parameters (COOKIE): @keys', array('@keys' => implode(', ', $cookie_sanitized_keys))), E_USER_NOTICE);
       }
 
-      $request_sanitized_keys = array();
+      $request_sanitized_keys = [];
       $_REQUEST = self::stripDangerousValues($_REQUEST, $whitelist, $request_sanitized_keys);
 
       self::$sanitized = TRUE;
@@ -61,13 +61,13 @@ class DrupalRequestSanitizer {
    *   TRUE if the destination has been removed from $_GET, FALSE if not.
    */
   public static function cleanDestination() {
-    $dangerous_keys = array();
-    $log_sanitized_keys = variable_get('sanitize_input_logging', FALSE);
+    $dangerous_keys = [];
+    $log_sanitized_keys = $bootstrap->variable_get('sanitize_input_logging', FALSE);
 
     $parts = drupal_parse_url($_GET['destination']);
     // If there is a query string, check its query parameters.
     if (!empty($parts['query'])) {
-      $whitelist = variable_get('sanitize_input_whitelist', array());
+      $whitelist = $bootstrap->variable_get('sanitize_input_whitelist', []);
 
       self::stripDangerousValues($parts['query'], $whitelist, $dangerous_keys);
       if (!empty($dangerous_keys)) {

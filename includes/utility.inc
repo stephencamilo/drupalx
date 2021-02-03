@@ -19,7 +19,7 @@
 function drupal_var_export($var, $prefix = '') {
   if (is_array($var)) {
     if (empty($var)) {
-      $output = 'array()';
+      $output = '[]';
     }
     else {
       $output = "array(\n";

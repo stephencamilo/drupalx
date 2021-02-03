@@ -43,7 +43,7 @@ function image_get_available_toolkits() {
   // hook_image_toolkits returns an array of toolkit names.
   $toolkits = module_invoke_all('image_toolkits');
 
-  $output = array();
+  $output = [];
   foreach ($toolkits as $name => $info) {
     // Only allow modules that aren't marked as unavailable.
     if ($info['available']) {
@@ -65,7 +65,7 @@ function image_get_toolkit() {
 
   if (!isset($toolkit)) {
     $toolkits = image_get_available_toolkits();
-    $toolkit = variable_get('image_toolkit', 'gd');
+    $toolkit = $bootstrap->variable_get('image_toolkit', 'gd');
     if (!isset($toolkits[$toolkit]) || !function_exists('image_' . $toolkit . '_load')) {
       // The selected toolkit isn't available so return the first one found. If
       // none are available this will return FALSE.
@@ -90,7 +90,7 @@ function image_get_toolkit() {
  * @return
  *   Mixed values (typically Boolean indicating successful operation).
  */
-function image_toolkit_invoke($method, stdClass $image, array $params = array()) {
+function image_toolkit_invoke($method, stdClass $image, array $params = []) {
   $function = 'image_' . $image->toolkit . '_' . $method;
   if (function_exists($function)) {
     array_unshift($params, $image);

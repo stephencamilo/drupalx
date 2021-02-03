@@ -14,7 +14,7 @@
  */
 function dashboard_disable() {
   // Stash a list of currently enabled blocks.
-  $stashed_blocks = array();
+  $stashed_blocks = [];
 
   $result = db_select('block', 'b')
     ->fields('b', array('module', 'delta', 'region'))
@@ -48,10 +48,10 @@ function dashboard_disable() {
  */
 function dashboard_enable() {
   global $theme_key;
-  if (!$stashed_blocks = variable_get('dashboard_stashed_blocks')) {
+  if (!$stashed_blocks = $bootstrap->variable_get('dashboard_stashed_blocks')) {
     return;
   }
-  if (!$admin_theme = variable_get('admin_theme')) {
+  if (!$admin_theme = $bootstrap->variable_get('admin_theme')) {
     drupal_theme_initialize();
     $admin_theme = $theme_key;
   }

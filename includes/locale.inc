@@ -140,7 +140,7 @@ function locale_language_from_browser($languages) {
   //                  1#( language-range [ ";" "q" "=" qvalue ] )
   //   language-range  = ( ( 1*8ALPHA *( "-" 1*8ALPHA ) ) | "*" )
   // Samples: "hu, en-us;q=0.66, en;q=0.33", "hu,en-us;q=0.5"
-  $browser_langcodes = array();
+  $browser_langcodes = [];
   if (preg_match_all('@(?<=[, ]|^)([a-zA-Z-]+|\*)(?:;q=([0-9.]+))?(?:$|\s*,\s*)@', trim($_SERVER['HTTP_ACCEPT_LANGUAGE']), $matches, PREG_SET_ORDER)) {
     foreach ($matches as $match) {
       // We can safely use strtolower() here, tags are ASCII.
@@ -232,7 +232,7 @@ function locale_language_from_user($languages) {
  *   A valid language code on success, FALSE otherwise.
  */
 function locale_language_from_session($languages) {
-  $param = variable_get('locale_language_negotiation_session_param', 'language');
+  $param = $bootstrap->variable_get('locale_language_negotiation_session_param', 'language');
 
   // Request parameter: we need to update the session parameter only if we have
   // an authenticated user.
@@ -357,7 +357,7 @@ function locale_language_url_fallback($language = NULL, $language_type = LANGUAG
  */
 function locale_language_switcher_url($type, $path) {
   $languages = language_list('enabled');
-  $links = array();
+  $links = [];
 
   foreach ($languages[1] as $language) {
     $links[$language->language] = array(
@@ -377,11 +377,11 @@ function locale_language_switcher_url($type, $path) {
 function locale_language_switcher_session($type, $path) {
   drupal_add_css(drupal_get_path('module', 'locale') . '/locale.css');
 
-  $param = variable_get('locale_language_negotiation_session_param', 'language');
+  $param = $bootstrap->variable_get('locale_language_negotiation_session_param', 'language');
   $language_query = isset($_SESSION[$param]) ? $_SESSION[$param] : $GLOBALS[$type]->language;
 
   $languages = language_list('enabled');
-  $links = array();
+  $links = [];
 
   $query = $_GET;
   unset($query['q']);
@@ -469,7 +469,7 @@ function locale_language_url_rewrite_url(&$path, &$options) {
             $options['base_url'] .= ':' . $port;
           }
 
-          if (isset($options['https']) && variable_get('https', FALSE)) {
+          if (isset($options['https']) && $bootstrap->variable_get('https', FALSE)) {
             if ($options['https'] === TRUE) {
               $options['base_url'] = str_replace('http://', 'https://', $options['base_url']);
             }
@@ -626,7 +626,7 @@ function locale_add_language($langcode, $name = NULL, $native = NULL, $direction
 
   if ($enabled) {
     // Increment enabled language count if we are adding an enabled language.
-    variable_set('language_count', variable_get('language_count', 1) + 1);
+    variable_set('language_count', $bootstrap->variable_get('language_count', 1) + 1);
   }
 
   // Kill the static cache in language_list().
@@ -741,7 +741,7 @@ function _locale_import_read_po($op, $file, $mode = NULL, $lang = NULL, $group =
   $context = 'COMMENT';
 
   // Current entry being read.
-  $current = array();
+  $current = [];
 
   // Current plurality for 'msgstr[]'.
   $plural = 0;
@@ -781,7 +781,7 @@ function _locale_import_read_po($op, $file, $mode = NULL, $lang = NULL, $group =
         _locale_import_one_string($op, $current, $mode, $lang, $file, $group);
 
         // Start a new entry for the comment.
-        $current         = array();
+        $current         = [];
         $current['#'][]  = substr($line, 1);
 
         $context = 'COMMENT';
@@ -825,7 +825,7 @@ function _locale_import_read_po($op, $file, $mode = NULL, $lang = NULL, $group =
         _locale_import_one_string($op, $current, $mode, $lang, $file, $group);
 
         // Start a new context for the id.
-        $current = array();
+        $current = [];
       }
       elseif ($context == 'MSGID') {
         // We are currently already in the context, meaning we passed an id with no data.
@@ -853,7 +853,7 @@ function _locale_import_read_po($op, $file, $mode = NULL, $lang = NULL, $group =
       if (($context == 'MSGSTR') || ($context == 'MSGSTR_ARR')) {
         // We are currently in a message, start a new one.
         _locale_import_one_string($op, $current, $mode, $lang, $file, $group);
-        $current = array();
+        $current = [];
       }
       elseif (!empty($current['msgctxt'])) {
         // A context cannot apply to another context.
@@ -1015,7 +1015,7 @@ function _locale_import_message($message, $file, $lineno = NULL) {
 function _locale_import_one_string($op, $value = NULL, $mode = NULL, $lang = NULL, $file = NULL, $group = 'default') {
   $report = &drupal_static(__FUNCTION__, array('additions' => 0, 'updates' => 0, 'deletes' => 0, 'skips' => 0));
   $header_done = &drupal_static(__FUNCTION__ . ':header_done', FALSE);
-  $strings = &drupal_static(__FUNCTION__ . ':strings', array());
+  $strings = &drupal_static(__FUNCTION__ . ':strings', []);
 
   switch ($op) {
     // Return stored strings
@@ -1059,7 +1059,7 @@ function _locale_import_one_string($op, $value = NULL, $mode = NULL, $lang = NUL
 
       else {
         // Some real string to import.
-        $comments = _locale_import_shorten_comments(empty($value['#']) ? array() : $value['#']);
+        $comments = _locale_import_shorten_comments(empty($value['#']) ? [] : $value['#']);
 
         if (strpos($value['msgid'], "\0")) {
           // This string has plural versions.
@@ -1216,7 +1216,7 @@ function _locale_import_one_string_db(&$report, $langcode, $context, $source, $t
  *   An associative array of key-value pairs.
  */
 function _locale_import_parse_header($header) {
-  $header_parsed = array();
+  $header_parsed = [];
   $lines = array_map('trim', explode("\n", $header));
   foreach ($lines as $line) {
     if ($line) {
@@ -1293,9 +1293,9 @@ function _locale_import_parse_arithmetic($string) {
 
   // Parse by converting into infix notation then back into postfix
   // Operator stack - holds math operators and symbols
-  $operator_stack = array();
+  $operator_stack = [];
   // Element Stack - holds data to be operated on
-  $element_stack = array();
+  $element_stack = [];
 
   foreach ($tokens as $token) {
     $current_token = $token;
@@ -1385,7 +1385,7 @@ function _locale_import_parse_arithmetic($string) {
  */
 function _locale_import_tokenize_formula($formula) {
   $formula = str_replace(" ", "", $formula);
-  $tokens = array();
+  $tokens = [];
   for ($i = 0; $i < strlen($formula); $i++) {
     if (is_numeric($formula[$i])) {
       $num = $formula[$i];
@@ -1568,7 +1568,7 @@ function _locale_parse_js_file($filepath) {
     [,\)]
     ~sx', $file, $plural_matches);
 
-  $matches = array();
+  $matches = [];
 
   // Add strings from Drupal.t().
   foreach ($t_matches[1] as $key => $string) {
@@ -1656,7 +1656,7 @@ function _locale_export_get_strings($language = NULL, $group = 'default') {
   else {
     $result = db_query("SELECT s.lid, s.source, s.context, s.location, t.plid, t.plural FROM {locales_source} s LEFT JOIN {locales_target} t ON s.lid = t.lid WHERE s.textgroup = :textgroup ORDER BY t.plid, t.plural", array(':textgroup' => $group));
   }
-  $strings = array();
+  $strings = [];
   foreach ($result as $child) {
     $string = array(
       'comment'     => $child->location,
@@ -1690,12 +1690,12 @@ function _locale_export_get_strings($language = NULL, $group = 'default') {
  *   The header portion to use for the output file. Defaults
  *   are provided for PO and POT files.
  */
-function _locale_export_po_generate($language = NULL, $strings = array(), $header = NULL) {
+function _locale_export_po_generate($language = NULL, $strings = [], $header = NULL) {
   global $user;
 
   if (!isset($header)) {
     if (isset($language)) {
-      $header = '# ' . $language->name . ' translation of ' . variable_get('site_name', 'Drupal') . "\n";
+      $header = '# ' . $language->name . ' translation of ' . $bootstrap->variable_get('site_name', 'Drupal') . "\n";
       $header .= '# Generated by ' . $user->name . ' <' . $user->mail . ">\n";
       $header .= "#\n";
       $header .= "msgid \"\"\n";
@@ -1804,7 +1804,7 @@ function _locale_export_po($language = NULL, $output = NULL) {
  */
 function _locale_export_string($str) {
   $stri = addcslashes($str, "\0..\37\\\"");
-  $parts = array();
+  $parts = [];
 
   // Cut text into several lines
   while ($stri != "") {
@@ -1840,7 +1840,7 @@ function _locale_export_string($str) {
  */
 function _locale_export_wrap($str, $len) {
   $words = explode(' ', $str);
-  $return = array();
+  $return = [];
 
   $cur = "";
   $nstr = 1;
@@ -1948,12 +1948,12 @@ function _locale_translate_seek() {
   $groups = module_invoke_all('locale', 'groups');
   $header = array(t('Text group'), t('String'), t('Context'), ($limit_language) ? t('Language') : t('Languages'), array('data' => t('Operations'), 'colspan' => '2'));
 
-  $strings = array();
+  $strings = [];
   foreach ($locales as $locale) {
     if (!isset($strings[$locale->lid])) {
       $strings[$locale->lid] = array(
         'group' => $locale->textgroup,
-        'languages' => array(),
+        'languages' => [],
         'location' => $locale->location,
         'source' => $locale->source,
         'context' => $locale->context,
@@ -1964,7 +1964,7 @@ function _locale_translate_seek() {
     }
   }
 
-  $rows = array();
+  $rows = [];
   foreach ($strings as $lid => $string) {
     $rows[] = array(
       $groups[$string['group']],
@@ -1988,7 +1988,7 @@ function _locale_translate_seek() {
 function _locale_translate_seek_query() {
   $query = &drupal_static(__FUNCTION__);
   if (!isset($query)) {
-    $query = array();
+    $query = [];
     $fields = array('string', 'language', 'translation', 'group');
     foreach ($fields as $field) {
       if (isset($_SESSION['locale_translation_filter'][$field])) {
@@ -2014,7 +2014,7 @@ function _locale_translate_seek_query() {
  *   New content of the 'javascript_parsed' variable.
  */
 function _locale_invalidate_js($langcode = NULL) {
-  $parsed = variable_get('javascript_parsed', array());
+  $parsed = $bootstrap->variable_get('javascript_parsed', []);
 
   if (empty($langcode)) {
     // Invalidate all languages.
@@ -2053,7 +2053,7 @@ function _locale_rebuild_js($langcode = NULL) {
   // Only add strings with a translation to the translations array.
   $result = db_query("SELECT s.lid, s.source, s.context, t.translation FROM {locales_source} s INNER JOIN {locales_target} t ON s.lid = t.lid AND t.language = :language WHERE s.location LIKE '%.js%' AND s.textgroup = :textgroup", array(':language' => $language->language, ':textgroup' => 'default'));
 
-  $translations = array();
+  $translations = [];
   foreach ($result as $data) {
     $translations[$data->context][$data->source] = $data->translation;
   }
@@ -2075,7 +2075,7 @@ function _locale_rebuild_js($langcode = NULL) {
 
   // Construct the filepath where JS translation files are stored.
   // There is (on purpose) no front end to edit that variable.
-  $dir = 'public://' . variable_get('locale_js_directory', 'languages');
+  $dir = 'public://' . $bootstrap->variable_get('locale_js_directory', 'languages');
 
   // Delete old file, if we have no translations anymore, or a different file to be saved.
   $changed_hash = $language->javascript != $data_hash;
@@ -2248,10 +2248,10 @@ function _locale_prepare_predefined_list() {
  * @return
  *   A batch structure or FALSE if no files found.
  */
-function locale_batch_by_language($langcode, $finished = NULL, $skip = array()) {
+function locale_batch_by_language($langcode, $finished = NULL, $skip = []) {
   // Collect all files to import for all enabled modules and themes.
-  $files = array();
-  $components = array();
+  $files = [];
+  $components = [];
   $query = db_select('system', 's');
   $query->fields('s', array('name', 'filename'));
   $query->condition('s.status', 1);
@@ -2284,7 +2284,7 @@ function locale_batch_by_language($langcode, $finished = NULL, $skip = array()) 
  *   Optional finished callback for the batch.
  */
 function locale_batch_by_component($components, $finished = '_locale_batch_system_finished') {
-  $files = array();
+  $files = [];
   $languages = language_list('enabled');
   unset($languages[1]['en']);
   if (count($languages[1])) {
@@ -2318,10 +2318,10 @@ function locale_batch_by_component($components, $finished = '_locale_batch_syste
  * @return
  *   A batch structure.
  */
-function _locale_batch_build($files, $finished = NULL, $components = array()) {
+function _locale_batch_build($files, $finished = NULL, $components = []) {
   $t = get_t();
   if (count($files)) {
-    $operations = array();
+    $operations = [];
     foreach ($files as $file) {
       // We call _locale_batch_import for every batch operation.
       $operations[] = array('_locale_batch_import', array($file->uri));
@@ -2418,7 +2418,7 @@ function country_get_list() {
  *   The date format string.
  */
 function locale_date_format_save($langcode, $type, $format) {
-  $locale_format = array();
+  $locale_format = [];
   $locale_format['language'] = $langcode;
   $locale_format['type'] = $type;
   $locale_format['format'] = $format;
@@ -2443,11 +2443,11 @@ function locale_date_format_save($langcode, $type, $format) {
  *   An array of date formats.
  */
 function locale_get_localized_date_format($languages) {
-  $formats = array();
+  $formats = [];
 
   // Get list of different format types.
   $format_types = system_get_date_types();
-  $short_default = variable_get('date_format_short', 'm/d/Y - H:i');
+  $short_default = $bootstrap->variable_get('date_format_short', 'm/d/Y - H:i');
 
   // Loop through each language until we find one with some date formats
   // configured.
@@ -2464,7 +2464,7 @@ function locale_get_localized_date_format($languages) {
         // Otherwise get default variable setting. If this is not set, default
         // to the short format.
         else {
-          $formats['date_format_' . $type] = variable_get('date_format_' . $type, $short_default);
+          $formats['date_format_' . $type] = $bootstrap->variable_get('date_format_' . $type, $short_default);
         }
       }
 
@@ -2477,14 +2477,14 @@ function locale_get_localized_date_format($languages) {
   $system_types = array('short', 'medium', 'long');
   // Handle system types separately as they have defaults if no variable exists.
   $formats['date_format_short'] = $short_default;
-  $formats['date_format_medium'] = variable_get('date_format_medium', 'D, m/d/Y - H:i');
-  $formats['date_format_long'] = variable_get('date_format_long', 'l, F j, Y - H:i');
+  $formats['date_format_medium'] = $bootstrap->variable_get('date_format_medium', 'D, m/d/Y - H:i');
+  $formats['date_format_long'] = $bootstrap->variable_get('date_format_long', 'l, F j, Y - H:i');
 
   // For non-system types, get the default setting, otherwise use the short
   // format.
   foreach ($format_types as $type => $type_info) {
     if (!in_array($type, $system_types)) {
-      $formats['date_format_' . $type] = variable_get('date_format_' . $type, $short_default);
+      $formats['date_format_' . $type] = $bootstrap->variable_get('date_format_' . $type, $short_default);
     }
   }
 

@@ -59,7 +59,7 @@ EOF;
   exit;
 }
 
-$passwords = array();
+$passwords = [];
 
 // Parse invocation arguments.
 while ($param = array_shift($_SERVER['argv'])) {

@@ -114,7 +114,7 @@ function taxonomy_test_get_antonym($tid) {
  * Implements hook_query_alter().
  */
 function taxonomy_test_query_alter(QueryAlterableInterface $query) {
-  $value = variable_get(__FUNCTION__);
+  $value = $bootstrap->variable_get(__FUNCTION__);
   if (isset($value)) {
     variable_set(__FUNCTION__, ++$value);
   }
@@ -124,7 +124,7 @@ function taxonomy_test_query_alter(QueryAlterableInterface $query) {
  * Implements hook_query_TAG_alter().
  */
 function taxonomy_test_query_term_access_alter(QueryAlterableInterface $query) {
-  $value = variable_get(__FUNCTION__);
+  $value = $bootstrap->variable_get(__FUNCTION__);
   if (isset($value)) {
     variable_set(__FUNCTION__, ++$value);
   }
@@ -134,7 +134,7 @@ function taxonomy_test_query_term_access_alter(QueryAlterableInterface $query) {
  * Implements hook_query_TAG_alter().
  */
 function taxonomy_test_query_taxonomy_term_access_alter(QueryAlterableInterface $query) {
-  $value = variable_get(__FUNCTION__);
+  $value = $bootstrap->variable_get(__FUNCTION__);
   if (isset($value)) {
     variable_set(__FUNCTION__, ++$value);
   }

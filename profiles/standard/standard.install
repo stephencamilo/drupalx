@@ -69,7 +69,7 @@ function standard_install() {
   filter_format_save($full_html_format);
 
   // Enable some standard blocks.
-  $default_theme = variable_get('theme_default', 'bartik');
+  $default_theme = $bootstrap->variable_get('theme_default', 'bartik');
   $admin_theme = 'seven';
   $blocks = array(
     array(
@@ -339,7 +339,7 @@ function standard_install() {
     ),
     'storage' => array(
       'type' => 'field_sql_storage',
-      'settings' => array(),
+      'settings' => [],
     ),
   );
   field_create_field($field);

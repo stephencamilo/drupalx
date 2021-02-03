@@ -254,10 +254,10 @@ function common_test_library() {
     'website' => 'http://code.google.com/p/farbtastic/',
     'version' => '5.3',
     'js' => array(
-      'misc/farbtastic/farbtastic.js' => array(),
+      'misc/farbtastic/farbtastic.js' => [],
     ),
     'css' => array(
-      'misc/farbtastic/farbtastic.css' => array(),
+      'misc/farbtastic/farbtastic.css' => [],
     ),
   );
   return $libraries;

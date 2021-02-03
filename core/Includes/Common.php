@@ -177,7 +177,7 @@ class Common {
    *   Content to be added.
    */
   function drupal_add_region_content($region = NULL, $data = NULL) {
-    static $content = array();
+    static $content = [];
 
     if (isset($region) && isset($data)) {
       $content[$region][] = $data;
@@ -218,7 +218,7 @@ class Common {
    * the name of the profile that's about to be installed is stored in the global
    * installation state. At all other times, the standard Drupal systems variable
    * table contains the name of the current profile, and we can call
-   * variable_get() to determine what one is active.
+   * $bootstrap->variable_get() to determine what one is active.
    *
    * @return $profile
    *   The name of the installation profile.
@@ -226,11 +226,13 @@ class Common {
   function drupal_get_profile() {
     global $install_state;
 
+    $bootstrap = new Bootstrap;
+
     if (isset($install_state['parameters']['profile'])) {
       $profile = $install_state['parameters']['profile'];
     }
     else {
-      $profile = variable_get('install_profile', 'standard');
+      $profile = $bootstrap->variable_get('install_profile', 'standard');
     }
 
     return $profile;
@@ -271,7 +273,7 @@ class Common {
    * XHTML output.
    */
   function drupal_get_rdf_namespaces() {
-    $xml_rdf_namespaces = array();
+    $xml_rdf_namespaces = [];
 
     // Serializes the RDF namespaces in XML namespace syntax.
     if (function_exists('rdf_get_namespaces')) {
@@ -370,7 +372,7 @@ class Common {
    *   The title of the feed.
    */
   function drupal_add_feed($url = NULL, $title = '') {
-    $stored_feed_links = &drupal_static(__FUNCTION__, array());
+    $stored_feed_links = &drupal_static(__FUNCTION__, []);
 
     if (isset($url)) {
       $stored_feed_links[$url] = theme('feed_icon', array('url' => $url, 'title' => $title));
@@ -431,7 +433,7 @@ class Common {
       $exclude = array_flip($exclude);
     }
 
-    $params = array();
+    $params = [];
     foreach ($query as $key => $value) {
       $string_key = ($parent ? $parent . '[' . $key . ']' : $key);
       if (isset($exclude[$string_key])) {
@@ -459,7 +461,7 @@ class Common {
    *   An array of URL decoded couples $param_name => $value.
    */
   function drupal_get_query_array($query) {
-    $result = array();
+    $result = [];
     if (!empty($query)) {
       foreach (explode('&', $query) as $param) {
         $param = explode('=', $param, 2);
@@ -488,7 +490,7 @@ class Common {
    * @ingroup php_wrappers
    */
   function drupal_http_build_query(array $query, $parent = '') {
-    $params = array();
+    $params = [];
 
     foreach ($query as $key => $value) {
       $key = $parent ? $parent . rawurlencode('[' . $key . ']') : rawurlencode($key);
@@ -579,7 +581,7 @@ class Common {
   function drupal_parse_url($url) {
     $options = array(
       'path' => NULL,
-      'query' => array(),
+      'query' => [],
       'fragment' => '',
     );
 
@@ -683,7 +685,7 @@ class Common {
    * @see drupal_get_destination()
    * @see url()
    */
-  function drupal_goto($path = '', array $options = array(), $http_response_code = 302) {
+  function drupal_goto($path = '', array $options = [], $http_response_code = 302) {
     // A destination in $_GET always overrides the function arguments.
     // We do not allow absolute URLs to be passed via $_GET, as this can be an attack vector.
     if (isset($_GET['destination']) && !url_is_external($_GET['destination'])) {
@@ -798,10 +800,10 @@ class Common {
    *
    * @see drupal_http_build_query()
    */
-  function drupal_http_request($url, array $options = array()) {
+  function drupal_http_request($url, array $options = []) {
     // Allow an alternate HTTP client library to replace Drupal's default
     // implementation.
-    $override_function = variable_get('drupal_http_request_function', FALSE);
+    $override_function = $bootstrap->variable_get('drupal_http_request_function', FALSE);
     if (!empty($override_function) && function_exists($override_function)) {
       return $override_function($url, $options);
     }
@@ -827,7 +829,7 @@ class Common {
 
     // Merge the default options.
     $options += array(
-      'headers' => array(),
+      'headers' => [],
       'method' => 'GET',
       'data' => NULL,
       'max_redirects' => 3,
@@ -844,7 +846,7 @@ class Common {
     $options['timeout'] = (float) $options['timeout'];
 
     // Use a proxy if one is defined and the host is not on the excluded list.
-    $proxy_server = variable_get('proxy_server', '');
+    $proxy_server = $bootstrap->variable_get('proxy_server', '');
     if ($proxy_server && _drupal_http_use_proxy($uri['host'])) {
       // Set the scheme so we open a socket to the proxy server.
       $uri['scheme'] = 'proxy';
@@ -854,13 +856,13 @@ class Common {
       unset($uri['query']);
 
       // Add in username and password to Proxy-Authorization header if needed.
-      if ($proxy_username = variable_get('proxy_username', '')) {
-        $proxy_password = variable_get('proxy_password', '');
+      if ($proxy_username = $bootstrap->variable_get('proxy_username', '')) {
+        $proxy_password = $bootstrap->variable_get('proxy_password', '');
         $options['headers']['Proxy-Authorization'] = 'Basic ' . base64_encode($proxy_username . (!empty($proxy_password) ? ":" . $proxy_password : ''));
       }
       // Some proxies reject requests with any User-Agent headers, while others
       // require a specific one.
-      $proxy_user_agent = variable_get('proxy_user_agent', '');
+      $proxy_user_agent = $bootstrap->variable_get('proxy_user_agent', '');
       // The default value matches neither condition.
       if ($proxy_user_agent === NULL) {
         unset($options['headers']['User-Agent']);
@@ -873,7 +875,7 @@ class Common {
     switch ($uri['scheme']) {
       case 'proxy':
         // Make the socket connection to a proxy server.
-        $socket = 'tcp://' . $proxy_server . ':' . variable_get('proxy_port', 8080);
+        $socket = 'tcp://' . $proxy_server . ':' . $bootstrap->variable_get('proxy_port', 8080);
         // The Host header still needs to match the real request.
         if (!isset($options['headers']['Host'])) {
           $options['headers']['Host'] = $uri['host'];
@@ -1020,7 +1022,7 @@ class Common {
     $result->status_message = $response_status_array['reason_phrase'];
     $code = $response_status_array['response_code'];
 
-    $result->headers = array();
+    $result->headers = [];
 
     // Parse the response headers.
     while ($line = trim(array_shift($response))) {
@@ -1164,7 +1166,7 @@ class Common {
    *   TRUE if a proxy should be used for this host.
    */
   function _drupal_http_use_proxy($host) {
-    $proxy_exceptions = variable_get('proxy_exceptions', array('localhost', '127.0.0.1'));
+    $proxy_exceptions = $bootstrap->variable_get('proxy_exceptions', array('localhost', '127.0.0.1'));
     return !in_array(strtolower($host), $proxy_exceptions, TRUE);
   }
 
@@ -1406,10 +1408,11 @@ class Common {
    * @see check_url()
    */
   function drupal_strip_dangerous_protocols($uri) {
+    $bootstrap = new Bootstrap;
     static $allowed_protocols;
 
     if (!isset($allowed_protocols)) {
-      $allowed_protocols = array_flip(variable_get('filter_allowed_protocols', array('ftp', 'http', 'https', 'irc', 'mailto', 'news', 'nntp', 'rtsp', 'sftp', 'ssh', 'tel', 'telnet', 'webcal')));
+      $allowed_protocols = array_flip($bootstrap->variable_get('filter_allowed_protocols', array('ftp', 'http', 'https', 'irc', 'mailto', 'news', 'nntp', 'rtsp', 'sftp', 'ssh', 'tel', 'telnet', 'webcal')));
     }
 
     // Iteratively remove any invalid protocol found.
@@ -1596,7 +1599,7 @@ class Common {
     $xhtml_slash = $count ? ' /' : '';
 
     // Clean up attributes.
-    $attr2 = implode(' ', _filter_xss_attributes($attrlist));
+    $attr2 = implode(' ', $this->_filter_xss_attributes($attrlist));
     $attr2 = preg_replace('/[<>]/', '', $attr2);
     $attr2 = strlen($attr2) ? ' ' . $attr2 : '';
 
@@ -1610,7 +1613,7 @@ class Common {
    *   Cleaned up version of the HTML attributes.
    */
   function _filter_xss_attributes($attr) {
-    $attrarr = array();
+    $attrarr = [];
     $mode = 0;
     $attrname = '';
 
@@ -1649,7 +1652,7 @@ class Common {
         case 2:
           // Attribute value, a URL after href= for instance.
           if (preg_match('/^"([^"]*)"(\s+|$)/', $attr, $match)) {
-            $thisval = filter_xss_bad_protocol($match[1]);
+            $thisval = $this->filter_xss_bad_protocol($match[1]);
 
             if (!$skip) {
               $attrarr[] = "$attrname=\"$thisval\"";
@@ -1722,17 +1725,16 @@ class Common {
    *   Cleaned up and HTML-escaped version of $string.
    */
   function filter_xss_bad_protocol($string, $decode = TRUE) {
+    $unicode = new Unicode;
+    $bootstrap = new Bootstrap;
+
     // Get the plain text representation of the attribute value (i.e. its meaning).
     // @todo Remove the $decode parameter in Drupal 8, and always assume an HTML
     //   string that needs decoding.
     if ($decode) {
-      if (!function_exists('decode_entities')) {
-        require_once DRUPAL_ROOT . '/includes/unicode.inc';
-      }
-
-      $string = decode_entities($string);
+      $string = $unicode->decode_entities($string);
     }
-    return check_plain(drupal_strip_dangerous_protocols($string));
+    return $bootstrap->check_plain($this->drupal_strip_dangerous_protocols($string));
   }
 
   /**
@@ -1750,7 +1752,7 @@ class Common {
    *
    * Arbitrary elements may be added using the $args associative array.
    */
-  function format_rss_channel($title, $link, $description, $items, $langcode = NULL, $args = array()) {
+  function format_rss_channel($title, $link, $description, $items, $langcode = NULL, $args = []) {
     global $language_content;
     $langcode = $langcode ? $langcode : $language_content->language;
 
@@ -1775,7 +1777,7 @@ class Common {
    *
    * Arbitrary elements may be added using the $args associative array.
    */
-  function format_rss_item($title, $link, $description, $args = array()) {
+  function format_rss_item($title, $link, $description, $args = []) {
     $output = "<item>\n";
     $output .= ' <title>' . check_plain($title) . "</title>\n";
     $output .= ' <link>' . check_url($link) . "</link>\n";
@@ -1876,7 +1878,7 @@ class Common {
    * @see t()
    * @see format_string()
    */
-  function format_plural($count, $singular, $plural, array $args = array(), array $options = array()) {
+  function format_plural($count, $singular, $plural, array $args = [], array $options = []) {
     $args['@count'] = $count;
     if ($count == 1) {
       return t($singular, $args, $options);
@@ -1939,19 +1941,19 @@ class Common {
    */
   function format_size($size, $langcode = NULL) {
     if ($size < DRUPAL_KILOBYTE) {
-      return format_plural($size, '1 byte', '@count bytes', array(), array('langcode' => $langcode));
+      return format_plural($size, '1 byte', '@count bytes', [], array('langcode' => $langcode));
     }
     else {
       $size = $size / DRUPAL_KILOBYTE; // Convert bytes to kilobytes.
       $units = array(
-        t('@size KB', array(), array('langcode' => $langcode)),
-        t('@size MB', array(), array('langcode' => $langcode)),
-        t('@size GB', array(), array('langcode' => $langcode)),
-        t('@size TB', array(), array('langcode' => $langcode)),
-        t('@size PB', array(), array('langcode' => $langcode)),
-        t('@size EB', array(), array('langcode' => $langcode)),
-        t('@size ZB', array(), array('langcode' => $langcode)),
-        t('@size YB', array(), array('langcode' => $langcode)),
+        t('@size KB', [], array('langcode' => $langcode)),
+        t('@size MB', [], array('langcode' => $langcode)),
+        t('@size GB', [], array('langcode' => $langcode)),
+        t('@size TB', [], array('langcode' => $langcode)),
+        t('@size PB', [], array('langcode' => $langcode)),
+        t('@size EB', [], array('langcode' => $langcode)),
+        t('@size ZB', [], array('langcode' => $langcode)),
+        t('@size YB', [], array('langcode' => $langcode)),
       );
       foreach ($units as $unit) {
         if (round($size, 2) >= DRUPAL_KILOBYTE) {
@@ -1993,7 +1995,7 @@ class Common {
     foreach ($units as $key => $value) {
       $key = explode('|', $key);
       if ($interval >= $value) {
-        $output .= ($output ? ' ' : '') . format_plural(floor($interval / $value), $key[0], $key[1], array(), array('langcode' => $langcode));
+        $output .= ($output ? ' ' : '') . format_plural(floor($interval / $value), $key[0], $key[1], [], array('langcode' => $langcode));
         $interval %= $value;
         $granularity--;
       }
@@ -2002,7 +2004,7 @@ class Common {
         break;
       }
     }
-    return $output ? $output : t('0 sec', array(), array('langcode' => $langcode));
+    return $output ? $output : t('0 sec', [], array('langcode' => $langcode));
   }
 
   /**
@@ -2058,11 +2060,11 @@ class Common {
 
     switch ($type) {
       case 'short':
-        $format = variable_get('date_format_short', 'm/d/Y - H:i');
+        $format = $bootstrap->variable_get('date_format_short', 'm/d/Y - H:i');
         break;
 
       case 'long':
-        $format = variable_get('date_format_long', 'l, F j, Y - H:i');
+        $format = $bootstrap->variable_get('date_format_long', 'l, F j, Y - H:i');
         break;
 
       case 'custom':
@@ -2073,11 +2075,11 @@ class Common {
       default:
         // Retrieve the format of the custom $type passed.
         if ($type != 'medium') {
-          $format = variable_get('date_format_' . $type, '');
+          $format = $bootstrap->variable_get('date_format_' . $type, '');
         }
         // Fall back to 'medium'.
         if ($format === '') {
-          $format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
+          $format = $bootstrap->variable_get('date_format_medium', 'D, m/d/Y - H:i');
         }
         break;
     }
@@ -2151,7 +2153,7 @@ class Common {
         $cache[$langcode][$code][$string] = $string;
       }
       else {
-        $cache[$langcode][$code][$string] = t($string, array(), $options);
+        $cache[$langcode][$code][$string] = t($string, [], $options);
       }
     }
     return $cache[$langcode][$code][$string];
@@ -2178,7 +2180,7 @@ class Common {
    *   printed to the page.
    */
   function format_username($account) {
-    $name = !empty($account->name) ? $account->name : variable_get('anonymous', t('Anonymous'));
+    $name = !empty($account->name) ? $account->name : $bootstrap->variable_get('anonymous', t('Anonymous'));
     drupal_alter('username', $name, $account);
     return $name;
   }
@@ -2252,11 +2254,11 @@ class Common {
    * @return
    *   A string containing a URL to the given path.
    */
-  function url($path = NULL, array $options = array()) {
+  function url($path = NULL, array $options = []) {
     // Merge in defaults.
     $options += array(
       'fragment' => '',
-      'query' => array(),
+      'query' => [],
       'absolute' => FALSE,
       'alias' => FALSE,
       'prefix' => ''
@@ -2292,7 +2294,7 @@ class Common {
       if ($options['query']) {
         $path .= (strpos($path, '?') !== FALSE ? '&' : '?') . drupal_http_build_query($options['query']);
       }
-      if (isset($options['https']) && variable_get('https', FALSE)) {
+      if (isset($options['https']) && $bootstrap->variable_get('https', FALSE)) {
         if ($options['https'] === TRUE) {
           $path = str_replace('http://', 'https://', $path);
         }
@@ -2313,7 +2315,7 @@ class Common {
 
     // The base_url might be rewritten from the language rewrite in domain mode.
     if (!isset($options['base_url'])) {
-      if (isset($options['https']) && variable_get('https', FALSE)) {
+      if (isset($options['https']) && $bootstrap->variable_get('https', FALSE)) {
         if ($options['https'] === TRUE) {
           $options['base_url'] = $base_secure_url;
           $options['absolute'] = TRUE;
@@ -2359,7 +2361,7 @@ class Common {
     // Without Clean URLs.
     else {
       $path = $prefix . $path;
-      $query = array();
+      $query = [];
       if (!empty($path)) {
         $query['q'] = $path;
       }
@@ -2418,7 +2420,7 @@ class Common {
    *
    * @see drupal_add_http_header()
    */
-  function drupal_http_header_attributes(array $attributes = array()) {
+  function drupal_http_header_attributes(array $attributes = []) {
     foreach ($attributes as $attribute => &$data) {
       if (is_array($data)) {
         $data = implode(' ', $data);
@@ -2464,7 +2466,7 @@ class Common {
    *
    * @ingroup sanitization
    */
-  function drupal_attributes(array $attributes = array()) {
+  function drupal_attributes(array $attributes = []) {
     foreach ($attributes as $attribute => &$data) {
       $data = implode(' ', (array) $data);
       $data = $attribute . '="' . check_plain($data) . '"';
@@ -2519,13 +2521,13 @@ class Common {
    *
    * @see url()
    */
-  function l($text, $path, array $options = array()) {
+  function l($text, $path, array $options = []) {
     global $language_url;
     static $use_theme = NULL;
 
     // Merge in defaults.
     $options += array(
-      'attributes' => array(),
+      'attributes' => [],
       'html' => FALSE,
     );
 
@@ -2689,7 +2691,7 @@ class Common {
     // domain, but provide a variable to override this. If the code running for
     // this page request already set the X-Frame-Options header earlier, don't
     // overwrite it here.
-    $frame_options = variable_get('x_frame_options', 'SAMEORIGIN');
+    $frame_options = $bootstrap->variable_get('x_frame_options', 'SAMEORIGIN');
     if ($frame_options && is_null(drupal_get_http_header('X-Frame-Options'))) {
       drupal_add_http_header('X-Frame-Options', $frame_options);
     }
@@ -2770,7 +2772,7 @@ class Common {
           drupal_add_http_header('Status', '503 Service unavailable');
           drupal_set_title(t('Site under maintenance'));
           print theme('maintenance_page', array('content' => filter_xss_admin(variable_get('maintenance_mode_message',
-            t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal')))))));
+            t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => $bootstrap->variable_get('site_name', 'Drupal')))))));
           break;
       }
     }
@@ -2854,7 +2856,7 @@ class Common {
   function drupal_map_assoc($array, $function = NULL) {
     // array_combine() fails with empty arrays:
     // http://bugs.php.net/bug.php?id=34857.
-    $array = !empty($array) ? array_combine($array, $array) : array();
+    $array = !empty($array) ? array_combine($array, $array) : [];
     if (is_callable($function)) {
       $array = array_map($function, $array);
     }
@@ -3075,7 +3077,7 @@ class Common {
    * @see drupal_get_css()
    */
   function drupal_add_css($data = NULL, $options = NULL) {
-    $css = &drupal_static(__FUNCTION__, array());
+    $css = &drupal_static(__FUNCTION__, []);
     $count = &drupal_static(__FUNCTION__ . '_count', 0);
 
     // If the $css variable has been reset with drupal_static_reset(), there is
@@ -3091,7 +3093,7 @@ class Common {
       }
     }
     else {
-      $options = array();
+      $options = [];
     }
 
     // Create an array of CSS files for each media type first, since each type needs to be served
@@ -3105,7 +3107,7 @@ class Common {
         'media' => 'all',
         'preprocess' => TRUE,
         'data' => $data,
-        'browsers' => array(),
+        'browsers' => [],
       );
       $options['browsers'] += array(
         'IE' => TRUE,
@@ -3193,7 +3195,7 @@ class Common {
     }
 
     // Remove the overridden CSS files. Later CSS files override former ones.
-    $previous_item = array();
+    $previous_item = [];
     foreach ($css as $key => $item) {
       if ($item['type'] == 'file') {
         // If defined, force a unique basename for this file.
@@ -3307,7 +3309,7 @@ class Common {
    * @see system_element_info()
    */
   function drupal_group_css($css) {
-    $groups = array();
+    $groups = [];
     // If a group can contain multiple items, we track the information that must
     // be the same for each item in the group, so that when we iterate the next
     // item, we can determine if it can be put into the current group, or if a
@@ -3360,7 +3362,7 @@ class Common {
         // unique to the item and should not be carried over to the group.
         $groups[$i] = $item;
         unset($groups[$i]['data'], $groups[$i]['weight']);
-        $groups[$i]['items'] = array();
+        $groups[$i]['items'] = [];
         $current_group_keys = $group_keys ? $group_keys : NULL;
       }
 
@@ -3487,7 +3489,7 @@ class Common {
     // browser-caching. The string changes on every update or full cache
     // flush, forcing browsers to load a new copy of the files, as the
     // URL changed.
-    $query_string = variable_get('css_js_query_string', '0');
+    $query_string = $bootstrap->variable_get('css_js_query_string', '0');
 
     // For inline CSS to validate as XHTML, all CSS containing XHTML needs to be
     // wrapped in CDATA. To make that backwards compatible with HTML 4, we need to
@@ -3539,7 +3541,7 @@ class Common {
           // The group can be aggregated, but hasn't been: combine multiple items
           // into as few STYLE tags as possible.
           elseif ($group['preprocess']) {
-            $import = array();
+            $import = [];
             foreach ($group['items'] as $item) {
               // A theme's .info file may have an entry for a file that doesn't
               // exist as a way of overriding a module or base theme CSS file from
@@ -3668,10 +3670,10 @@ class Common {
   function drupal_build_css_cache($css) {
     $data = '';
     $uri = '';
-    $map = variable_get('drupal_css_cache_files', array());
+    $map = $bootstrap->variable_get('drupal_css_cache_files', []);
     // Create a new array so that only the file names are used to create the hash.
     // This prevents new aggregates from being created unnecessarily.
-    $css_data = array();
+    $css_data = [];
     foreach ($css as $css_file) {
       $css_data[] = $css_file['data'];
     }
@@ -3725,7 +3727,7 @@ class Common {
       // that rewrite rules are working) and the zlib extension is available then
       // create a gzipped version of this file. This file is served conditionally
       // to browsers that accept gzip using .htaccess rules.
-      if (variable_get('css_gzip_compression', TRUE) && variable_get('clean_url', 0) && extension_loaded('zlib')) {
+      if (variable_get('css_gzip_compression', TRUE) && $bootstrap->variable_get('clean_url', 0) && extension_loaded('zlib')) {
         if (!file_exists($uri . '.gz') && !file_unmanaged_save_data(gzencode($data, 9, FORCE_GZIP), $uri . '.gz', FILE_EXISTS_REPLACE)) {
           return FALSE;
         }
@@ -3912,7 +3914,7 @@ class Common {
    */
   function drupal_delete_file_if_stale($uri) {
     // Default stale file threshold is 30 days.
-    if (REQUEST_TIME - filemtime($uri) > variable_get('drupal_stale_file_threshold', 2592000)) {
+    if (REQUEST_TIME - filemtime($uri) > $bootstrap->variable_get('drupal_stale_file_threshold', 2592000)) {
       file_unmanaged_delete($uri);
     }
   }
@@ -3939,7 +3941,7 @@ class Common {
     }
     $allow_css_double_underscores = &$drupal_static_fast['allow_css_double_underscores'];
     if (!isset($allow_css_double_underscores)) {
-      $allow_css_double_underscores = variable_get('allow_css_double_underscores', FALSE);
+      $allow_css_double_underscores = $bootstrap->variable_get('allow_css_double_underscores', FALSE);
     }
 
     // Preserve BEM-style double-underscores depending on custom setting.
@@ -3978,7 +3980,7 @@ class Common {
   function drupal_html_class($class) {
     // The output of this function will never change, so this uses a normal
     // static instead of drupal_static().
-    static $classes = array();
+    static $classes = [];
 
     if (!isset($classes[$class])) {
       $classes[$class] = drupal_clean_css_identifier(drupal_strtolower($class));
@@ -4034,7 +4036,7 @@ class Common {
       // the raw POST data is cast to a number before being returned by this
       // function, this usage is safe.
       if (empty($_POST['ajax_html_ids'])) {
-        $seen_ids_init = array();
+        $seen_ids_init = [];
       }
       else {
         // This function ensures uniqueness by appending a counter to the base id
@@ -4277,7 +4279,7 @@ class Common {
    * @see drupal_get_js()
    */
   function drupal_add_js($data = NULL, $options = NULL) {
-    $javascript = &drupal_static(__FUNCTION__, array());
+    $javascript = &drupal_static(__FUNCTION__, []);
     $jquery_added = &drupal_static(__FUNCTION__ . ':jquery_added', FALSE);
 
     // If the $javascript variable has been reset with drupal_static_reset(),
@@ -4294,7 +4296,7 @@ class Common {
       }
     }
     else {
-      $options = array();
+      $options = [];
     }
     if (isset($options['type']) && $options['type'] == 'setting') {
       $options += array('requires_jquery' => FALSE);
@@ -4448,7 +4450,7 @@ class Common {
     }
 
     // Filter out elements of the given scope.
-    $items = array();
+    $items = [];
     foreach ($javascript as $key => $item) {
       if ($item['scope'] == $scope) {
         $items[$key] = $item;
@@ -4511,7 +4513,7 @@ class Common {
     // URL changed. Files that should not be cached (see drupal_add_js())
     // get REQUEST_TIME as query-string instead, to enforce reload on every
     // page request.
-    $default_query_string = variable_get('css_js_query_string', '0');
+    $default_query_string = $bootstrap->variable_get('css_js_query_string', '0');
 
     // For inline JavaScript to validate as XHTML, all JavaScript containing
     // XHTML needs to be wrapped in CDATA. To make that backwards compatible
@@ -4521,14 +4523,14 @@ class Common {
 
     // Since JavaScript may look for arguments in the URL and act on them, some
     // third-party code might require the use of a different query string.
-    $js_version_string = variable_get('drupal_js_version_query_string', 'v=');
+    $js_version_string = $bootstrap->variable_get('drupal_js_version_query_string', 'v=');
 
-    $files = array();
+    $files = [];
 
-    $scripts = isset($elements['scripts']) ? $elements['scripts'] : array();
+    $scripts = isset($elements['scripts']) ? $elements['scripts'] : [];
     $scripts += array('#weight' => 0);
 
-    $settings = isset($elements['settings']) ? $elements['settings'] : array();
+    $settings = isset($elements['settings']) ? $elements['settings'] : [];
     $settings += array('#weight' => $scripts['#weight'] + 10);
 
     // The index counter is used to keep aggregated and non-aggregated files in
@@ -4687,9 +4689,9 @@ class Common {
   function drupal_process_attached($elements, $group = JS_DEFAULT, $dependency_check = FALSE, $every_page = NULL) {
     // Add defaults to the special attached structures that should be processed differently.
     $elements['#attached'] += array(
-      'library' => array(),
-      'js' => array(),
-      'css' => array(),
+      'library' => [],
+      'js' => [],
+      'css' => [],
     );
 
     // Add the libraries first.
@@ -4907,7 +4909,7 @@ class Common {
    * @see hook_library_alter()
    */
   function drupal_add_library($module, $name, $every_page = NULL) {
-    $added = &drupal_static(__FUNCTION__, array());
+    $added = &drupal_static(__FUNCTION__, []);
 
     // Only process the library if it exists and it was not added already.
     if (!isset($added[$module][$name])) {
@@ -4961,13 +4963,13 @@ class Common {
    *   requisite API functions; find and use a different name.
    */
   function drupal_get_library($module, $name = NULL) {
-    $libraries = &drupal_static(__FUNCTION__, array());
+    $libraries = &drupal_static(__FUNCTION__, []);
 
     if (!isset($libraries[$module])) {
       // Retrieve all libraries associated with the module.
       $module_libraries = module_invoke($module, 'library');
       if (empty($module_libraries)) {
-        $module_libraries = array();
+        $module_libraries = [];
       }
       // Allow modules to alter the module's registered libraries.
       drupal_alter('library', $module_libraries, $module);
@@ -4975,7 +4977,7 @@ class Common {
       foreach ($module_libraries as $key => $data) {
         if (is_array($data)) {
           // Add default elements to allow for easier processing.
-          $module_libraries[$key] += array('dependencies' => array(), 'js' => array(), 'css' => array());
+          $module_libraries[$key] += array('dependencies' => [], 'js' => [], 'css' => []);
           foreach ($module_libraries[$key]['js'] as $file => $options) {
             $module_libraries[$key]['js'][$file]['version'] = $module_libraries[$key]['version'];
           }
@@ -5151,10 +5153,10 @@ class Common {
   function drupal_build_js_cache($files) {
     $contents = '';
     $uri = '';
-    $map = variable_get('drupal_js_cache_files', array());
+    $map = $bootstrap->variable_get('drupal_js_cache_files', []);
     // Create a new array so that only the file names are used to create the hash.
     // This prevents new aggregates from being created unnecessarily.
-    $js_data = array();
+    $js_data = [];
     foreach ($files as $file) {
       $js_data[] = $file['data'];
     }
@@ -5186,7 +5188,7 @@ class Common {
       // that rewrite rules are working) and the zlib extension is available then
       // create a gzipped version of this file. This file is served conditionally
       // to browsers that accept gzip using .htaccess rules.
-      if (variable_get('js_gzip_compression', TRUE) && variable_get('clean_url', 0) && extension_loaded('zlib')) {
+      if (variable_get('js_gzip_compression', TRUE) && $bootstrap->variable_get('clean_url', 0) && extension_loaded('zlib')) {
         if (!file_exists($uri . '.gz') && !file_unmanaged_save_data(gzencode($contents, 9, FORCE_GZIP), $uri . '.gz', FILE_EXISTS_REPLACE)) {
           return FALSE;
         }
@@ -5269,7 +5271,7 @@ class Common {
    *   The private key.
    */
   function drupal_get_private_key() {
-    if (!($key = variable_get('drupal_private_key', 0))) {
+    if (!($key = $bootstrap->variable_get('drupal_private_key', 0))) {
       $key = drupal_random_key();
       variable_set('drupal_private_key', $key);
     }
@@ -5324,10 +5326,10 @@ class Common {
       return;
     }
     $called = TRUE;
-    require_once DRUPAL_ROOT . '/' . variable_get('path_inc', 'includes/path.inc');
+    require_once DRUPAL_ROOT . '/' . $bootstrap->variable_get('path_inc', 'includes/path.inc');
     require_once DRUPAL_ROOT . '/includes/theme.inc';
     require_once DRUPAL_ROOT . '/includes/pager.inc';
-    require_once DRUPAL_ROOT . '/' . variable_get('menu_inc', 'includes/menu.inc');
+    require_once DRUPAL_ROOT . '/' . $bootstrap->variable_get('menu_inc', 'includes/menu.inc');
     require_once DRUPAL_ROOT . '/includes/tablesort.inc';
     require_once DRUPAL_ROOT . '/includes/file.inc';
     require_once DRUPAL_ROOT . '/includes/unicode.inc';
@@ -5403,7 +5405,7 @@ class Common {
     if (drupal_page_is_cacheable()) {
 
       // Check whether the current page might be compressed.
-      $page_compressed = variable_get('page_compression', TRUE) && extension_loaded('zlib');
+      $page_compressed = $bootstrap->variable_get('page_compression', TRUE) && extension_loaded('zlib');
 
       $cache = (object) array(
         'cid' => $base_root . request_uri(),
@@ -5411,7 +5413,7 @@ class Common {
           'path' => $_GET['q'],
           'body' => ob_get_clean(),
           'title' => drupal_get_title(),
-          'headers' => array(),
+          'headers' => [],
           // We need to store whether page was compressed or not,
           // because by the time it is read, the configuration might change.
           'page_compressed' => $page_compressed,
@@ -5473,7 +5475,7 @@ class Common {
     // Try to acquire cron lock.
     if (!lock_acquire('cron', 240.0)) {
       // Cron is still running normally.
-      watchdog('cron', 'Attempting to re-run cron while it is already running.', array(), WATCHDOG_WARNING);
+      watchdog('cron', 'Attempting to re-run cron while it is already running.', [], WATCHDOG_WARNING);
     }
     else {
       // Make sure every queue exists. There is no harm in trying to recreate an
@@ -5495,7 +5497,7 @@ class Common {
 
       // Record cron time.
       variable_set('cron_last', REQUEST_TIME);
-      watchdog('cron', 'Cron run completed.', array(), WATCHDOG_NOTICE);
+      watchdog('cron', 'Cron run completed.', [], WATCHDOG_NOTICE);
 
       // Release cron lock.
       lock_release('cron');
@@ -5543,7 +5545,7 @@ class Common {
   function drupal_cron_cleanup() {
     // See if the semaphore is still locked.
     if (variable_get('cron_semaphore', FALSE)) {
-      watchdog('cron', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
+      watchdog('cron', 'Cron run exceeded the time limit and was aborted.', [], WATCHDOG_WARNING);
 
       // Release cron semaphore.
       variable_del('cron_semaphore');
@@ -5599,22 +5601,25 @@ class Common {
    *   - 'name': Name of file without the extension.
    */
   function drupal_system_listing($mask, $directory, $key = 'name', $min_depth = 1) {
-    $config = conf_path();
+    $file = new File;
+    $bootstrap = new Bootstrap;
+    
+    $config = $bootstrap->conf_path();
 
     $searchdir = array($directory);
-    $files = array();
+    $files = [];
 
     // The 'profiles' directory contains pristine collections of modules and
     // themes as organized by a distribution. It is pristine in the same way
     // that /modules is pristine for core; users should avoid changing anything
     // there in favor of sites/all or sites/<domain> directories.
-    $profiles = array();
-    $profile = drupal_get_profile();
+    $profiles = [];
+    $profile = $this->drupal_get_profile();
     // For SimpleTest to be able to test modules packaged together with a
     // distribution we need to include the profile of the parent site (in which
     // test runs are triggered).
-    if (drupal_valid_test_ua()) {
-      $testing_profile = variable_get('simpletest_parent_profile', FALSE);
+    if ($bootstrap->drupal_valid_test_ua()) {
+      $testing_profile = $bootstrap->variable_get('simpletest_parent_profile', FALSE);
       if ($testing_profile && $testing_profile != $profile) {
         $profiles[] = $testing_profile;
       }
@@ -5636,11 +5641,8 @@ class Common {
     }
 
     // Get current list of items.
-    if (!function_exists('file_scan_directory')) {
-      require_once DRUPAL_ROOT . '/includes/file.inc';
-    }
     foreach ($searchdir as $dir) {
-      $files_to_add = file_scan_directory($dir, $mask, array('key' => $key, 'min_depth' => $min_depth));
+      $files_to_add = $file->file_scan_directory($dir, $mask, array('key' => $key, 'min_depth' => $min_depth));
 
       // Duplicate files found in later search directories take precedence over
       // earlier ones, so we want them to overwrite keys in our resulting
@@ -5731,7 +5733,7 @@ class Common {
    *   added to '#prefix' and '#suffix'.
    */
   function drupal_pre_render_conditional_comments($elements) {
-    $browsers = isset($elements['#browsers']) ? $elements['#browsers'] : array();
+    $browsers = isset($elements['#browsers']) ? $elements['#browsers'] : [];
     $browsers += array(
       'IE' => TRUE,
       '!IE' => TRUE,
@@ -5793,12 +5795,12 @@ class Common {
    */
   function drupal_pre_render_link($element) {
     // By default, link options to pass to l() are normally set in #options.
-    $element += array('#options' => array());
+    $element += array('#options' => []);
     // However, within the scope of renderable elements, #attributes is a valid
     // way to specify attributes, too. Take them into account, but do not override
     // attributes from #options.
     if (isset($element['#attributes'])) {
-      $element['#options'] += array('attributes' => array());
+      $element['#options'] += array('attributes' => []);
       $element['#options']['attributes'] += $element['#attributes'];
     }
 
@@ -5907,7 +5909,7 @@ class Common {
    * properties of the parent are used.
    */
   function drupal_pre_render_links($element) {
-    $element += array('#links' => array());
+    $element += array('#links' => []);
     foreach (element_children($element) as $key) {
       $child = &$element[$key];
       // If the child has links which have not been printed yet and the user has
@@ -6371,13 +6373,13 @@ class Common {
    *   The #attached array for this element and its descendants.
    */
   function drupal_render_collect_attached($elements, $return = FALSE) {
-    $attached = &drupal_static(__FUNCTION__, array());
+    $attached = &drupal_static(__FUNCTION__, []);
 
     // Collect all #attached for this element.
     if (isset($elements['#attached'])) {
       foreach ($elements['#attached'] as $key => $value) {
         if (!isset($attached[$key])) {
-          $attached[$key] = array();
+          $attached[$key] = [];
         }
         $attached[$key] = array_merge($attached[$key], $value);
       }
@@ -6392,7 +6394,7 @@ class Common {
     // and reset the static cache.
     if ($return) {
       $return = $attached;
-      $attached = array();
+      $attached = [];
       return $return;
     }
   }
@@ -6563,7 +6565,7 @@ class Common {
       drupal_alter('element_info', $cache);
     }
 
-    return isset($cache[$type]) ? $cache[$type] : array();
+    return isset($cache[$type]) ? $cache[$type] : [];
   }
 
   /**
@@ -6659,7 +6661,7 @@ class Common {
 
     // Filter out properties from the element, leaving only children.
     $count = count($elements);
-    $child_weights = array();
+    $child_weights = [];
     $i = 0;
     $sortable = FALSE;
     foreach ($elements as $key => $value) {
@@ -6705,7 +6707,7 @@ class Common {
    *   The array keys of the element's visible children.
    */
   function element_get_visible_children(array $elements) {
-    $visible_children = array();
+    $visible_children = [];
 
     foreach (element_children($elements) as $key) {
       $child = $elements[$key];
@@ -6767,7 +6769,7 @@ class Common {
    *   in array2.
    */
   function drupal_array_diff_assoc_recursive($array1, $array2) {
-    $difference = array();
+    $difference = [];
 
     foreach ($array1 as $key => $value) {
       if (is_array($value)) {
@@ -6855,7 +6857,7 @@ class Common {
       // PHP auto-creates container arrays and NULL entries without error if $ref
       // is NULL, but throws an error if $ref is set, but not an array.
       if ($force && isset($ref) && !is_array($ref)) {
-        $ref = array();
+        $ref = [];
       }
       $ref = &$ref[$parent];
     }
@@ -6991,10 +6993,10 @@ class Common {
         'variables' => array('display' => NULL),
       ),
       'link' => array(
-        'variables' => array('text' => NULL, 'path' => NULL, 'options' => array()),
+        'variables' => array('text' => NULL, 'path' => NULL, 'options' => []),
       ),
       'links' => array(
-        'variables' => array('links' => NULL, 'attributes' => array('class' => array('links')), 'heading' => array()),
+        'variables' => array('links' => NULL, 'attributes' => array('class' => array('links')), 'heading' => []),
       ),
       'image' => array(
         // HTML 4 and XHTML 1.0 always require an alt attribute. The HTML 5 draft
@@ -7009,22 +7011,22 @@ class Common {
         // - http://dev.w3.org/html5/spec/Overview.html#alt
         // The title attribute is optional in all cases, so it is omitted by
         // default.
-        'variables' => array('path' => NULL, 'width' => NULL, 'height' => NULL, 'alt' => '', 'title' => NULL, 'attributes' => array()),
+        'variables' => array('path' => NULL, 'width' => NULL, 'height' => NULL, 'alt' => '', 'title' => NULL, 'attributes' => []),
       ),
       'breadcrumb' => array(
         'variables' => array('breadcrumb' => NULL),
       ),
       'help' => array(
-        'variables' => array(),
+        'variables' => [],
       ),
       'table' => array(
         'variables' => array(
           'header' => NULL,
           'footer' => NULL,
           'rows' => NULL,
-          'attributes' => array(),
+          'attributes' => [],
           'caption' => NULL,
-          'colgroups' => array(),
+          'colgroups' => [],
           'sticky' => TRUE,
           'empty' => '',
         ),
@@ -7036,7 +7038,7 @@ class Common {
         'variables' => array('type' => MARK_NEW),
       ),
       'item_list' => array(
-        'variables' => array('items' => array(), 'title' => NULL, 'type' => 'ul', 'attributes' => array()),
+        'variables' => array('items' => [], 'title' => NULL, 'type' => 'ul', 'attributes' => []),
       ),
       'more_help_link' => array(
         'variables' => array('url' => NULL),
@@ -7077,26 +7079,26 @@ class Common {
         'variables' => array('message' => NULL, 'success' => TRUE),
       ),
       'authorize_report' => array(
-        'variables' => array('messages' => array()),
+        'variables' => array('messages' => []),
       ),
       // From pager.inc.
       'pager' => array(
-        'variables' => array('tags' => array(), 'element' => 0, 'parameters' => array(), 'quantity' => 9),
+        'variables' => array('tags' => [], 'element' => 0, 'parameters' => [], 'quantity' => 9),
       ),
       'pager_first' => array(
-        'variables' => array('text' => NULL, 'element' => 0, 'parameters' => array()),
+        'variables' => array('text' => NULL, 'element' => 0, 'parameters' => []),
       ),
       'pager_previous' => array(
-        'variables' => array('text' => NULL, 'element' => 0, 'interval' => 1, 'parameters' => array()),
+        'variables' => array('text' => NULL, 'element' => 0, 'interval' => 1, 'parameters' => []),
       ),
       'pager_next' => array(
-        'variables' => array('text' => NULL, 'element' => 0, 'interval' => 1, 'parameters' => array()),
+        'variables' => array('text' => NULL, 'element' => 0, 'interval' => 1, 'parameters' => []),
       ),
       'pager_last' => array(
-        'variables' => array('text' => NULL, 'element' => 0, 'parameters' => array()),
+        'variables' => array('text' => NULL, 'element' => 0, 'parameters' => []),
       ),
       'pager_link' => array(
-        'variables' => array('text' => NULL, 'page_new' => NULL, 'element' => NULL, 'parameters' => array(), 'attributes' => array()),
+        'variables' => array('text' => NULL, 'page_new' => NULL, 'element' => NULL, 'parameters' => [], 'attributes' => []),
       ),
       // From menu.inc.
       'menu_link' => array(
@@ -7112,7 +7114,7 @@ class Common {
         'render element' => 'element',
       ),
       'menu_local_tasks' => array(
-        'variables' => array('primary' => array(), 'secondary' => array()),
+        'variables' => array('primary' => [], 'secondary' => []),
       ),
       // From form.inc.
       'select' => array(
@@ -7270,7 +7272,7 @@ class Common {
     elseif (!empty($schema)) {
       return $schema;
     }
-    return array();
+    return [];
   }
 
   /**
@@ -7315,7 +7317,7 @@ class Common {
    */
   function drupal_schema_field_types($table) {
     $table_schema = drupal_get_schema($table);
-    $field_types = array();
+    $field_types = [];
     foreach ($table_schema['fields'] as $field_name => $field_info) {
       $field_types[$field_name] = isset($field_info['type']) ? $field_info['type'] : NULL;
     }
@@ -7338,7 +7340,7 @@ class Common {
     $schema = drupal_get_schema($table);
     $fields = array_keys($schema['fields']);
     if ($prefix) {
-      $columns = array();
+      $columns = [];
       foreach ($fields as $field) {
         $columns[] = "$prefix.$field";
       }
@@ -7376,7 +7378,7 @@ class Common {
    *   If the record insert or update failed, returns FALSE. If it succeeded,
    *   returns SAVED_NEW or SAVED_UPDATED, depending on the operation performed.
    */
-  function drupal_write_record($table, &$record, $primary_keys = array()) {
+  function drupal_write_record($table, &$record, $primary_keys = []) {
     // Standardize $primary_keys to an array.
     if (is_string($primary_keys)) {
       $primary_keys = array($primary_keys);
@@ -7388,7 +7390,7 @@ class Common {
     }
 
     $object = (object) $record;
-    $fields = array();
+    $fields = [];
 
     // Go through the schema to determine fields to write.
     foreach ($schema['fields'] as $field => $info) {
@@ -7518,7 +7520,7 @@ class Common {
    * Parses Drupal module and theme .info files.
    *
    * Info files are NOT for placing arbitrary theme and module-specific settings.
-   * Use variable_get() and variable_set() for that.
+   * Use $bootstrap->variable_get() and variable_set() for that.
    *
    * Information stored in a module .info file:
    * - name: The real name of the module for display purposes.
@@ -7559,11 +7561,11 @@ class Common {
    * @see drupal_parse_info_format()
    */
   function drupal_parse_info_file($filename) {
-    $info = &drupal_static(__FUNCTION__, array());
+    $info = &drupal_static(__FUNCTION__, []);
 
     if (!isset($info[$filename])) {
       if (!file_exists($filename)) {
-        $info[$filename] = array();
+        $info[$filename] = [];
       }
       else {
         $data = file_get_contents($filename);
@@ -7611,7 +7613,7 @@ class Common {
    * @see drupal_parse_info_file()
    */
   function drupal_parse_info_format($data) {
-    $info = array();
+    $info = [];
 
     if (preg_match_all('
       @^\s*                           # Start at the beginning of a line, ignoring leading whitespace
@@ -7645,7 +7647,7 @@ class Common {
             $key = count($parent);
           }
           if (!isset($parent[$key]) || !is_array($parent[$key])) {
-            $parent[$key] = array();
+            $parent[$key] = [];
           }
           $parent = &$parent[$key];
         }
@@ -7702,7 +7704,7 @@ class Common {
     preg_match_all($regexp, $tags, $matches);
     $typed_tags = array_unique($matches[1]);
 
-    $tags = array();
+    $tags = [];
     foreach ($typed_tags as $tag) {
       // If a user has escaped a term (to demonstrate that it is a group,
       // or includes a comma or quote character), we remove the escape
@@ -7722,7 +7724,7 @@ class Common {
    * @see drupal_explode_tags()
    */
   function drupal_implode_tags($tags) {
-    $encoded_tags = array();
+    $encoded_tags = [];
     foreach ($tags as $tag) {
       // Commas and quotes in tag names are special cases, so encode them.
       if (strpos($tag, ',') !== FALSE || strpos($tag, '"') !== FALSE) {
@@ -7836,7 +7838,7 @@ class Common {
    * @see drupal_check_incompatibility()
    */
   function drupal_parse_dependency($dependency) {
-    $value = array();
+    $value = [];
     // Split out the optional project name.
     if (strpos($dependency, ':')) {
       list($project_name, $dependency) = explode(':', $dependency);
@@ -7942,10 +7944,10 @@ class Common {
             'static cache' => TRUE,
             'field cache' => TRUE,
             'load hook' => $name . '_load',
-            'bundles' => array(),
-            'view modes' => array(),
-            'entity keys' => array(),
-            'translation' => array(),
+            'bundles' => [],
+            'view modes' => [],
+            'entity keys' => [],
+            'translation' => [],
           );
           $entity_info[$name]['entity keys'] += array(
             'revision' => '',
@@ -8098,7 +8100,7 @@ class Common {
    * @see DrupalDefaultEntityController
    * @see EntityFieldQuery
    */
-  function entity_load($entity_type, $ids = FALSE, $conditions = array(), $reset = FALSE) {
+  function entity_load($entity_type, $ids = FALSE, $conditions = [], $reset = FALSE) {
     if ($reset) {
       entity_get_controller($entity_type)->resetCache();
     }
@@ -8134,7 +8136,7 @@ class Common {
    *   The entity controller object for the specified entity type.
    */
   function entity_get_controller($entity_type) {
-    $controllers = &drupal_static(__FUNCTION__, array());
+    $controllers = &drupal_static(__FUNCTION__, []);
     if (!isset($controllers[$entity_type])) {
       $type_info = entity_get_info($entity_type);
       $class = $type_info['controller class'];
@@ -8175,7 +8177,7 @@ class Common {
     // To ensure hooks are only run once per entity, check for an
     // entity_view_prepared flag and only process items without it.
     // @todo: resolve this more generally for both entity and field level hooks.
-    $prepare = array();
+    $prepare = [];
     foreach ($entities as $id => $entity) {
       if (empty($entity->entity_view_prepared)) {
         // Add this entity to the items to be prepared.
@@ -8221,7 +8223,7 @@ class Common {
 
     // To ensure hooks are never run after field_attach_prepare_view() only
     // process items without the entity_view_prepared flag.
-    $entities_by_view_mode = array();
+    $entities_by_view_mode = [];
     foreach ($entities as $id => $entity) {
       $entity_view_mode = $view_mode;
       if (empty($entity->entity_view_prepared)) {
@@ -8432,7 +8434,7 @@ class Common {
    *     returned by the method called, or an xmlrpc_error object if the call
    *     failed. See xmlrpc_error().
    */
-  function xmlrpc($url, $args, $options = array()) {
+  function xmlrpc($url, $args, $options = []) {
     require_once DRUPAL_ROOT . '/includes/xmlrpc.inc';
     return _xmlrpc($url, $args, $options);
   }
@@ -8444,7 +8446,7 @@ class Common {
    * @see hook_archiver_info_alter()
    */
   function archiver_get_info() {
-    $archiver_info = &drupal_static(__FUNCTION__, array());
+    $archiver_info = &drupal_static(__FUNCTION__, []);
 
     if (empty($archiver_info)) {
       $cache = cache_get('archiver_info');
@@ -8471,7 +8473,7 @@ class Common {
    *   validation system.
    */
   function archiver_get_extensions() {
-    $valid_extensions = array();
+    $valid_extensions = [];
     foreach (archiver_get_info() as $archive) {
       foreach ($archive['extensions'] as $extension) {
         foreach (explode('.', $extension) as $part) {
@@ -8556,7 +8558,7 @@ class Common {
     if (!isset($info)) {
       // Since we have to manually set the 'file path' default for each
       // module separately, we can't use module_invoke_all().
-      $info = array();
+      $info = [];
       foreach (module_implements('filetransfer_info') as $module) {
         $function = $module . '_filetransfer_info';
         if (function_exists($function)) {

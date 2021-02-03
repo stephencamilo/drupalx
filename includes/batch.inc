@@ -289,7 +289,7 @@ function _batch_process() {
         // Remove the processed operation and clear the sandbox.
         $queue->deleteItem($item);
         $current_set['count']--;
-        $current_set['sandbox'] = array();
+        $current_set['sandbox'] = [];
       }
     }
 

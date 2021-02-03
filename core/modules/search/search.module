@@ -268,7 +268,7 @@ function search_get_info($all = FALSE) {
     return $search_hooks;
   }
 
-  $active = variable_get('search_active_modules', array('node', 'user'));
+  $active = $bootstrap->variable_get('search_active_modules', array('node', 'user'));
   return array_intersect_key($search_hooks, array_flip($active));
 }
 
@@ -280,7 +280,7 @@ function search_get_info($all = FALSE) {
  */
 function search_get_default_module_info() {
   $info = search_get_info();
-  $default = variable_get('search_default_module', 'node');
+  $default = $bootstrap->variable_get('search_default_module', 'node');
   if (isset($info[$default])) {
     return $info[$default];
   }
@@ -337,7 +337,7 @@ function search_reindex($sid = NULL, $module = NULL, $reindex = FALSE) {
  * total counts in the search_total table, and need to be recounted.
  */
 function search_dirty($word = NULL) {
-  $dirty = &drupal_static(__FUNCTION__, array());
+  $dirty = &drupal_static(__FUNCTION__, []);
   if ($word !== NULL) {
     $dirty[$word] = TRUE;
   }
@@ -385,7 +385,7 @@ function search_update_totals() {
   // Find words that were deleted from search_index, but are still in
   // search_total. We use a LEFT JOIN between the two tables and keep only the
   // rows which fail to join.
-  $result = db_query("SELECT t.word AS realword, i.word FROM {search_total} t LEFT JOIN {search_index} i ON t.word = i.word WHERE i.word IS NULL", array(), array('target' => 'slave'));
+  $result = db_query("SELECT t.word AS realword, i.word FROM {search_total} t LEFT JOIN {search_index} i ON t.word = i.word WHERE i.word IS NULL", [], array('target' => 'slave'));
   $or = db_or();
   foreach ($result as $word) {
     $or->condition('word', $word->realword);
@@ -473,7 +473,7 @@ function search_simplify($text) {
  *   Tokenized text, starting and ending with a space character.
  */
 function search_expand_cjk($matches) {
-  $min = variable_get('minimum_word_size', 3);
+  $min = $bootstrap->variable_get('minimum_word_size', 3);
   $str = $matches[0];
   $length = drupal_strlen($str);
   // If the text is shorter than the minimum word size, don't tokenize it.
@@ -482,7 +482,7 @@ function search_expand_cjk($matches) {
   }
   $tokens = ' ';
   // Build a FIFO queue of characters.
-  $chars = array();
+  $chars = [];
   for ($i = 0; $i < $length; $i++) {
     // Add the next character off the beginning of the string to the queue.
     $current = drupal_substr($str, 0, 1);
@@ -552,7 +552,7 @@ function search_invoke_preprocess(&$text) {
  * @ingroup search
  */
 function search_index($sid, $module, $text) {
-  $minimum_word_size = variable_get('minimum_word_size', 3);
+  $minimum_word_size = $bootstrap->variable_get('minimum_word_size', 3);
 
   // Link matching
   global $base_url;
@@ -561,7 +561,7 @@ function search_index($sid, $module, $text) {
   // Multipliers for scores of words inside certain HTML tags. The weights are stored
   // in a variable so that modules can overwrite the default weights.
   // Note: 'a' must be included for link ranking to work.
-  $tags = variable_get('search_tag_weights', array(
+  $tags = $bootstrap->variable_get('search_tag_weights', array(
     'h1' => 25,
     'h2' => 18,
     'h3' => 15,
@@ -589,11 +589,11 @@ function search_index($sid, $module, $text) {
   $link = FALSE; // State variable for link analyzer
   $score = 1; // Starting score per word
   $accum = ' '; // Accumulator for cleaned up data
-  $tagstack = array(); // Stack with open tags
+  $tagstack = []; // Stack with open tags
   $tagwords = 0; // Counter for consecutive words
   $focus = 1; // Focus state
 
-  $results = array(0 => array()); // Accumulator for words for index
+  $results = array(0 => []); // Accumulator for words for index
 
   foreach ($split as $value) {
     if ($tag) {
@@ -605,7 +605,7 @@ function search_index($sid, $module, $text) {
         $tagname = substr($tagname, 1);
         // If we encounter unexpected tags, reset score to avoid incorrect boosting.
         if (!count($tagstack) || $tagstack[0] != $tagname) {
-          $tagstack = array();
+          $tagstack = [];
           $score = 1;
         }
         else {
@@ -620,7 +620,7 @@ function search_index($sid, $module, $text) {
         if (isset($tagstack[0]) && $tagstack[0] == $tagname) {
           // None of the tags we look for make sense when nested identically.
           // If they are, it's probably broken HTML.
-          $tagstack = array();
+          $tagstack = [];
           $score = 1;
         }
         else {
@@ -664,7 +664,7 @@ function search_index($sid, $module, $text) {
             // Links score mainly for the target.
             if ($link) {
               if (!isset($results[$linknid])) {
-                $results[$linknid] = array();
+                $results[$linknid] = [];
               }
               $results[$linknid][] = $word;
               // Reduce score of the link caption in the source.
@@ -683,7 +683,7 @@ function search_index($sid, $module, $text) {
           $tagwords++;
           // Too many words inside a single tag probably mean a tag was accidentally left open.
           if (count($tagstack) && $tagwords >= 15) {
-            $tagstack = array();
+            $tagstack = [];
             $score = 1;
           }
         }
@@ -727,7 +727,7 @@ function search_index($sid, $module, $text) {
     ':sid' => $sid,
     ':type' => $module
   ), array('target' => 'slave'));
-  $links = array();
+  $links = [];
   foreach ($result as $link) {
     $links[$link->nid] = $link->caption;
   }
@@ -794,7 +794,7 @@ function search_touch_node($nid) {
 function search_node_update_index($node) {
   // Transplant links to a node into the target node.
   $result = db_query("SELECT caption FROM {search_node_links} WHERE nid = :nid", array(':nid' => $node->nid), array('target' => 'slave'));
-  $output = array();
+  $output = [];
   foreach ($result as $link) {
     $output[] = $link->caption;
   }
@@ -1063,8 +1063,8 @@ function search_box_form_submit($form, &$form_state) {
  * @see search-block-form.tpl.php
  */
 function template_preprocess_search_block_form(&$variables) {
-  $variables['search'] = array();
-  $hidden = array();
+  $variables['search'] = [];
+  $hidden = [];
   // Provide variables named after form keys so themers can print each element independently.
   foreach (element_children($variables['form']) as $key) {
     $type = isset($variables['form'][$key]['#type']) ? $variables['form'][$key]['#type'] : '';
@@ -1144,9 +1144,9 @@ function search_excerpt($keys, $text) {
   // First we collect ranges of text around each keyword, starting/ending
   // at spaces, trying to get to 256 characters.
   // If the sum of all fragments is too short, we look for second occurrences.
-  $ranges = array();
-  $included = array();
-  $foundkeys = array();
+  $ranges = [];
+  $included = [];
+  $foundkeys = [];
   $length = 0;
   while ($length < 256 && count($workkeys)) {
     foreach ($workkeys as $k => $key) {
@@ -1218,7 +1218,7 @@ function search_excerpt($keys, $text) {
   ksort($ranges);
 
   // Now we collapse overlapping text ranges into one. The sorting makes it O(n).
-  $newranges = array();
+  $newranges = [];
   foreach ($ranges as $from2 => $to2) {
     if (!isset($from1)) {
       $from1 = $from2;
@@ -1237,7 +1237,7 @@ function search_excerpt($keys, $text) {
   $newranges[$from1] = $to1;
 
   // Fetch text
-  $out = array();
+  $out = [];
   foreach ($newranges as $from => $to) {
     $out[] = substr($text, $from, $to - $from);
   }

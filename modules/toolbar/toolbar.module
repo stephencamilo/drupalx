@@ -45,7 +45,7 @@ function toolbar_theme($existing, $type, $theme, $path) {
   $items['toolbar_toggle'] = array(
     'variables' => array(
       'collapsed' => NULL,
-      'attributes' => array(),
+      'attributes' => [],
     ),
   );
   return $items;
@@ -120,7 +120,7 @@ function toolbar_page_build(&$page) {
   $page['page_top']['toolbar'] = array(
     '#pre_render' => array('toolbar_pre_render'),
     '#access' => user_access('access toolbar'),
-    'toolbar_drawer' => array(),
+    'toolbar_drawer' => [],
   );
 }
 
@@ -285,7 +285,7 @@ function toolbar_view() {
  *   An array containing a menu tree of top level items below the 'admin' path.
  */
 function toolbar_get_menu_tree() {
-  $tree = array();
+  $tree = [];
   $admin_link = db_query('SELECT * FROM {menu_links} WHERE menu_name = :menu_name AND module = :module AND link_path = :path', array(':menu_name' => 'management', ':module' => 'system', ':path' => 'admin'))->fetchAssoc();
   if ($admin_link) {
     $tree = menu_build_tree('management', array(
@@ -308,7 +308,7 @@ function toolbar_get_menu_tree() {
  *   An array of links as defined above.
  */
 function toolbar_menu_navigation_links($tree) {
-  $links = array();
+  $links = [];
   foreach ($tree as $item) {
     if (!$item['link']['hidden'] && $item['link']['access']) {
       // Make sure we have a path specific ID in place, so we can attach icons
@@ -354,7 +354,7 @@ function toolbar_in_active_trail($path) {
 
   // Gather active paths.
   if (!isset($active_paths)) {
-    $active_paths = array();
+    $active_paths = [];
     $trail = menu_get_active_trail();
     foreach ($trail as $item) {
       if (!empty($item['href'])) {

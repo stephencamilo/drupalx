@@ -40,7 +40,7 @@ class DashboardBlocksTestCase extends DrupalWebTestCase {
    */
   function testDashboardAccess() {
     // Add a new custom block to a dashboard region.
-    $custom_block = array();
+    $custom_block = [];
     $custom_block['info'] = $this->randomName(8);
     $custom_block['title'] = $this->randomName(8);
     $custom_block['body[value]'] = $this->randomName(32);
@@ -87,7 +87,7 @@ class DashboardBlocksTestCase extends DrupalWebTestCase {
    */
   function testDisableEnable() {
     // Add a new custom block to a dashboard region.
-    $custom_block = array();
+    $custom_block = [];
     $custom_block['info'] = $this->randomName(8);
     $custom_block['title'] = $this->randomName(8);
     $custom_block['body[value]'] = $this->randomName(32);
@@ -96,7 +96,7 @@ class DashboardBlocksTestCase extends DrupalWebTestCase {
     $this->drupalGet('admin/dashboard');
     $this->assertRaw($custom_block['title'], 'Block appears on the dashboard.');
 
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][dashboard][enable]'] = FALSE;
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'), 'Modules status has been updated.');
@@ -130,7 +130,7 @@ class DashboardBlocksTestCase extends DrupalWebTestCase {
     $this->assertTrue($elements[0]['value'] == 'dashboard_inactive', 'A block defined as "administrative" defaults to dashboard_inactive.');
 
     // Now enable the block on the dashboard.
-    $values = array();
+    $values = [];
     $values['blocks[comment_recent][region]'] = 'dashboard_main';
     $this->drupalPost('admin/dashboard/configure', $values, t('Save blocks'));
     $this->drupalGet('admin/dashboard');

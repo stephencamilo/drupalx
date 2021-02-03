@@ -80,7 +80,7 @@ class FileTransferFTPExtension extends FileTransferFTP implements FileTransferCh
     }
     $list = @ftp_nlist($this->connection, '.');
     if (!$list) {
-      $list = array();
+      $list = [];
     }
     foreach ($list as $item) {
       if ($item == '.' || $item == '..') {

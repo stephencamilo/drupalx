@@ -54,10 +54,10 @@ function update_script_selection_form($form, &$form_state) {
   );
 
   // Ensure system.module's updates appear first.
-  $form['start']['system'] = array();
+  $form['start']['system'] = [];
 
   $updates = update_get_update_list();
-  $starting_updates = array();
+  $starting_updates = [];
   $incompatible_updates_exist = FALSE;
   foreach ($updates as $module => $update) {
     if (!isset($update['start'])) {
@@ -201,7 +201,7 @@ function update_results_page() {
         $module_has_message = FALSE;
         $query_messages = '';
         foreach ($updates as $number => $queries) {
-          $messages = array();
+          $messages = [];
           foreach ($queries as $query) {
             // If there is no message for this update, don't show anything.
             if (empty($query['query'])) {
@@ -339,7 +339,7 @@ function update_task_list($active = NULL) {
  * Returns and stores extra requirements that apply during the update process.
  */
 function update_extra_requirements($requirements = NULL) {
-  static $extra_requirements = array();
+  static $extra_requirements = [];
   if (isset($requirements)) {
     $extra_requirements += $requirements;
   }
@@ -389,7 +389,7 @@ update_prepare_d7_bootstrap();
 // Temporarily disable configurable timezones so the upgrade process uses the
 // site-wide timezone. This prevents a PHP notice during session initlization
 // and before offsets have been converted in user_update_7002().
-$configurable_timezones = variable_get('configurable_timezones', 1);
+$configurable_timezones = $bootstrap->variable_get('configurable_timezones', 1);
 $conf['configurable_timezones'] = 0;
 
 // Determine if the current user has access to run update.php.

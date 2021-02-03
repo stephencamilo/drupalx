@@ -9,14 +9,14 @@
  * Resets the path test results.
  */
 function path_test_reset() {
-  variable_set('path_test_results', array());
+  variable_set('path_test_results', []);
 }
 
 /**
  * Implements hook_path_update().
  */
 function path_test_path_update($path) {
-  $results = variable_get('path_test_results', array());
+  $results = $bootstrap->variable_get('path_test_results', []);
   $results['hook_path_update'] = $path;
   variable_set('path_test_results', $results);
 }

@@ -48,7 +48,7 @@ class FieldUITestCase extends DrupalWebTestCase {
    *   $edit parameter for drupalPost() on the third step ('Instance settings'
    *   form).
    */
-  function fieldUIAddNewField($bundle_path, $initial_edit, $field_edit = array(), $instance_edit = array()) {
+  function fieldUIAddNewField($bundle_path, $initial_edit, $field_edit = [], $instance_edit = []) {
     // Use 'test_field' field type by default.
     $initial_edit += array(
       'fields[_add_new_field][type]' => 'test_field',
@@ -85,7 +85,7 @@ class FieldUITestCase extends DrupalWebTestCase {
    *   $edit parameter for drupalPost() on the second step ('Instance settings'
    *   form).
    */
-  function fieldUIAddExistingField($bundle_path, $initial_edit, $instance_edit = array()) {
+  function fieldUIAddExistingField($bundle_path, $initial_edit, $instance_edit = []) {
     // Use 'test_field_widget' by default.
     $initial_edit += array(
       'fields[_add_existing_field][widget_type]' => 'test_field_widget',
@@ -122,7 +122,7 @@ class FieldUITestCase extends DrupalWebTestCase {
     $this->assertRaw(t('Are you sure you want to delete the field %label', array('%label' => $label)), 'Delete confirmation was found.');
 
     // Submit confirmation form.
-    $this->drupalPost(NULL, array(), t('Delete'));
+    $this->drupalPost(NULL, [], t('Delete'));
     $this->assertRaw(t('The field %label has been deleted from the %type content type.', array('%label' => $label, '%type' => $bundle_label)), 'Delete message was found.');
 
     // Check that the field does not appear in the overview form.
@@ -443,7 +443,7 @@ class FieldUIManageFieldsTestCase extends FieldUITestCase {
     $this->drupalPost($url, $edit, t('Save'));
 
     $this->assertText(t('The machine-readable name is already in use. It must be unique.'));
-    $this->assertUrl($url, array(), 'Stayed on the same page.');
+    $this->assertUrl($url, [], 'Stayed on the same page.');
   }
 
   /**
@@ -456,7 +456,7 @@ class FieldUIManageFieldsTestCase extends FieldUITestCase {
     );
     $this->drupalPost($path, NULL, t('Save field settings'), $options);
 
-    $this->assertUrl('admin/structure/types/manage/article/fields', array(), 'Stayed on the same site.');
+    $this->assertUrl('admin/structure/types/manage/article/fields', [], 'Stayed on the same site.');
   }
 }
 
@@ -515,7 +515,7 @@ class FieldUIManageDisplayTestCase extends FieldUITestCase {
     $this->assertText("$setting_name: $setting_value", 'The expected summary is displayed.');
 
     // Submit the form and check that the instance is updated.
-    $this->drupalPost(NULL, array(), t('Save'));
+    $this->drupalPost(NULL, [], t('Save'));
     field_info_cache_clear();
     $instance = field_info_instance('node', 'field_test', $this->type);
     $current_format = $instance['display']['default']['type'];

@@ -17,7 +17,7 @@ define('POSTGRESQL_NEXTID_LOCK', 1000);
 
 class DatabaseConnection_pgsql extends DatabaseConnection {
 
-  public function __construct(array $connection_options = array()) {
+  public function __construct(array $connection_options = []) {
     // This driver defaults to transaction support, except if explicitly passed FALSE.
     $this->transactionSupport = !isset($connection_options['transactions']) || ($connection_options['transactions'] !== FALSE);
 
@@ -50,7 +50,7 @@ class DatabaseConnection_pgsql extends DatabaseConnection {
 
     // Allow PDO options to be overridden.
     $connection_options += array(
-      'pdo' => array(),
+      'pdo' => [],
     );
     $connection_options['pdo'] += array(
       // Prepared statements are most effective for performance when queries
@@ -85,7 +85,7 @@ class DatabaseConnection_pgsql extends DatabaseConnection {
     return parent::prepareQuery(preg_replace('/ ([^ ]+) +(I*LIKE|NOT +I*LIKE) /i', ' ${1}::text ${2} ', $query));
   }
 
-  public function query($query, array $args = array(), $options = array()) {
+  public function query($query, array $args = [], $options = []) {
 
     $options += $this->defaultOptions();
 
@@ -140,11 +140,11 @@ class DatabaseConnection_pgsql extends DatabaseConnection {
     }
   }
 
-  public function queryRange($query, $from, $count, array $args = array(), array $options = array()) {
+  public function queryRange($query, $from, $count, array $args = [], array $options = []) {
     return $this->query($query . ' LIMIT ' . (int) $count . ' OFFSET ' . (int) $from, $args, $options);
   }
 
-  public function queryTemporary($query, array $args = array(), array $options = array()) {
+  public function queryTemporary($query, array $args = [], array $options = []) {
     $tablename = $this->generateTemporaryTableName();
     $this->query('CREATE TEMPORARY TABLE {' . $tablename . '} AS ' . $query, $args, $options);
     return $tablename;

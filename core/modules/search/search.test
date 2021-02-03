@@ -110,13 +110,13 @@ class SearchMatchTestCase extends DrupalWebTestCase {
       // Simple AND queries.
       'ipsum' => array(1),
       'enim' => array(4, 5, 6),
-      'xxxxx' => array(),
+      'xxxxx' => [],
       'enim minim' => array(5, 6),
-      'enim xxxxx' => array(),
+      'enim xxxxx' => [],
       'dolore eu' => array(7),
-      'dolore xx' => array(),
+      'dolore xx' => [],
       'ut minim' => array(5),
-      'xx minim' => array(),
+      'xx minim' => [],
       'enim veniam am minim ut' => array(5),
       // Simple OR queries.
       'dolore OR ipsum' => array(1, 2, 7),
@@ -126,8 +126,8 @@ class SearchMatchTestCase extends DrupalWebTestCase {
       'minim dolore OR ipsum' => array(7),
       'dolore OR ipsum veniam' => array(7),
       'minim dolore OR ipsum OR enim' => array(5, 6, 7),
-      'dolore xx OR yy' => array(),
-      'xxxxx dolore OR ipsum' => array(),
+      'dolore xx OR yy' => [],
+      'xxxxx dolore OR ipsum' => [],
       // Negative queries.
       'dolore -sit' => array(7),
       'dolore -eu' => array(2),
@@ -135,18 +135,18 @@ class SearchMatchTestCase extends DrupalWebTestCase {
       'dolore -xx' => array(2, 7),
       // Phrase queries.
       '"dolore sit"' => array(2),
-      '"sit dolore"' => array(),
+      '"sit dolore"' => [],
       '"am minim veniam es"' => array(6, 7),
-      '"minim am veniam es"' => array(),
+      '"minim am veniam es"' => [],
       // Mixed queries.
       '"am minim veniam es" OR dolore' => array(2, 6, 7),
       '"minim am veniam es" OR "dolore sit"' => array(2),
-      '"minim am veniam es" OR "sit dolore"' => array(),
+      '"minim am veniam es" OR "sit dolore"' => [],
       '"am minim veniam es" -eu' => array(6),
       '"am minim veniam" -"cillum dolore"' => array(5, 6),
       '"am minim veniam" -"dolore cillum"' => array(5, 6, 7),
-      'xxxxx "minim am veniam es" OR dolore' => array(),
-      'xx "minim am veniam es" OR dolore' => array()
+      'xxxxx "minim am veniam es" OR dolore' => [],
+      'xx "minim am veniam es" OR dolore' => []
     );
     foreach ($queries as $query => $results) {
       $result = db_select('search_index', 'i')
@@ -154,7 +154,7 @@ class SearchMatchTestCase extends DrupalWebTestCase {
         ->searchExpression($query, SEARCH_TYPE)
         ->execute();
 
-      $set = $result ? $result->fetchAll() : array();
+      $set = $result ? $result->fetchAll() : [];
       $this->_testQueryMatching($query, $set, $results);
       $this->_testQueryScores($query, $set, $results);
     }
@@ -162,9 +162,9 @@ class SearchMatchTestCase extends DrupalWebTestCase {
     // These queries are run against the second index type, SEARCH_TYPE_2.
     $queries = array(
       // Simple AND queries.
-      'ipsum' => array(),
-      'enim' => array(),
-      'enim minim' => array(),
+      'ipsum' => [],
+      'enim' => [],
+      'enim minim' => [],
       'dear' => array(8),
       'germany' => array(11, 12),
     );
@@ -174,7 +174,7 @@ class SearchMatchTestCase extends DrupalWebTestCase {
         ->searchExpression($query, SEARCH_TYPE_2)
         ->execute();
 
-      $set = $result ? $result->fetchAll() : array();
+      $set = $result ? $result->fetchAll() : [];
       $this->_testQueryMatching($query, $set, $results);
       $this->_testQueryScores($query, $set, $results);
     }
@@ -185,11 +185,11 @@ class SearchMatchTestCase extends DrupalWebTestCase {
       '呂波耳' => array(13),
       '以呂波耳' => array(13),
       'ほへと　ヌルヲ' => array(13),
-      'とちリ' => array(),
+      'とちリ' => [],
       'ドルーパル' => array(14),
       'パルが大' => array(14),
       'コーヒー' => array(15),
-      'ヒーキ' => array(),
+      'ヒーキ' => [],
     );
     foreach ($queries as $query => $results) {
       $result = db_select('search_index', 'i')
@@ -197,7 +197,7 @@ class SearchMatchTestCase extends DrupalWebTestCase {
         ->searchExpression($query, SEARCH_TYPE_JPN)
         ->execute();
 
-      $set = $result ? $result->fetchAll() : array();
+      $set = $result ? $result->fetchAll() : [];
       $this->_testQueryMatching($query, $set, $results);
       $this->_testQueryScores($query, $set, $results);
     }
@@ -210,7 +210,7 @@ class SearchMatchTestCase extends DrupalWebTestCase {
    */
   function _testQueryMatching($query, $set, $results) {
     // Get result IDs.
-    $found = array();
+    $found = [];
     foreach ($set as $item) {
       $found[] = $item->sid;
     }
@@ -228,7 +228,7 @@ class SearchMatchTestCase extends DrupalWebTestCase {
    */
   function _testQueryScores($query, $set, $results) {
     // Get result scores.
-    $scores = array();
+    $scores = [];
     foreach ($set as $item) {
       $scores[] = $item->calculated_score;
     }
@@ -275,7 +275,7 @@ class SearchPageText extends DrupalWebTestCase {
     $title = t('Search') . ' | Drupal';
     $this->assertTitle($title, 'Search page title is correct');
 
-    $edit = array();
+    $edit = [];
     $edit['keys'] = 'bike shed ' . $this->randomName();
     $this->drupalPost('search/node', $edit, t('Search'));
     $this->assertText(t('Consider loosening your query with OR. bike OR shed will often show more results than bike shed.'), 'Help text is displayed when search returns no results.');
@@ -296,8 +296,8 @@ class SearchPageText extends DrupalWebTestCase {
 
     // Test a search input exceeding the limit of AND/OR combinations to test
     // the Denial-of-Service protection.
-    $limit = variable_get('search_and_or_limit', 7);
-    $keys = array();
+    $limit = $bootstrap->variable_get('search_and_or_limit', 7);
+    $keys = [];
     for ($i = 0; $i < $limit + 1; $i++) {
       $keys[] = $this->randomName(3);
       if ($i % 2 == 0) {
@@ -439,7 +439,7 @@ class SearchRankingTestCase extends DrupalWebTestCase {
     $this->refreshVariables();
 
     // Add a comment to one of the nodes.
-    $edit = array();
+    $edit = [];
     $edit['subject'] = 'my comment title';
     $edit['comment_body[' . LANGUAGE_NONE . '][0][value]'] = 'some random comment';
     $this->drupalGet('comment/reply/' . $nodes['comments'][1]->nid);
@@ -615,7 +615,7 @@ class SearchBlockTestCase extends DrupalWebTestCase {
     $this->assertText(t('The block configuration has been saved.'), 'Block configuration set.');
 
     // Set the block to a region to confirm block is available.
-    $edit = array();
+    $edit = [];
     $edit['blocks[search_form][region]'] = 'footer';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
     $this->assertText(t('The block settings have been updated.'), 'Block successfully move to footer region.');
@@ -804,7 +804,7 @@ class SearchCommentTestCase extends DrupalWebTestCase {
     // Create a node.
     $node = $this->drupalCreateNode(array('type' => 'article'));
     // Post a comment using 'Full HTML' text format.
-    $edit_comment = array();
+    $edit_comment = [];
     $edit_comment['subject'] = 'Test comment subject';
     $edit_comment['comment_body[' . LANGUAGE_NONE . '][0][value]'] = '<h1>' . $comment_body . '</h1>';
     $full_html_format_id = 'full_html';
@@ -864,7 +864,7 @@ class SearchCommentTestCase extends DrupalWebTestCase {
     $this->node = $this->drupalCreateNode(array('type' => 'article'));
 
     // Post a comment using 'Full HTML' text format.
-    $edit_comment = array();
+    $edit_comment = [];
     $edit_comment['subject'] = $this->comment_subject;
     $edit_comment['comment_body[' . LANGUAGE_NONE . '][0][value]'] = '<h1>' . $comment_body . '</h1>';
     $this->drupalPost('comment/reply/' . $this->node->nid, $edit_comment, t('Save'));
@@ -1075,7 +1075,7 @@ class SearchCommentCountToggleTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->searching_user);
 
     // Create a comment array
-    $edit_comment = array();
+    $edit_comment = [];
     $edit_comment['subject'] = $this->randomName();
     $edit_comment['comment_body[' . LANGUAGE_NONE . '][0][value]'] = $this->randomName();
     $filtered_html_format_id = 'filtered_html';
@@ -1154,7 +1154,7 @@ class SearchSimplifyTestCase extends DrupalWebTestCase {
     // verify that simplification doesn't lose any characters.
     $input = file_get_contents(DRUPAL_ROOT . '/modules/search/tests/UnicodeTest.txt');
     $basestrings = explode(chr(10), $input);
-    $strings = array();
+    $strings = [];
     foreach ($basestrings as $key => $string) {
       if ($key %2) {
         // Even line - should simplify down to a space.
@@ -1470,7 +1470,7 @@ class SearchConfigSettingsForm extends DrupalWebTestCase {
     search_update_totals();
 
     // Enable the search block.
-    $edit = array();
+    $edit = [];
     $edit['blocks[search_form][region]'] = 'content';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
   }
@@ -1485,15 +1485,15 @@ class SearchConfigSettingsForm extends DrupalWebTestCase {
     $this->assertText(t('There are @count items left to index.', array('@count' => 0)));
 
     // Test the re-index button.
-    $this->drupalPost('admin/config/search/settings', array(), t('Re-index site'));
+    $this->drupalPost('admin/config/search/settings', [], t('Re-index site'));
     $this->assertText(t('Are you sure you want to re-index the site'));
-    $this->drupalPost('admin/config/search/settings/reindex', array(), t('Re-index site'));
+    $this->drupalPost('admin/config/search/settings/reindex', [], t('Re-index site'));
     $this->assertText(t('The index will be rebuilt'));
     $this->drupalGet('admin/config/search/settings');
     $this->assertText(t('There is 1 item left to index.'));
 
     // Test that the form saves with the default values.
-    $this->drupalPost('admin/config/search/settings', array(), t('Save configuration'));
+    $this->drupalPost('admin/config/search/settings', [], t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'), 'Form saves with the default values.');
 
     // Test that the form does not save with an invalid word length.
@@ -1550,7 +1550,7 @@ class SearchConfigSettingsForm extends DrupalWebTestCase {
     foreach ($modules as $module) {
       // Enable the one module and disable other ones.
       $info = $module_info[$module];
-      $edit = array();
+      $edit = [];
       foreach ($modules as $other) {
         $edit['search_active_modules[' . $other . ']'] = (($other == $module) ? $module : FALSE);
       }
@@ -1589,7 +1589,7 @@ class SearchConfigSettingsForm extends DrupalWebTestCase {
 
     // Test with all search modules enabled. When you go to the search
     // page or run search, all modules should be shown.
-    $edit = array();
+    $edit = [];
     foreach ($modules as $module) {
       $edit['search_active_modules[' . $module . ']'] = $module;
     }
@@ -1793,8 +1793,8 @@ class SearchTokenizerTestCase extends DrupalWebTestCase {
     );
 
     // Generate characters consisting of starts, midpoints, and ends.
-    $chars = array();
-    $charcodes = array();
+    $chars = [];
+    $charcodes = [];
     foreach ($starts as $key => $value) {
       $charcodes[] = $starts[$key];
       $chars[] = $this->code2utf($starts[$key]);
@@ -1910,7 +1910,7 @@ class SearchEmbedForm extends DrupalWebTestCase {
       array('name' => 'John'),
       t('Send away'));
     $this->assertText(t('Test form was submitted'), 'Form message appears');
-    $count = variable_get('search_embedded_form_submitted', 0);
+    $count = $bootstrap->variable_get('search_embedded_form_submitted', 0);
     $this->assertEqual($this->submit_count + 1, $count, 'Form submission count is correct');
     $this->submit_count = $count;
 
@@ -1921,7 +1921,7 @@ class SearchEmbedForm extends DrupalWebTestCase {
       array('name' => 'John'),
       t('Send away'));
     $this->assertText(t('Test form was submitted'), 'Form message appears');
-    $count = variable_get('search_embedded_form_submitted', 0);
+    $count = $bootstrap->variable_get('search_embedded_form_submitted', 0);
     $this->assertEqual($this->submit_count + 1, $count, 'Form submission count is correct');
     $this->submit_count = $count;
 
@@ -1931,7 +1931,7 @@ class SearchEmbedForm extends DrupalWebTestCase {
       array('keys' => 'foo'),
       t('Search'));
     $this->assertNoText(t('Test form was submitted'), 'Form message does not appear');
-    $count = variable_get('search_embedded_form_submitted', 0);
+    $count = $bootstrap->variable_get('search_embedded_form_submitted', 0);
     $this->assertEqual($this->submit_count, $count, 'Form submission count is correct');
     $this->submit_count = $count;
   }
@@ -2011,7 +2011,7 @@ class SearchLanguageTestCase extends DrupalWebTestCase {
     $this->assertText(t('French'), 'French is a possible choice.');
 
     // Ensure selecting no language does not make the query different.
-    $this->drupalPost('search/node', array(), t('Advanced search'));
+    $this->drupalPost('search/node', [], t('Advanced search'));
     $this->assertEqual($this->getUrl(), url('search/node/', array('absolute' => TRUE)), 'Correct page redirection, no language filtering.');
 
     // Pick French and ensure it is selected.

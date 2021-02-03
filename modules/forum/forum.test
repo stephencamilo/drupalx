@@ -81,7 +81,7 @@ class ForumTestCase extends DrupalWebTestCase {
       'edit own forum content',
       'delete own forum content',
     ));
-    $this->web_user = $this->drupalCreateUser(array());
+    $this->web_user = $this->drupalCreateUser([]);
   }
 
   /**
@@ -91,7 +91,7 @@ class ForumTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->admin_user);
 
     // Disable the Forum module.
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][forum][enable]'] = FALSE;
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'), 'Modules status has been updated.');
@@ -100,7 +100,7 @@ class ForumTestCase extends DrupalWebTestCase {
 
     // Attempt to re-enable the Forum module and ensure it does not try to
     // recreate the taxonomy_forums field.
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][forum][enable]'] = 'forum';
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'), 'Modules status has been updated.');
@@ -187,7 +187,7 @@ class ForumTestCase extends DrupalWebTestCase {
 
     // Test adding a comment to a forum topic.
     $node = $this->createForumTopic($this->forum, FALSE);
-    $edit = array();
+    $edit = [];
     $edit['comment_body[' . LANGUAGE_NONE . '][0][value]'] = $this->randomName();
     $this->drupalPost("node/$node->nid", $edit, t('Save'));
     $this->assertResponse(200);
@@ -195,7 +195,7 @@ class ForumTestCase extends DrupalWebTestCase {
     // Test editing a forum topic that has a comment.
     $this->drupalLogin($this->edit_any_topics_user);
     $this->drupalGet('forum/' . $this->forum['tid']);
-    $this->drupalPost("node/$node->nid/edit", array(), t('Save'));
+    $this->drupalPost("node/$node->nid/edit", [], t('Save'));
     $this->assertResponse(200);
 
     // Make sure constructing a forum node programmatically produces no notices.
@@ -215,7 +215,7 @@ class ForumTestCase extends DrupalWebTestCase {
    */
   function testAddOrphanTopic() {
     // Must remove forum topics to test creating orphan topics.
-    $vid = variable_get('forum_nav_vocabulary');
+    $vid = $bootstrap->variable_get('forum_nav_vocabulary');
     $tree = taxonomy_get_tree($vid);
     foreach ($tree as $term) {
       taxonomy_term_delete($term->tid);
@@ -243,14 +243,14 @@ class ForumTestCase extends DrupalWebTestCase {
     $this->drupalLogin($user);
 
     // Enable the active forum block.
-    $edit = array();
+    $edit = [];
     $edit['blocks[forum_active][region]'] = 'sidebar_second';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
     $this->assertResponse(200);
     $this->assertText(t('The block settings have been updated.'), 'Active forum topics forum block was enabled');
 
     // Enable the new forum block.
-    $edit = array();
+    $edit = [];
     $edit['blocks[forum_new][region]'] = 'sidebar_second';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
     $this->assertResponse(200);
@@ -260,7 +260,7 @@ class ForumTestCase extends DrupalWebTestCase {
     $mlid = db_query_range("SELECT mlid FROM {menu_links} WHERE link_path = 'forum' AND menu_name = 'navigation' AND module = 'system' ORDER BY mlid ASC", 0, 1)->fetchField();
 
     // Add forum to navigation menu.
-    $edit = array();
+    $edit = [];
     $this->drupalPost('admin/structure/menu/manage/navigation', $edit, t('Save configuration'));
     $this->assertResponse(200);
 
@@ -284,7 +284,7 @@ class ForumTestCase extends DrupalWebTestCase {
     // Create second forum in container.
     $this->delete_forum = $this->createForum('forum', $this->container['tid']);
     // Save forum overview.
-    $this->drupalPost('admin/structure/forum/', array(), t('Save'));
+    $this->drupalPost('admin/structure/forum/', [], t('Save'));
     $this->assertRaw(t('The configuration options have been saved.'));
     // Delete this second forum.
     $this->deleteForum($this->delete_forum['tid']);
@@ -318,7 +318,7 @@ class ForumTestCase extends DrupalWebTestCase {
    */
   function editForumTaxonomy() {
     // Backup forum taxonomy.
-    $vid = variable_get('forum_nav_vocabulary', '');
+    $vid = $bootstrap->variable_get('forum_nav_vocabulary', '');
     $original_settings = taxonomy_vocabulary_load($vid);
 
     // Generate a random name/description.
@@ -382,7 +382,7 @@ class ForumTestCase extends DrupalWebTestCase {
     $this->assertRaw(t('Created new @type %term.', array('%term' => $name, '@type' => t($type))), format_string('@type was created', array('@type' => ucfirst($type))));
 
     // Verify forum.
-    $term = db_query("SELECT * FROM {taxonomy_term_data} t WHERE t.vid = :vid AND t.name = :name AND t.description = :desc", array(':vid' => variable_get('forum_nav_vocabulary', ''), ':name' => $name, ':desc' => $description))->fetchAssoc();
+    $term = db_query("SELECT * FROM {taxonomy_term_data} t WHERE t.vid = :vid AND t.name = :name AND t.description = :desc", array(':vid' => $bootstrap->variable_get('forum_nav_vocabulary', ''), ':name' => $name, ':desc' => $description))->fetchAssoc();
     $this->assertTrue(!empty($term), 'The ' . $type . ' exists in the database');
 
     // Verify forum hierarchy.
@@ -401,8 +401,8 @@ class ForumTestCase extends DrupalWebTestCase {
    */
   function deleteForum($tid) {
     // Delete the forum.
-    $this->drupalPost('admin/structure/forum/edit/forum/' . $tid, array(), t('Delete'));
-    $this->drupalPost(NULL, array(), t('Delete'));
+    $this->drupalPost('admin/structure/forum/edit/forum/' . $tid, [], t('Delete'));
+    $this->drupalPost(NULL, [], t('Delete'));
 
     // Assert that the forum no longer exists.
     $this->drupalGet('forum/' . $tid);
@@ -410,7 +410,7 @@ class ForumTestCase extends DrupalWebTestCase {
 
     // Assert that the associated term has been removed from the
     // forum_containers variable.
-    $containers = variable_get('forum_containers', array());
+    $containers = $bootstrap->variable_get('forum_containers', []);
     $this->assertFalse(in_array($tid, $containers), 'The forum_containers variable has been updated.');
   }
 
@@ -539,7 +539,7 @@ class ForumTestCase extends DrupalWebTestCase {
 
     if ($response == 200) {
       // Edit forum node (including moving it to another forum).
-      $edit = array();
+      $edit = [];
       $langcode = LANGUAGE_NONE;
       $edit["title"] = 'node/' . $node->nid;
       $edit["body[$langcode][0][value]"] = $this->randomName(256);
@@ -557,7 +557,7 @@ class ForumTestCase extends DrupalWebTestCase {
       $this->assertTrue($forum_tid == $this->root_forum['tid'], 'The forum topic is linked to a different forum');
 
       // Delete forum node.
-      $this->drupalPost('node/' . $node->nid . '/delete', array(), t('Delete'));
+      $this->drupalPost('node/' . $node->nid . '/delete', [], t('Delete'));
       $this->assertResponse($response);
       $this->assertRaw(t('Forum topic %title has been deleted.', array('%title' => $edit['title'])), 'Forum node was deleted');
     }
@@ -595,7 +595,7 @@ class ForumTestCase extends DrupalWebTestCase {
    *   The foorum array (a row from taxonomy_term_data table).
    */
   private function generateForumTopics($forum) {
-    $this->nids = array();
+    $this->nids = [];
     for ($i = 0; $i < 5; $i++) {
       $node = $this->createForumTopic($this->forum, FALSE);
       $this->nids[] = $node->nid;

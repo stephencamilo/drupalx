@@ -95,7 +95,7 @@ function garland_preprocess_page(&$variables) {
   }
 
   // Prepare header.
-  $site_fields = array();
+  $site_fields = [];
   if (!empty($variables['site_name'])) {
     $site_fields[] = $variables['site_name'];
   }

@@ -121,7 +121,7 @@
  * @see drupal_build_form()
  */
 function drupal_get_form($form_id) {
-  $form_state = array();
+  $form_state = [];
 
   $args = func_get_args();
   // Remove $form_id from the arguments.
@@ -402,23 +402,23 @@ function drupal_build_form($form_id, &$form_state) {
 function form_state_defaults() {
   return array(
     'rebuild' => FALSE,
-    'rebuild_info' => array(),
+    'rebuild_info' => [],
     'redirect' => NULL,
     // @todo 'args' is usually set, so no other default 'build_info' keys are
     //   appended via += form_state_defaults().
     'build_info' => array(
-      'args' => array(),
-      'files' => array(),
+      'args' => [],
+      'files' => [],
     ),
-    'temporary' => array(),
+    'temporary' => [],
     'submitted' => FALSE,
     'executed' => FALSE,
     'programmed' => FALSE,
     'programmed_bypass_access_check' => TRUE,
     'cache'=> FALSE,
     'method' => 'post',
-    'groups' => array(),
-    'buttons' => array(),
+    'groups' => [],
+    'buttons' => [],
   );
 }
 
@@ -505,7 +505,7 @@ function drupal_rebuild_form($form_id, &$form_state, $old_form = NULL) {
 
   // Clear out all group associations as these might be different when
   // re-rendering the form.
-  $form_state['groups'] = array();
+  $form_state['groups'] = [];
 
   // Return a fully built form that is ready for rendering.
   return form_builder($form_id, $form, $form_state);
@@ -526,7 +526,7 @@ function form_get_cache($form_build_id, &$form_state) {
 
         // If the original form is contained in include files, load the files.
         // @see form_load_include()
-        $form_state['build_info'] += array('files' => array());
+        $form_state['build_info'] += array('files' => []);
         foreach ($form_state['build_info']['files'] as $file) {
           if (is_array($file)) {
             $file += array('type' => 'inc', 'name' => $file['module']);
@@ -558,14 +558,14 @@ function form_set_cache($form_build_id, $form, $form_state) {
   // The default cache_form expiration is 6 hours. On busy sites, the cache_form
   // table can become very large. A shorter cache lifetime can help to keep the
   // table's size under control.
-  $expire = variable_get('form_cache_expiration', 21600);
+  $expire = $bootstrap->variable_get('form_cache_expiration', 21600);
 
   // Ensure that the form build_id embedded in the form structure is the same as
   // the one passed in as a parameter. This is an additional safety measure to
   // prevent legacy code operating directly with form_get_cache and
   // form_set_cache from accidentally overwriting immutable form state.
   if ($form['#build_id'] != $form_build_id) {
-    watchdog('form', 'Form build-id mismatch detected while attempting to store a form in the cache.', array(), WATCHDOG_ERROR);
+    watchdog('form', 'Form build-id mismatch detected while attempting to store a form in the cache.', [], WATCHDOG_ERROR);
     return;
   }
 
@@ -711,7 +711,7 @@ function form_load_include(&$form_state, $type, $module, $name = NULL) {
  * For example:
  * @code
  * // register a new user
- * $form_state = array();
+ * $form_state = [];
  * $form_state['values']['name'] = 'robo-user';
  * $form_state['values']['mail'] = 'robouser@example.com';
  * $form_state['values']['pass']['pass1'] = 'password';
@@ -821,9 +821,9 @@ function drupal_retrieve_form($form_id, &$form_state) {
     }
   }
 
-  $form = array();
+  $form = [];
   // We need to pass $form_state by reference in order for forms to modify it,
-  // since call_user_func_array() requires that referenced variables are passed
+  // since call_user_func_[] requires that referenced variables are passed
   // explicitly.
   $args = array_merge(array($form, &$form_state), $args);
 
@@ -865,7 +865,7 @@ function drupal_retrieve_form($form_id, &$form_state) {
  *   data, is also accumulated here.
  */
 function drupal_process_form($form_id, &$form, &$form_state) {
-  $form_state['values'] = array();
+  $form_state['values'] = [];
 
   // With $_GET, these forms are always submitted if requested.
   if ($form_state['method'] == 'get' && !empty($form_state['always_process'])) {
@@ -1080,11 +1080,11 @@ function drupal_prepare_form($form_id, &$form, &$form_state) {
   }
 
   $form += element_info('form');
-  $form += array('#tree' => FALSE, '#parents' => array());
+  $form += array('#tree' => FALSE, '#parents' => []);
 
   if (!isset($form['#validate'])) {
     // Ensure that modules can rely on #validate being set.
-    $form['#validate'] = array();
+    $form['#validate'] = [];
     // Check for a handler specific to $form_id.
     if (function_exists($form_id . '_validate')) {
       $form['#validate'][] = $form_id . '_validate';
@@ -1098,7 +1098,7 @@ function drupal_prepare_form($form_id, &$form, &$form_state) {
 
   if (!isset($form['#submit'])) {
     // Ensure that modules can rely on #submit being set.
-    $form['#submit'] = array();
+    $form['#submit'] = [];
     // Check for a handler specific to $form_id.
     if (function_exists($form_id . '_submit')) {
       $form['#submit'][] = $form_id . '_submit';
@@ -1165,7 +1165,7 @@ function _drupal_invalid_token_set_form_error() {
  *   not be repeated in the submission step.
  */
 function drupal_validate_form($form_id, &$form, &$form_state) {
-  $validated_forms = &drupal_static(__FUNCTION__, array());
+  $validated_forms = &drupal_static(__FUNCTION__, []);
 
   if (isset($validated_forms[$form_id]) && empty($form_state['must_validate'])) {
     return;
@@ -1178,10 +1178,10 @@ function drupal_validate_form($form_id, &$form, &$form_state) {
     if (!drupal_valid_token($form_state['values']['form_token'], $form['#token']) || !empty($form_state['invalid_token'])) {
       _drupal_invalid_token_set_form_error();
       // Ignore all submitted values.
-      $form_state['input'] = array();
-      $_POST = array();
+      $form_state['input'] = [];
+      $_POST = [];
       // Make sure file uploads do not get processed.
-      $_FILES = array();
+      $_FILES = [];
       // Stop here and don't run any further validation handlers, because they
       // could invoke non-safe operations which opens the door for CSRF
       // vulnerabilities.
@@ -1196,7 +1196,7 @@ function drupal_validate_form($form_id, &$form, &$form_state) {
   // If validation errors are limited then remove any non validated form values,
   // so that only values that passed validation are left for submit callbacks.
   if (isset($form_state['triggering_element']['#limit_validation_errors']) && $form_state['triggering_element']['#limit_validation_errors'] !== FALSE) {
-    $values = array();
+    $values = [];
     foreach ($form_state['triggering_element']['#limit_validation_errors'] as $section) {
       // If the section exists within $form_state['values'], even if the value
       // is NULL, copy it to $values.
@@ -1427,7 +1427,7 @@ function _form_validate(&$elements, &$form_state, $form_id = NULL) {
     // #limit_validation_errors defaults to FALSE (via system_element_info()),
     // so that full validation is their default behavior.
     elseif (isset($form_state['triggering_element']) && !isset($form_state['triggering_element']['#limit_validation_errors']) && !$form_state['submitted']) {
-      form_set_error(NULL, '', array());
+      form_set_error(NULL, '', []);
     }
     // As an extra security measure, explicitly turn off error suppression if
     // one of the above conditions wasn't met. Since this is also done at the
@@ -1510,7 +1510,7 @@ function form_execute_handlers($type, &$form, &$form_state) {
     $handlers = $form['#' . $type];
   }
   else {
-    $handlers = array();
+    $handlers = [];
   }
 
   foreach ($handlers as $function) {
@@ -1567,7 +1567,7 @@ function form_execute_handlers($type, &$form, &$form_state) {
  *   $form['actions']['previous'] = array(
  *     '#type' => 'submit',
  *     '#value' => t('Previous'),
- *     '#limit_validation_errors' => array(),       // No validation.
+ *     '#limit_validation_errors' => [],       // No validation.
  *     '#submit' => array('some_submit_function'),  // #submit required.
  *   );
  * @endcode
@@ -1629,7 +1629,7 @@ function form_execute_handlers($type, &$form, &$form_state) {
  * @see http://drupal.org/node/763376
  */
 function form_set_error($name = NULL, $message = '', $limit_validation_errors = NULL) {
-  $form = &drupal_static(__FUNCTION__, array());
+  $form = &drupal_static(__FUNCTION__, []);
   $sections = &drupal_static(__FUNCTION__ . ':limit_validation_errors');
   if (isset($limit_validation_errors)) {
     $sections = $limit_validation_errors;
@@ -1696,7 +1696,7 @@ function form_get_errors() {
  */
 function form_get_error($element) {
   $form = form_set_error();
-  $parents = array();
+  $parents = [];
   foreach ($element['#parents'] as $parent) {
     $parents[] = $parent;
     $key = implode('][', $parents);
@@ -1818,13 +1818,13 @@ function form_builder($form_id, &$element, &$form_state) {
   // Assign basic defaults common for all form elements.
   $element += array(
     '#required' => FALSE,
-    '#attributes' => array(),
+    '#attributes' => [],
     '#title_display' => 'before',
   );
 
   // Special handling if we're on the top level form element.
   if (isset($element['#type']) && $element['#type'] == 'form') {
-    if (!empty($element['#https']) && variable_get('https', FALSE) &&
+    if (!empty($element['#https']) && $bootstrap->variable_get('https', FALSE) &&
         !url_is_external($element['#action'])) {
       global $base_root;
 
@@ -1853,10 +1853,10 @@ function form_builder($form_id, &$element, &$form_state) {
           // This value is checked in _form_builder_handle_input_element().
           $form_state['invalid_token'] = TRUE;
           // Ignore all submitted values.
-          $form_state['input'] = array();
-          $_POST = array();
+          $form_state['input'] = [];
+          $_POST = [];
           // Make sure file uploads do not get processed.
-          $_FILES = array();
+          $_FILES = [];
         }
       }
     }
@@ -1865,7 +1865,7 @@ function form_builder($form_id, &$element, &$form_state) {
     }
 
     // All form elements should have an #array_parents property.
-    $element['#array_parents'] = array();
+    $element['#array_parents'] = [];
   }
 
   if (!isset($element['#id'])) {
@@ -2396,8 +2396,8 @@ function form_type_checkbox_value($element, $input = FALSE) {
  */
 function form_type_checkboxes_value($element, $input = FALSE) {
   if ($input === FALSE) {
-    $value = array();
-    $element += array('#default_value' => array());
+    $value = [];
+    $element += array('#default_value' => []);
     foreach ($element['#default_value'] as $key) {
       $value[$key] = $key;
     }
@@ -2418,7 +2418,7 @@ function form_type_checkboxes_value($element, $input = FALSE) {
     return drupal_map_assoc($input);
   }
   else {
-    return array();
+    return [];
   }
 }
 
@@ -2443,8 +2443,8 @@ function form_type_tableselect_value($element, $input = FALSE) {
     // keys of the #default_value property. This differs from the checkboxes
     // element which uses the array values.
     if ($input === FALSE) {
-      $value = array();
-      $element += array('#default_value' => array());
+      $value = [];
+      $element += array('#default_value' => []);
       foreach ($element['#default_value'] as $key => $flag) {
         if ($flag) {
           $value[$key] = $key;
@@ -2453,7 +2453,7 @@ function form_type_tableselect_value($element, $input = FALSE) {
       return $value;
     }
     else {
-      return is_array($input) ? drupal_map_assoc($input) : array();
+      return is_array($input) ? drupal_map_assoc($input) : [];
     }
   }
 }
@@ -2512,7 +2512,7 @@ function form_type_radios_value(&$element, $input = FALSE) {
  */
 function form_type_password_confirm_value($element, $input = FALSE) {
   if ($input === FALSE) {
-    $element += array('#default_value' => array());
+    $element += array('#default_value' => []);
     return $element['#default_value'] + array('pass1' => '', 'pass2' => '');
   }
   $value = array('pass1' => '', 'pass2' => '');
@@ -2548,10 +2548,10 @@ function form_type_select_value($element, $input = FALSE) {
       // unselected. A disabled multi-select always submits NULL, and the
       // default value should be used.
       if (empty($element['#disabled'])) {
-        return (is_array($input)) ? drupal_map_assoc($input) : array();
+        return (is_array($input)) ? drupal_map_assoc($input) : [];
       }
       else {
-        return (isset($element['#default_value']) && is_array($element['#default_value'])) ? $element['#default_value'] : array();
+        return (isset($element['#default_value']) && is_array($element['#default_value'])) ? $element['#default_value'] : [];
       }
     }
     // Non-multiple select elements may have an empty option preprended to them
@@ -2888,7 +2888,7 @@ function form_select_options($element, $choices = NULL) {
  * index is not sufficient, and supporting this would make the
  * "helper" too complicated and cumbersome to be of any help.
  *
- * As usual with functions that can return array() or FALSE, do not
+ * As usual with functions that can return [] or FALSE, do not
  * forget to use === and !== if needed.
  *
  * @param $element
@@ -2901,7 +2901,7 @@ function form_select_options($element, $choices = NULL) {
  *   empty if no elements were found. FALSE if optgroups were found.
  */
 function form_get_options($element, $key) {
-  $keys = array();
+  $keys = [];
   foreach ($element['#options'] as $index => $choice) {
     if (is_array($choice)) {
       return FALSE;
@@ -2992,7 +2992,7 @@ function theme_radio($variables) {
  */
 function theme_radios($variables) {
   $element = $variables['element'];
-  $attributes = array();
+  $attributes = [];
   if (isset($element['#id'])) {
     $attributes['id'] = $element['#id'];
   }
@@ -3073,7 +3073,7 @@ function password_confirm_validate($element, &$element_state) {
 function theme_date($variables) {
   $element = $variables['element'];
 
-  $attributes = array();
+  $attributes = [];
   if (isset($element['#id'])) {
     $attributes['id'] = $element['#id'];
   }
@@ -3101,8 +3101,8 @@ function form_process_date($element) {
   $element['#tree'] = TRUE;
 
   // Determine the order of day, month, year in the site's chosen date format.
-  $format = variable_get('date_format_short', 'm/d/Y - H:i');
-  $sort = array();
+  $format = $bootstrap->variable_get('date_format_short', 'm/d/Y - H:i');
+  $sort = [];
   $sort['day'] = max(strpos($format, 'd'), strpos($format, 'j'));
   $sort['month'] = max(strpos($format, 'm'), strpos($format, 'M'));
   $sort['year'] = strpos($format, 'Y');
@@ -3195,7 +3195,7 @@ function form_process_radios($element) {
       // sub-elements.
       $weight += 0.001;
 
-      $element += array($key => array());
+      $element += array($key => []);
       // Generate the parents as the autogenerator does, so we will have a
       // unique id for each radio button.
       $parents_for_id = array_merge($element['#parents'], array($key));
@@ -3255,7 +3255,7 @@ function theme_checkbox($variables) {
  */
 function theme_checkboxes($variables) {
   $element = $variables['element'];
-  $attributes = array();
+  $attributes = [];
   if (isset($element['#id'])) {
     $attributes['id'] = $element['#id'];
   }
@@ -3322,11 +3322,11 @@ function form_process_checkbox($element, $form_state) {
  * Processes a checkboxes form element.
  */
 function form_process_checkboxes($element) {
-  $value = is_array($element['#value']) ? $element['#value'] : array();
+  $value = is_array($element['#value']) ? $element['#value'] : [];
   $element['#tree'] = TRUE;
   if (count($element['#options']) > 0) {
     if (!isset($element['#default_value']) || $element['#default_value'] == 0) {
-      $element['#default_value'] = array();
+      $element['#default_value'] = [];
     }
     $weight = 0;
     foreach ($element['#options'] as $key => $choice) {
@@ -3342,7 +3342,7 @@ function form_process_checkboxes($element) {
       // sub-elements.
       $weight += 0.001;
 
-      $element += array($key => array());
+      $element += array($key => []);
       $element[$key] += array(
         '#type' => 'checkbox',
         '#title' => $choice,
@@ -3414,7 +3414,7 @@ function form_process_container($element, &$form_state) {
 function theme_container($variables) {
   $element = $variables['element'];
   // Ensure #attributes is set.
-  $element += array('#attributes' => array());
+  $element += array('#attributes' => []);
 
   // Special handling for form elements.
   if (isset($element['#array_parents'])) {
@@ -3473,14 +3473,14 @@ function theme_container($variables) {
  */
 function theme_tableselect($variables) {
   $element = $variables['element'];
-  $rows = array();
+  $rows = [];
   $header = $element['#header'];
   if (!empty($element['#options'])) {
     // Generate a table row for each selectable item in #options.
     foreach (element_children($element) as $key) {
-      $row = array();
+      $row = [];
 
-      $row['data'] = array();
+      $row['data'] = [];
       if (isset($element['#options'][$key]['#attributes'])) {
         $row += $element['#options'][$key]['#attributes'];
       }
@@ -3523,7 +3523,7 @@ function theme_tableselect($variables) {
 function form_process_tableselect($element) {
 
   if ($element['#multiple']) {
-    $value = is_array($element['#value']) ? $element['#value'] : array();
+    $value = is_array($element['#value']) ? $element['#value'] : [];
   }
   else {
     // Advanced selection behavior makes no sense for radios.
@@ -3534,7 +3534,7 @@ function form_process_tableselect($element) {
 
   if (count($element['#options']) > 0) {
     if (!isset($element['#default_value']) || $element['#default_value'] === 0) {
-      $element['#default_value'] = array();
+      $element['#default_value'] = [];
     }
 
     // Create a checkbox or radio for each item in #options in such a way that
@@ -3582,7 +3582,7 @@ function form_process_tableselect($element) {
     }
   }
   else {
-    $element['#value'] = array();
+    $element['#value'] = [];
   }
   return $element;
 }
@@ -3624,7 +3624,7 @@ function form_process_machine_name($element, &$form_state) {
   $element += array(
     '#title' => t('Machine-readable name'),
     '#description' => t('A unique machine-readable name. Can only contain lowercase letters, numbers, and underscores.'),
-    '#machine_name' => array(),
+    '#machine_name' => [],
     '#field_prefix' => '',
     '#field_suffix' => '',
     '#suffix' => '',
@@ -3646,7 +3646,7 @@ function form_process_machine_name($element, &$form_state) {
   // By default, machine names are restricted to Latin alphanumeric characters.
   // So, default to LTR directionality.
   if (!isset($element['#attributes'])) {
-    $element['#attributes'] = array();
+    $element['#attributes'] = [];
   }
   $element['#attributes'] += array('dir' => 'ltr');
 
@@ -3766,7 +3766,7 @@ function form_process_fieldset(&$element, &$form_state) {
   // The .form-wrapper class is required for #states to treat fieldsets like
   // containers.
   if (!isset($element['#attributes']['class'])) {
-    $element['#attributes']['class'] = array();
+    $element['#attributes']['class'] = [];
   }
 
   // Collapsible fieldsets
@@ -3854,7 +3854,7 @@ function form_process_vertical_tabs($element, &$form_state) {
   // this fieldset like any other fieldset.
   $element['group'] = array(
     '#type' => 'fieldset',
-    '#theme_wrappers' => array(),
+    '#theme_wrappers' => [],
     '#parents' => $element['#parents'],
   );
 
@@ -3988,7 +3988,7 @@ function theme_hidden($variables) {
  *   The processed form element.
  */
 function form_process_autocomplete($element) {
-  $element['#autocomplete_input'] = array();
+  $element['#autocomplete_input'] = [];
   if ($element['#autocomplete_path'] && drupal_valid_path($element['#autocomplete_path'])) {
     $element['#autocomplete_input']['#id'] = $element['#id'] .'-autocomplete';
     // Force autocomplete to use non-clean URLs since this protects against the
@@ -4028,7 +4028,7 @@ function theme_textfield($variables) {
     drupal_add_library('system', 'drupal.autocomplete');
     $element['#attributes']['class'][] = 'form-autocomplete';
 
-    $attributes = array();
+    $attributes = [];
     $attributes['type'] = 'hidden';
     $attributes['id'] = $element['#autocomplete_input']['#id'];
     $attributes['value'] = $element['#autocomplete_input']['#url_value'];
@@ -4124,10 +4124,10 @@ function form_process_weight($element) {
   $element['#is_weight'] = TRUE;
 
   // If the number of options is small enough, use a select field.
-  $max_elements = variable_get('drupal_weight_select_max', DRUPAL_WEIGHT_SELECT_MAX);
+  $max_elements = $bootstrap->variable_get('drupal_weight_select_max', DRUPAL_WEIGHT_SELECT_MAX);
   if ($element['#delta'] <= $max_elements) {
     $element['#type'] = 'select';
-    $weights = array();
+    $weights = [];
     for ($n = (-1 * $element['#delta']); $n <= $element['#delta']; $n++) {
       $weights[$n] = $n;
     }
@@ -4341,7 +4341,7 @@ function theme_form_element_label($variables) {
 
   $title = filter_xss_admin($element['#title']);
 
-  $attributes = array();
+  $attributes = [];
   // Style the label as class option to display inline with the element.
   if ($element['#title_display'] == 'after') {
     $attributes['class'] = 'option';
@@ -4369,10 +4369,10 @@ function theme_form_element_label($variables) {
  * @param $name
  *   Array of new class names to be added.
  */
-function _form_set_class(&$element, $class = array()) {
+function _form_set_class(&$element, $class = []) {
   if (!empty($class)) {
     if (!isset($element['#attributes']['class'])) {
-      $element['#attributes']['class'] = array();
+      $element['#attributes']['class'] = [];
     }
     $element['#attributes']['class'] = array_merge($element['#attributes']['class'], $class);
   }
@@ -4441,7 +4441,7 @@ function element_validate_number($element, &$form_state) {
  *   'title' => t('Exporting'),
  *   'operations' => array(
  *     array('my_function_1', array($account->uid, 'story')),
- *     array('my_function_2', array()),
+ *     array('my_function_2', []),
  *   ),
  *   'finished' => 'my_finished_callback',
  *   'file' => 'path_to_file_containing_myfunctions',
@@ -4588,7 +4588,7 @@ function batch_set($batch_definition) {
     // Initialize the batch if needed.
     if (empty($batch)) {
       $batch = array(
-        'sets' => array(),
+        'sets' => [],
         'has_form_submits' => FALSE,
       );
     }
@@ -4597,8 +4597,8 @@ function batch_set($batch_definition) {
     // Use get_t() to allow batches during installation.
     $t = get_t();
     $init = array(
-      'sandbox' => array(),
-      'results' => array(),
+      'sandbox' => [],
+      'results' => [],
       'success' => FALSE,
       'start' => 0,
       'elapsed' => 0,
@@ -4608,7 +4608,7 @@ function batch_set($batch_definition) {
       'init_message' => $t('Initializing.'),
       'progress_message' => $t('Completed @current of @total.'),
       'error_message' => $t('An error has occurred.'),
-      'css' => array(),
+      'css' => [],
     );
     $batch_set = $init + $batch_definition + $defaults;
 
@@ -4670,7 +4670,7 @@ function batch_process($redirect = NULL, $url = 'batch', $redirect_callback = 'd
       'current_set' => 0,
       'progressive' => TRUE,
       'url' => $url,
-      'url_options' => array(),
+      'url_options' => [],
       'source_url' => $_GET['q'],
       'redirect' => $redirect,
       'theme' => $GLOBALS['theme_key'],
@@ -4745,7 +4745,7 @@ function &batch_get() {
   // that are part of the Batch API and need to reset the batch information may
   // call batch_get() and manipulate the result by reference. Functions that are
   // not part of the Batch API can also do this, but shouldn't.
-  static $batch = array();
+  static $batch = [];
   return $batch;
 }
 
@@ -4799,7 +4799,7 @@ function _batch_queue($batch_set) {
   // The class autoloader is not available when running update.php, so make
   // sure the files are manually included.
   if (!isset($queues)) {
-    $queues = array();
+    $queues = [];
     require_once DRUPAL_ROOT . '/modules/system/system.queue.inc';
     require_once DRUPAL_ROOT . '/includes/batch.queue.inc';
   }

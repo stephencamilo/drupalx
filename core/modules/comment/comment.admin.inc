@@ -80,7 +80,7 @@ function comment_admin_overview($form, &$form_state, $arg) {
     ->orderByHeader($header)
     ->execute();
 
-  $cids = array();
+  $cids = [];
 
   // We collect a sorted list of node_titles during the query to attach to the
   // comments later.
@@ -91,7 +91,7 @@ function comment_admin_overview($form, &$form_state, $arg) {
   $comments = comment_load_multiple($cids);
 
   // Build a table listing the appropriate comments.
-  $options = array();
+  $options = [];
   $destination = drupal_get_destination();
 
   foreach ($comments as $comment) {

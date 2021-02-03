@@ -15,7 +15,7 @@ function field_test_entity_info() {
     field_info_cache_clear();
   }
 
-  $bundles = variable_get('field_test_bundles', array('test_bundle' => array('label' => 'Test Bundle')));
+  $bundles = $bootstrap->variable_get('field_test_bundles', array('test_bundle' => array('label' => 'Test Bundle')));
   $test_entity_modes = array(
     'full' => array(
       'label' => t('Full object'),
@@ -145,7 +145,7 @@ function field_test_entity_info_alter(&$entity_info) {
  */
 function field_test_entity_info_translatable($entity_type = NULL, $translatable = NULL) {
   drupal_static_reset('field_has_translation_handler');
-  $stored_value = &drupal_static(__FUNCTION__, array());
+  $stored_value = &drupal_static(__FUNCTION__, []);
   if (isset($entity_type)) {
     $stored_value[$entity_type] = $translatable;
     entity_info_cache_clear();
@@ -163,7 +163,7 @@ function field_test_entity_info_translatable($entity_type = NULL, $translatable 
  *   name will be used.
  */
 function field_test_create_bundle($bundle, $text = NULL) {
-  $bundles = variable_get('field_test_bundles', array('test_bundle' => array('label' => 'Test Bundle')));
+  $bundles = $bootstrap->variable_get('field_test_bundles', array('test_bundle' => array('label' => 'Test Bundle')));
   $bundles += array($bundle => array('label' => $text ? $text : $bundle));
   variable_set('field_test_bundles', $bundles);
 
@@ -182,7 +182,7 @@ function field_test_create_bundle($bundle, $text = NULL) {
  *   The new machine-readable name of the bundle.
  */
 function field_test_rename_bundle($bundle_old, $bundle_new) {
-  $bundles = variable_get('field_test_bundles', array('test_bundle' => array('label' => 'Test Bundle')));
+  $bundles = $bootstrap->variable_get('field_test_bundles', array('test_bundle' => array('label' => 'Test Bundle')));
   $bundles[$bundle_new] = $bundles[$bundle_old];
   unset($bundles[$bundle_old]);
   variable_set('field_test_bundles', $bundles);
@@ -200,7 +200,7 @@ function field_test_rename_bundle($bundle_old, $bundle_new) {
  *   The machine-readable name of the bundle to delete.
  */
 function field_test_delete_bundle($bundle) {
-  $bundles = variable_get('field_test_bundles', array('test_bundle' => array('label' => 'Test Bundle')));
+  $bundles = $bootstrap->variable_get('field_test_bundles', array('test_bundle' => array('label' => 'Test Bundle')));
   unset($bundles[$bundle]);
   variable_set('field_test_bundles', $bundles);
 
@@ -243,7 +243,7 @@ function field_test_create_stub_entity($id = 1, $vid = 1, $bundle = 'test_bundle
  */
 function field_test_entity_test_load($ftid, $ftvid = NULL) {
   // Load basic strucure.
-  $query = db_select('test_entity', 'fte', array())
+  $query = db_select('test_entity', 'fte', [])
     ->condition('fte.ftid', $ftid);
 
   if ($ftvid) {

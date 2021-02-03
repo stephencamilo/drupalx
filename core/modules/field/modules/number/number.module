@@ -54,7 +54,7 @@ function number_field_info() {
  */
 function number_field_settings_form($field, $instance, $has_data) {
   $settings = $field['settings'];
-  $form = array();
+  $form = [];
 
   if ($field['type'] == 'number_decimal') {
     $form['precision'] = array(
@@ -231,7 +231,7 @@ function number_field_formatter_settings_form($field, $instance, $view_mode, $fo
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
-  $element = array();
+  $element = [];
 
   if ($display['type'] == 'number_decimal' || $display['type'] == 'number_integer') {
     $options = array(
@@ -280,7 +280,7 @@ function number_field_formatter_settings_summary($field, $instance, $view_mode) 
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
-  $summary = array();
+  $summary = [];
   if ($display['type'] == 'number_decimal' || $display['type'] == 'number_integer') {
     $summary[] = number_format(1234.1234567890, $settings['scale'], $settings['decimal_separator'], $settings['thousand_separator']);
     if ($settings['prefix_suffix']) {
@@ -295,7 +295,7 @@ function number_field_formatter_settings_summary($field, $instance, $view_mode) 
  * Implements hook_field_formatter_view().
  */
 function number_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
+  $element = [];
   $settings = $display['settings'];
 
   switch ($display['type']) {

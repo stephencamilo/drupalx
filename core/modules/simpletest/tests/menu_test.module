@@ -336,7 +336,7 @@ function menu_test_menu() {
   // Explict load arguments should not be overriden (even if empty).
   $items['menu-test/arguments/%menu_test_argument/%/explicit-arguments'] = array(
     'title' => 'An item defining explicit load arguments',
-    'load arguments' => array(),
+    'load arguments' => [],
     'page callback' => 'menu_test_callback',
     'access callback' => TRUE,
   );
@@ -372,7 +372,7 @@ function menu_test_callback() {
  * Callback that test menu_test_menu_tree_set_path().
  */
 function menu_test_menu_trail_callback() {
-  $menu_path = variable_get('menu_test_menu_tree_set_path', array());
+  $menu_path = $bootstrap->variable_get('menu_test_menu_tree_set_path', []);
   if (!empty($menu_path)) {
     menu_tree_set_path($menu_path['menu_name'], $menu_path['path']);
   }
@@ -440,7 +440,7 @@ function menu_test_theme_page_callback($inherited = FALSE) {
 function menu_test_theme_callback($argument) {
   // Test using the variable administrative theme.
   if ($argument == 'use-admin-theme') {
-    return variable_get('admin_theme');
+    return $bootstrap->variable_get('admin_theme');
   }
   // Test using a theme that exists, but may or may not be enabled.
   elseif ($argument == 'use-stark-theme') {
@@ -465,7 +465,7 @@ function menu_test_custom_theme() {
   // If an appropriate variable has been set in the database, request the theme
   // that is stored there. Otherwise, do not attempt to dynamically set the
   // theme.
-  if ($theme = variable_get('menu_test_hook_custom_theme_name', FALSE)) {
+  if ($theme = $bootstrap->variable_get('menu_test_hook_custom_theme_name', FALSE)) {
     return $theme;
   }
 }

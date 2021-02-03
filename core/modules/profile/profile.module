@@ -55,11 +55,11 @@ function profile_help($path, $arg) {
 function profile_theme() {
   return array(
     'profile_block' => array(
-      'variables' => array('account' => NULL, 'fields' => array()),
+      'variables' => array('account' => NULL, 'fields' => []),
       'template' => 'profile-block',
     ),
     'profile_listing' => array(
-      'variables' => array('account' => NULL, 'fields' => array()),
+      'variables' => array('account' => NULL, 'fields' => []),
       'template' => 'profile-listing',
     ),
     'profile_wrapper' => array(
@@ -147,7 +147,7 @@ function profile_menu() {
  */
 function profile_block_configure($delta = '') {
   // Compile a list of fields to show
-  $fields = array();
+  $fields = [];
   $result = db_query('SELECT name, title, weight, visibility FROM {profile_field} WHERE visibility IN (:visibility) ORDER BY weight', array(':visibility' => array(PROFILE_PUBLIC, PROFILE_PUBLIC_LISTINGS)));
   foreach ($result as $record) {
     $fields[$record->name] = check_plain($record->title);
@@ -156,7 +156,7 @@ function profile_block_configure($delta = '') {
   $form['profile_block_author_fields'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Profile fields to display'),
-    '#default_value' => variable_get('profile_block_author_fields', array()),
+    '#default_value' => $bootstrap->variable_get('profile_block_author_fields', []),
     '#options' => $fields,
     '#description' => t('Select which profile fields you wish to display in the block. Only fields designated as public in the <a href="@profile-admin">profile field configuration</a> are available.', array('@profile-admin' => url('admin/config/people/profile'))),
   );
@@ -166,7 +166,7 @@ function profile_block_configure($delta = '') {
 /**
  * Implements hook_block_save().
  */
-function profile_block_save($delta = '', $edit = array()) {
+function profile_block_save($delta = '', $edit = []) {
   variable_set('profile_block_author_fields', $edit['profile_block_author_fields']);
 }
 
@@ -180,9 +180,9 @@ function profile_block_view($delta = '') {
       $node = node_load(arg(1));
       $account = user_load($node->uid);
 
-      if ($use_fields = variable_get('profile_block_author_fields', array())) {
+      if ($use_fields = $bootstrap->variable_get('profile_block_author_fields', [])) {
         // Compile a list of fields to show.
-        $fields = array();
+        $fields = [];
         $result = db_query('SELECT * FROM {profile_field} WHERE visibility IN (:visibility) ORDER BY weight', array(':visibility' => array(PROFILE_PUBLIC, PROFILE_PUBLIC_LISTINGS)));
         foreach ($result as $record) {
           // Ensure that field is displayed only if it is among the defined block fields and, if it is private, the user has appropriate permissions.
@@ -311,7 +311,7 @@ function profile_view_field($account, $field) {
         return strtr($format, $replace);
       case 'list':
         $values = preg_split("/[,\n\r]/", $value);
-        $fields = array();
+        $fields = [];
         foreach ($values as $value) {
           if ($value = trim($value)) {
             $fields[] = $browse ? l($value, 'profile/' . $field->name . '/' . $value) : check_plain($value);
@@ -334,7 +334,7 @@ function profile_user_view($account) {
     $result = db_query('SELECT * FROM {profile_field} WHERE visibility <> :private AND visibility <> :hidden ORDER BY category, weight', array(':private' => PROFILE_PRIVATE, ':hidden' => PROFILE_HIDDEN));
   }
 
-  $fields = array();
+  $fields = [];
   foreach ($result as $field) {
     if ($value = profile_view_field($account, $field)) {
       $title = ($field->type != 'checkbox') ? check_plain($field->title) : NULL;
@@ -435,7 +435,7 @@ function profile_form_alter(&$form, &$form_state, $form_id) {
         break;
 
       case 'selection':
-        $options = array();
+        $options = [];
         $lines = preg_split("/[\n\r]/", $field->options);
         foreach ($lines as $line) {
           if ($line = trim($line)) {
@@ -500,7 +500,7 @@ function profile_user_form_validate($form, &$form_state) {
  */
 function profile_user_categories() {
   $result = db_query("SELECT DISTINCT(category) FROM {profile_field}");
-  $data = array();
+  $data = [];
   foreach ($result as $category) {
     $data[] = array(
       'name' => $category->category,
@@ -541,7 +541,7 @@ function profile_category_access($account, $category) {
 function template_preprocess_profile_block(&$variables) {
 
   $variables['user_picture'] = theme('user_picture', array('account' => $variables['account']));
-  $variables['profile'] = array();
+  $variables['profile'] = [];
   // Supply filtered version of $fields that have values.
   foreach ($variables['fields'] as $field) {
     if ($field->value) {
@@ -567,7 +567,7 @@ function template_preprocess_profile_listing(&$variables) {
 
   $variables['user_picture'] = theme('user_picture', array('account' => $variables['account']));
   $variables['name'] = theme('username', array('account' => $variables['account']));
-  $variables['profile'] = array();
+  $variables['profile'] = [];
   // Supply filtered version of $fields that have values.
   foreach ($variables['fields'] as $field) {
     if ($field->value) {

@@ -326,10 +326,10 @@ define('MENU_PREFERRED_LINK', '1cf698d64d1aa4b83907cf6ed55db3a7f8e92c91');
  */
 function menu_get_ancestors($parts) {
   $number_parts = count($parts);
-  $ancestors = array();
+  $ancestors = [];
   $length =  $number_parts - 1;
   $end = (1 << $number_parts) - 1;
-  $masks = variable_get('menu_masks');
+  $masks = $bootstrap->variable_get('menu_masks');
   // If the optimized menu_masks array is not available use brute force to get
   // the correct $ancestors and $placeholders returned. Do not use this as the
   // default value of the menu_masks variable to avoid building such a big
@@ -413,7 +413,7 @@ function menu_unserialize($data, $map) {
     return $data;
   }
   else {
-    return array();
+    return [];
   }
 }
 
@@ -463,7 +463,7 @@ function menu_get_item($path = NULL, $router_item = NULL) {
   if (!isset($router_items[$path])) {
     // Rebuild if we know it's needed, or if the menu masks are missing which
     // occurs rarely, likely due to a race condition of multiple rebuilds.
-    if (variable_get('menu_rebuild_needed', FALSE) || !variable_get('menu_masks', array())) {
+    if (variable_get('menu_rebuild_needed', FALSE) || !variable_get('menu_masks', [])) {
       if (_menu_check_rebuild()) {
         menu_rebuild();
       }
@@ -797,7 +797,7 @@ function _menu_translate(&$router_item, $map, $to_arg = FALSE) {
   $router_item['href'] = implode('/', $link_map);
   $router_item['tab_root_href'] = implode('/', $tab_root_map);
   $router_item['tab_parent_href'] = implode('/', $tab_parent_map);
-  $router_item['options'] = array();
+  $router_item['options'] = [];
   _menu_check_access($router_item, $map);
 
   // For performance, don't localize an item the user can't access.
@@ -884,7 +884,7 @@ function _menu_link_translate(&$item, $translate = FALSE) {
   }
   if ($item['external']) {
     $item['access'] = 1;
-    $map = array();
+    $map = [];
     $item['href'] = $item['link_path'];
     $item['title'] = $item['link_title'];
     $item['localized_options'] = $item['options'];
@@ -1001,7 +1001,7 @@ function menu_get_object($type = 'node', $position = 1, $path = NULL) {
  *   be rendered by drupal_render().
  */
 function menu_tree($menu_name) {
-  $menu_output = &drupal_static(__FUNCTION__, array());
+  $menu_output = &drupal_static(__FUNCTION__, []);
 
   if (!isset($menu_output[$menu_name])) {
     $tree = menu_tree_page_data($menu_name);
@@ -1025,8 +1025,8 @@ function menu_tree($menu_name) {
  *   A structured array to be rendered by drupal_render().
  */
 function menu_tree_output($tree) {
-  $build = array();
-  $items = array();
+  $build = [];
+  $items = [];
 
   // Pull out just the menu links we are going to render so that we
   // get an accurate count for the first/last classes.
@@ -1039,7 +1039,7 @@ function menu_tree_output($tree) {
   $router_item = menu_get_item();
   $num_items = count($items);
   foreach ($items as $i => $data) {
-    $class = array();
+    $class = [];
     if ($i == 0) {
       $class[] = 'first';
     }
@@ -1076,7 +1076,7 @@ function menu_tree_output($tree) {
     $element['#attributes']['class'] = $class;
     $element['#title'] = $data['link']['title'];
     $element['#href'] = $data['link']['href'];
-    $element['#localized_options'] = !empty($data['link']['localized_options']) ? $data['link']['localized_options'] : array();
+    $element['#localized_options'] = !empty($data['link']['localized_options']) ? $data['link']['localized_options'] : [];
     $element['#below'] = $data['below'] ? menu_tree_output($data['below']) : $data['below'];
     $element['#original_link'] = $data['link'];
     // Index using the link's unique mlid.
@@ -1114,7 +1114,7 @@ function menu_tree_output($tree) {
  *   An tree of menu links in an array, in the order they should be rendered.
  */
 function menu_tree_all_data($menu_name, $link = NULL, $max_depth = NULL) {
-  $tree = &drupal_static(__FUNCTION__, array());
+  $tree = &drupal_static(__FUNCTION__, []);
 
   // Use $mlid as a flag for whether the data being loaded is for the whole tree.
   $mlid = isset($link['mlid']) ? $link['mlid'] : 0;
@@ -1223,7 +1223,7 @@ function menu_tree_get_path($menu_name) {
  *   same structure described for the top-level array.
  */
 function menu_tree_page_data($menu_name, $max_depth = NULL, $only_active_trail = FALSE) {
-  $tree = &drupal_static(__FUNCTION__, array());
+  $tree = &drupal_static(__FUNCTION__, []);
 
   // Check if the active trail has been overridden for this menu tree.
   $active_path = menu_tree_get_path($menu_name);
@@ -1291,7 +1291,7 @@ function menu_tree_page_data($menu_name, $max_depth = NULL, $only_active_trail =
           }
           $parents = $active_trail;
 
-          $expanded = variable_get('menu_expanded', array());
+          $expanded = $bootstrap->variable_get('menu_expanded', []);
           // Check whether the current menu has any links set to be expanded.
           if (!$only_active_trail && in_array($menu_name, $expanded)) {
             // Collect all the links set to be expanded, and then add all of
@@ -1331,7 +1331,7 @@ function menu_tree_page_data($menu_name, $max_depth = NULL, $only_active_trail =
     return $tree[$cid];
   }
 
-  return array();
+  return [];
 }
 
 /**
@@ -1359,7 +1359,7 @@ function menu_tree_page_data($menu_name, $max_depth = NULL, $only_active_trail =
  * @return
  *   A fully built menu tree.
  */
-function menu_build_tree($menu_name, array $parameters = array()) {
+function menu_build_tree($menu_name, array $parameters = []) {
   // Build the menu tree.
   $data = _menu_build_tree($menu_name, $parameters);
   // Check access for the current user to each item in the tree.
@@ -1376,9 +1376,9 @@ function menu_build_tree($menu_name, array $parameters = array()) {
  *
  * @see menu_build_tree()
  */
-function _menu_build_tree($menu_name, array $parameters = array()) {
+function _menu_build_tree($menu_name, array $parameters = []) {
   // Static cache of already built menu trees.
-  $trees = &drupal_static(__FUNCTION__, array());
+  $trees = &drupal_static(__FUNCTION__, []);
 
   // Build the cache id; sort parents to prevent duplicate storage and remove
   // default parameter values.
@@ -1446,13 +1446,13 @@ function _menu_build_tree($menu_name, array $parameters = array()) {
     }
 
     // Build an ordered array of links using the query result object.
-    $links = array();
+    $links = [];
     foreach ($query->execute() as $item) {
       $links[] = $item;
     }
-    $active_trail = (isset($parameters['active_trail']) ? $parameters['active_trail'] : array());
+    $active_trail = (isset($parameters['active_trail']) ? $parameters['active_trail'] : []);
     $data['tree'] = menu_tree_data($links, $active_trail, $min_depth);
-    $data['node_links'] = array();
+    $data['node_links'] = [];
     menu_tree_collect_node_links($data['tree'], $data['node_links']);
 
     // Cache the data, if it is not already in the cache.
@@ -1495,7 +1495,7 @@ function menu_tree_collect_node_links(&$tree, &$node_links) {
  *   A collection of node link references generated from $tree by
  *   menu_tree_collect_node_links().
  */
-function menu_tree_check_access(&$tree, $node_links = array()) {
+function menu_tree_check_access(&$tree, $node_links = []) {
   if ($node_links && (user_access('access content') || user_access('bypass node access'))) {
     $nids = array_keys($node_links);
     $select = db_select('node', 'n');
@@ -1517,7 +1517,7 @@ function menu_tree_check_access(&$tree, $node_links = array()) {
  * Sorts the menu tree and recursively checks access for each item.
  */
 function _menu_tree_check_access(&$tree) {
-  $new_tree = array();
+  $new_tree = [];
   foreach ($tree as $key => $v) {
     $item = &$tree[$key]['link'];
     _menu_link_translate($item);
@@ -1562,7 +1562,7 @@ function _menu_tree_check_access(&$tree) {
  *     empty if the menu item has no items in its sub-tree having a depth
  *     greater than or equal to $depth.
  */
-function menu_tree_data(array $links, array $parents = array(), $depth = 1) {
+function menu_tree_data(array $links, array $parents = [], $depth = 1) {
   // Reverse the array so we can use the more efficient array_pop() function.
   $links = array_reverse($links);
   return _menu_tree_data($links, $parents, $depth);
@@ -1575,7 +1575,7 @@ function menu_tree_data(array $links, array $parents = array(), $depth = 1) {
  * the next menu link.
  */
 function _menu_tree_data(&$links, $parents, $depth) {
-  $tree = array();
+  $tree = [];
   while ($item = array_pop($links)) {
     // We need to determine if we're on the path to root so we can later build
     // the correct active trail and breadcrumb.
@@ -1583,7 +1583,7 @@ function _menu_tree_data(&$links, $parents, $depth) {
     // Add the current link to the tree.
     $tree[$item['mlid']] = array(
       'link' => $item,
-      'below' => array(),
+      'below' => [],
     );
     // Look ahead to the next link, but leave it on the array so it's available
     // to other recursive function calls if we return or build a sub-tree.
@@ -1693,7 +1693,7 @@ function theme_menu_local_action($variables) {
 
   $output = '<li>';
   if (isset($link['href'])) {
-    $output .= l($link['title'], $link['href'], isset($link['localized_options']) ? $link['localized_options'] : array());
+    $output .= l($link['title'], $link['href'], isset($link['localized_options']) ? $link['localized_options'] : []);
   }
   elseif (!empty($link['localized_options']['html'])) {
     $output .= $link['title'];
@@ -1709,7 +1709,7 @@ function theme_menu_local_action($variables) {
 /**
  * Generates elements for the $arg array in the help hook.
  */
-function drupal_help_arg($arg = array()) {
+function drupal_help_arg($arg = []) {
   // Note - the number of empty elements should be > MENU_MAX_PARTS.
   return $arg + array('', '', '', '', '', '', '', '', '', '', '', '');
 }
@@ -1824,7 +1824,7 @@ function menu_secondary_menu() {
 
   // If the secondary menu source is set as the primary menu, we display the
   // second level of the primary menu.
-  if (variable_get('menu_secondary_links_source', 'user-menu') == variable_get('menu_main_links_source', 'main-menu')) {
+  if (variable_get('menu_secondary_links_source', 'user-menu') == $bootstrap->variable_get('menu_main_links_source', 'main-menu')) {
     return menu_navigation_links(variable_get('menu_main_links_source', 'main-menu'), 1);
   }
   else {
@@ -1846,7 +1846,7 @@ function menu_secondary_menu() {
 function menu_navigation_links($menu_name, $level = 0) {
   // Don't even bother querying the menu table if no menu is specified.
   if (empty($menu_name)) {
-    return array();
+    return [];
   }
 
   // Get the menu hierarchy for the current page.
@@ -1858,7 +1858,7 @@ function menu_navigation_links($menu_name, $level = 0) {
     while ($item = array_shift($tree)) {
       if ($item['link']['in_active_trail']) {
         // If the item is in the active trail, we continue in the subtree.
-        $tree = empty($item['below']) ? array() : $item['below'];
+        $tree = empty($item['below']) ? [] : $item['below'];
         break;
       }
     }
@@ -1866,7 +1866,7 @@ function menu_navigation_links($menu_name, $level = 0) {
 
   // Create a single level of links.
   $router_item = menu_get_item();
-  $links = array();
+  $links = [];
   foreach ($tree as $item) {
     if (!$item['link']['hidden']) {
       $class = '';
@@ -1912,16 +1912,16 @@ function menu_local_tasks($level = 0) {
   $data = &drupal_static(__FUNCTION__);
   $root_path = &drupal_static(__FUNCTION__ . ':root_path', '');
   $empty = array(
-    'tabs' => array('count' => 0, 'output' => array()),
-    'actions' => array('count' => 0, 'output' => array()),
+    'tabs' => array('count' => 0, 'output' => []),
+    'actions' => array('count' => 0, 'output' => []),
     'root_path' => &$root_path,
   );
 
   if (!isset($data)) {
-    $data = array();
+    $data = [];
     // Set defaults in case there are no actions or tabs.
     $actions = $empty['actions'];
-    $tabs = array();
+    $tabs = [];
 
     $router_item = menu_get_item();
 
@@ -1954,8 +1954,8 @@ function menu_local_tasks($level = 0) {
       cache_set($cid, $result, 'cache_menu');
     }
     $map = $router_item['original_map'];
-    $children = array();
-    $tasks = array();
+    $children = [];
+    $tasks = [];
     $root_path = $router_item['path'];
 
     foreach ($result as $item) {
@@ -1974,10 +1974,10 @@ function menu_local_tasks($level = 0) {
     // equal the depth. Thus we use the $depth counter (offset by 1000 for ksort).
     $depth = 1001;
     $actions['count'] = 0;
-    $actions['output'] = array();
+    $actions['output'] = [];
     while (isset($children[$path])) {
-      $tabs_current = array();
-      $actions_current = array();
+      $tabs_current = [];
+      $actions_current = [];
       $next_path = '';
       $tab_count = 0;
       $action_count = 0;
@@ -2051,7 +2051,7 @@ function menu_local_tasks($level = 0) {
     $current = $router_item;
     $depth = 1000;
     while (isset($children[$parent])) {
-      $tabs_current = array();
+      $tabs_current = [];
       $next_path = '';
       $next_parent = '';
       $count = 0;
@@ -2169,9 +2169,9 @@ function menu_local_tasks($level = 0) {
  * @see hook_menu()
  */
 function menu_contextual_links($module, $parent_path, $args) {
-  static $path_empty = array();
+  static $path_empty = [];
 
-  $links = array();
+  $links = [];
   // Performance: In case a previous invocation for the same parent path did not
   // return any links, we immediately return here.
   if (isset($path_empty[$parent_path]) && strpos($parent_path, '%') !== FALSE) {
@@ -2186,7 +2186,7 @@ function menu_contextual_links($module, $parent_path, $args) {
     $path_empty[$parent_path] = TRUE;
     return $links;
   }
-  $data = &drupal_static(__FUNCTION__, array());
+  $data = &drupal_static(__FUNCTION__, []);
   $root_path = $router_item['path'];
 
   // Performance: For a single, normalized path (such as 'node/%') we only query
@@ -2327,7 +2327,7 @@ function menu_set_active_menu_names($menu_names = NULL) {
     $active = $menu_names;
   }
   elseif (!isset($active)) {
-    $active = variable_get('menu_default_active_menus', array_keys(menu_list_system_menus()));
+    $active = $bootstrap->variable_get('menu_default_active_menus', array_keys(menu_list_system_menus()));
   }
   return $active;
 }
@@ -2383,12 +2383,12 @@ function menu_set_active_trail($new_trail = NULL) {
     $trail = $new_trail;
   }
   elseif (!isset($trail)) {
-    $trail = array();
+    $trail = [];
     $trail[] = array(
       'title' => t('Home'),
       'href' => '<front>',
       'link_path' => '',
-      'localized_options' => array(),
+      'localized_options' => [],
       'type' => 0,
     );
 
@@ -2432,7 +2432,7 @@ function menu_set_active_trail($new_trail = NULL) {
             $trail[] = $link;
           }
         }
-        $tree = $curr['below'] ? $curr['below'] : array();
+        $tree = $curr['below'] ? $curr['below'] : [];
       }
       $curr = current($tree);
       next($tree);
@@ -2486,7 +2486,7 @@ function menu_link_get_preferred($path = NULL, $selected_menu = NULL) {
     if ($item === FALSE) {
       return FALSE;
     }
-    $path_candidates = array();
+    $path_candidates = [];
     // 1. The current item href.
     $path_candidates[$item['href']] = $item['href'];
     // 2. The tab root href of the current item (if any).
@@ -2515,7 +2515,7 @@ function menu_link_get_preferred($path = NULL, $selected_menu = NULL) {
     $query->addTag('preferred_menu_links');
 
     // Sort candidates by link path and menu name.
-    $candidates = array();
+    $candidates = [];
     foreach ($query->execute() as $candidate) {
       $candidate['weight'] = $candidate['link_weight'];
       $candidates[$candidate['link_path']][$candidate['menu_name']] = $candidate;
@@ -2578,7 +2578,7 @@ function menu_get_active_trail() {
  * @see menu_set_active_trail()
  */
 function menu_get_active_breadcrumb() {
-  $breadcrumb = array();
+  $breadcrumb = [];
 
   // No breadcrumb for the front page.
   if (drupal_is_front_page()) {
@@ -2692,7 +2692,7 @@ function menu_link_load($mlid) {
  * Clears the cached data for a single named menu.
  */
 function menu_cache_clear($menu_name = 'navigation') {
-  $cache_cleared = &drupal_static(__FUNCTION__, array());
+  $cache_cleared = &drupal_static(__FUNCTION__, []);
 
   if (empty($cache_cleared[$menu_name])) {
     cache_clear_all('links:' . $menu_name . ':', 'cache_menu', TRUE);
@@ -2814,7 +2814,7 @@ function menu_rebuild() {
 function menu_router_build() {
   // We need to manually call each module so that we can know which module
   // a given item came from.
-  $callbacks = array();
+  $callbacks = [];
   foreach (module_implements('menu') as $module) {
     $router_items = call_user_func($module . '_menu');
     if (isset($router_items) && is_array($router_items)) {
@@ -2876,7 +2876,7 @@ function _menu_link_build($item) {
     'link_title' => $item['title'],
     'link_path' => $item['path'],
     'hidden' => 0,
-    'options' => empty($item['description']) ? array() : array('attributes' => array('title' => $item['description'])),
+    'options' => empty($item['description']) ? [] : array('attributes' => array('title' => $item['description'])),
   );
   return $item;
 }
@@ -2886,7 +2886,7 @@ function _menu_link_build($item) {
  */
 function _menu_navigation_links_rebuild($menu) {
   // Add normal and suggested items as links.
-  $menu_links = array();
+  $menu_links = [];
   foreach ($menu as $path => $item) {
     if ($item['_visible']) {
       $menu_links[$path] = $item;
@@ -2896,7 +2896,7 @@ function _menu_navigation_links_rebuild($menu) {
   if ($menu_links) {
     // Keep an array of processed menu links, to allow menu_link_save() to
     // check this for parents instead of querying the database.
-    $parent_candidates = array();
+    $parent_candidates = [];
     // Make sure no child comes before its parent.
     array_multisort($sort, SORT_NUMERIC, $menu_links);
 
@@ -3138,7 +3138,7 @@ function _menu_delete_item($item, $force = FALSE) {
  *   The mlid of the saved menu link, or FALSE if the menu link could not be
  *   saved.
  */
-function menu_link_save(&$item, $existing_item = array(), $parent_candidates = array()) {
+function menu_link_save(&$item, $existing_item = [], $parent_candidates = []) {
   drupal_alter('menu_link', $item);
 
   // This is the easiest way to handle the unique internal path '<front>',
@@ -3152,7 +3152,7 @@ function menu_link_save(&$item, $existing_item = array(), $parent_candidates = a
     'hidden' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'options' => array(),
+    'options' => [],
     'module' => 'menu',
     'customized' => 0,
     'updated' => 0,
@@ -3311,7 +3311,7 @@ function menu_link_save(&$item, $existing_item = array(), $parent_candidates = a
  *   A menu link structure of the possible parent or FALSE if no valid parent
  *   has been found.
  */
-function _menu_link_find_parent($menu_link, $parent_candidates = array()) {
+function _menu_link_find_parent($menu_link, $parent_candidates = []) {
   $parent = FALSE;
 
   // This item is explicitely top-level, skip the rest of the parenting.
@@ -3320,7 +3320,7 @@ function _menu_link_find_parent($menu_link, $parent_candidates = array()) {
   }
 
   // If we have a parent link ID, try to use that.
-  $candidates = array();
+  $candidates = [];
   if (isset($menu_link['plid'])) {
     $candidates[] = $menu_link['plid'];
   }
@@ -3527,16 +3527,16 @@ function _menu_link_move_children($item, $existing_item) {
   $query->fields(array('menu_name' => $item['menu_name']));
 
   $p = 'p1';
-  $expressions = array();
+  $expressions = [];
   for ($i = 1; $i <= $item['depth']; $p = 'p' . ++$i) {
     $expressions[] = array($p, ":p_$i", array(":p_$i" => $item[$p]));
   }
   $j = $existing_item['depth'] + 1;
   while ($i <= MENU_MAX_DEPTH && $j <= MENU_MAX_DEPTH) {
-    $expressions[] = array('p' . $i++, 'p' . $j++, array());
+    $expressions[] = array('p' . $i++, 'p' . $j++, []);
   }
   while ($i <= MENU_MAX_DEPTH) {
-    $expressions[] = array('p' . $i++, 0, array());
+    $expressions[] = array('p' . $i++, 0, []);
   }
 
   $shift = $item['depth'] - $existing_item['depth'];
@@ -3612,11 +3612,11 @@ function _menu_link_parents_set(&$item, $parent) {
 function _menu_router_build($callbacks) {
   // First pass: separate callbacks from paths, making paths ready for
   // matching. Calculate fitness, and fill some default values.
-  $menu = array();
-  $masks = array();
+  $menu = [];
+  $masks = [];
   foreach ($callbacks as $path => $item) {
-    $load_functions = array();
-    $to_arg_functions = array();
+    $load_functions = [];
+    $to_arg_functions = [];
     $fit = 0;
     $move = FALSE;
 
@@ -3799,14 +3799,14 @@ function _menu_router_build($callbacks) {
 
     $item['load_functions'] = empty($item['_load_functions']) ? '' : serialize($item['_load_functions']);
     $item += array(
-      'access arguments' => array(),
+      'access arguments' => [],
       'access callback' => '',
-      'page arguments' => array(),
+      'page arguments' => [],
       'page callback' => '',
       'delivery callback' => '',
-      'title arguments' => array(),
+      'title arguments' => [],
       'title callback' => 't',
-      'theme arguments' => array(),
+      'theme arguments' => [],
       'theme callback' => '',
       'description' => '',
       'position' => '',

@@ -48,7 +48,7 @@ function ajax_test_system_theme_info() {
  */
 function ajax_test_render() {
   drupal_add_js(array('ajax' => 'test'), 'setting');
-  return array('#type' => 'ajax', '#commands' => array());
+  return array('#type' => 'ajax', '#commands' => []);
 }
 
 /**

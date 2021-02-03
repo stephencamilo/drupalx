@@ -13,7 +13,7 @@
  * @ingroup forms
  */
 function node_configure_rebuild_confirm() {
-  return confirm_form(array(), t('Are you sure you want to rebuild the permissions on site content?'),
+  return confirm_form([], t('Are you sure you want to rebuild the permissions on site content?'),
                   'admin/reports/status', t('This action rebuilds all permissions on site content, and may be a lengthy process. This action cannot be undone.'), t('Rebuild permissions'), t('Cancel'));
 }
 
@@ -126,7 +126,7 @@ function node_filters() {
  */
 function node_build_filter_query(SelectQueryInterface $query) {
   // Build query
-  $filter_data = isset($_SESSION['node_overview_filter']) ? $_SESSION['node_overview_filter'] : array();
+  $filter_data = isset($_SESSION['node_overview_filter']) ? $_SESSION['node_overview_filter'] : [];
   foreach ($filter_data as $index => $filter) {
     list($key, $value) = $filter;
     switch ($key) {
@@ -154,7 +154,7 @@ function node_build_filter_query(SelectQueryInterface $query) {
  * @ingroup forms
  */
 function node_filter_form() {
-  $session = isset($_SESSION['node_overview_filter']) ? $_SESSION['node_overview_filter'] : array();
+  $session = isset($_SESSION['node_overview_filter']) ? $_SESSION['node_overview_filter'] : [];
   $filters = node_filters();
 
   $i = 0;
@@ -257,7 +257,7 @@ function node_filter_form_submit($form, &$form_state) {
       array_pop($_SESSION['node_overview_filter']);
       break;
     case t('Reset'):
-      $_SESSION['node_overview_filter'] = array();
+      $_SESSION['node_overview_filter'] = [];
       break;
   }
 }
@@ -439,7 +439,7 @@ function node_admin_nodes() {
     '#attributes' => array('class' => array('container-inline')),
     '#access' => $admin_access,
   );
-  $options = array();
+  $options = [];
   foreach (module_invoke_all('node_operations') as $operation => $array) {
     $options[$operation] = $array['label'];
   }
@@ -505,7 +505,7 @@ function node_admin_nodes() {
   // Prepare the list of nodes.
   $languages = language_list();
   $destination = drupal_get_destination();
-  $options = array();
+  $options = [];
   foreach ($nodes as $node) {
     $langcode = entity_language('node', $node);
     $uri = entity_uri('node', $node);
@@ -536,7 +536,7 @@ function node_admin_nodes() {
       }
     }
     // Build a list of all the accessible operations for the current node.
-    $operations = array();
+    $operations = [];
     if (node_access('update', $node)) {
       $operations['edit'] = array(
         'title' => t('edit'),
@@ -551,7 +551,7 @@ function node_admin_nodes() {
         'query' => $destination,
       );
     }
-    $options[$node->nid]['operations'] = array();
+    $options[$node->nid]['operations'] = [];
     if (count($operations) > 1) {
       // Render an unordered list of operations links.
       $options[$node->nid]['operations'] = array(

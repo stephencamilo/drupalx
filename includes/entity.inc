@@ -36,7 +36,7 @@ interface DrupalEntityControllerInterface {
    *   An array of entity objects indexed by their ids. When no results are
    *   found, an empty array is returned.
    */
-  public function load($ids = array(), $conditions = array());
+  public function load($ids = [], $conditions = []);
 }
 
 /**
@@ -120,8 +120,8 @@ class DrupalDefaultEntityController implements DrupalEntityControllerInterface {
   public function __construct($entityType) {
     $this->entityType = $entityType;
     $this->entityInfo = entity_get_info($entityType);
-    $this->entityCache = array();
-    $this->hookLoadArguments = array();
+    $this->entityCache = [];
+    $this->hookLoadArguments = [];
     $this->idKey = $this->entityInfo['entity keys']['id'];
 
     // Check if the entity type supports revisions.
@@ -147,15 +147,15 @@ class DrupalDefaultEntityController implements DrupalEntityControllerInterface {
       }
     }
     else {
-      $this->entityCache = array();
+      $this->entityCache = [];
     }
   }
 
   /**
    * Implements DrupalEntityControllerInterface::load().
    */
-  public function load($ids = array(), $conditions = array()) {
-    $entities = array();
+  public function load($ids = [], $conditions = []) {
+    $entities = [];
 
     // Revisions are not statically cached, and require a different query to
     // other conditions, so separate the revision id into its own variable.
@@ -282,7 +282,7 @@ class DrupalDefaultEntityController implements DrupalEntityControllerInterface {
    * @return SelectQuery
    *   A SelectQuery object for loading the entity.
    */
-  protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
+  protected function buildQuery($ids, $conditions = [], $revision_id = FALSE) {
     $query = db_select($this->entityInfo['base table'], 'base');
 
     $query->addTag($this->entityType . '_load_multiple');
@@ -380,8 +380,8 @@ class DrupalDefaultEntityController implements DrupalEntityControllerInterface {
    * @return
    *   Array of entities from the entity cache.
    */
-  protected function cacheGet($ids, $conditions = array()) {
-    $entities = array();
+  protected function cacheGet($ids, $conditions = []) {
+    $entities = [];
     // Load any available entities from the internal cache.
     if (!empty($this->entityCache)) {
       if ($ids) {
@@ -495,7 +495,7 @@ class EntityFieldQuery {
    *
    * @see EntityFieldQuery::entityCondition()
    */
-  public $entityConditions = array();
+  public $entityConditions = [];
 
   /**
    * List of field conditions.
@@ -504,7 +504,7 @@ class EntityFieldQuery {
    *
    * @see EntityFieldQuery::fieldCondition()
    */
-  public $fieldConditions = array();
+  public $fieldConditions = [];
 
   /**
    * List of field meta conditions (language and delta).
@@ -519,7 +519,7 @@ class EntityFieldQuery {
    * @see EntityFieldQuery::fieldLanguageCondition()
    * @see EntityFieldQuery::fieldDeltaCondition()
    */
-  public $fieldMetaConditions = array();
+  public $fieldMetaConditions = [];
 
   /**
    * List of property conditions.
@@ -528,14 +528,14 @@ class EntityFieldQuery {
    *
    * @see EntityFieldQuery::propertyCondition()
    */
-  public $propertyConditions = array();
+  public $propertyConditions = [];
 
   /**
    * List of order clauses.
    *
    * @var array
    */
-  public $order = array();
+  public $order = [];
 
   /**
    * The query range.
@@ -544,7 +544,7 @@ class EntityFieldQuery {
    *
    * @see EntityFieldQuery::range()
    */
-  public $range = array();
+  public $range = [];
 
   /**
    * The query pager data.
@@ -553,7 +553,7 @@ class EntityFieldQuery {
    *
    * @see EntityFieldQuery::pager()
    */
-  public $pager = array();
+  public $pager = [];
 
   /**
    * Query behavior for deleted data.
@@ -575,7 +575,7 @@ class EntityFieldQuery {
    *
    * @var array
    */
-  public $fields = array();
+  public $fields = [];
 
   /**
    * TRUE if this is a count query, FALSE if it isn't.
@@ -600,7 +600,7 @@ class EntityFieldQuery {
    *
    * @see EntityFieldQuery::addTag()
    */
-  public $tags = array();
+  public $tags = [];
 
   /**
    * A list of metadata added to this query.
@@ -609,7 +609,7 @@ class EntityFieldQuery {
    *
    * @see EntityFieldQuery::addMetaData()
    */
-  public $metaData = array();
+  public $metaData = [];
 
   /**
    * The ordered results.
@@ -618,7 +618,7 @@ class EntityFieldQuery {
    *
    * @see EntityFieldQuery::execute().
    */
-  public $orderedResults = array();
+  public $orderedResults = [];
 
   /**
    * The method executing the query, if it is overriding the default.
@@ -1388,7 +1388,7 @@ class EntityFieldQuery {
     if ($this->count) {
       return $select_query->countQuery()->execute()->fetchField();
     }
-    $return = array();
+    $return = [];
     foreach ($select_query->execute() as $partial_entity) {
       $bundle = isset($partial_entity->bundle) ? $partial_entity->bundle : NULL;
       $entity = entity_create_stub_entity($partial_entity->entity_type, array($partial_entity->entity_id, $partial_entity->revision_id, $bundle));

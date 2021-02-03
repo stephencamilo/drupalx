@@ -295,7 +295,7 @@ class DatabaseConnection_mysql extends DatabaseConnection {
     'zerofill',
   );
 
-  public function __construct(array $connection_options = array()) {
+  public function __construct(array $connection_options = []) {
     // This driver defaults to transaction support, except if explicitly passed FALSE.
     $this->transactionSupport = !isset($connection_options['transactions']) || ($connection_options['transactions'] !== FALSE);
 
@@ -325,7 +325,7 @@ class DatabaseConnection_mysql extends DatabaseConnection {
     $dsn .= ';dbname=' . $connection_options['database'];
     // Allow PDO options to be overridden.
     $connection_options += array(
-      'pdo' => array(),
+      'pdo' => [],
     );
     $connection_options['pdo'] += array(
       // So we don't have to mess around with cursors and unbuffered queries by default.
@@ -360,7 +360,7 @@ class DatabaseConnection_mysql extends DatabaseConnection {
     // changed the meaning of TRADITIONAL we need to spell out the modes one by
     // one.
     $connection_options += array(
-      'init_commands' => array(),
+      'init_commands' => [],
     );
 
     $sql_mode = 'REAL_AS_FLOAT,PIPES_AS_CONCAT,ANSI_QUOTES,IGNORE_SPACE,STRICT_TRANS_TABLES,STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO';
@@ -387,7 +387,7 @@ class DatabaseConnection_mysql extends DatabaseConnection {
     // Successive versions of MySQL have become increasingly strict about the
     // use of reserved keywords as table names. Drupal 7 uses at least one such
     // table (system). Therefore we surround all table names with quotes.
-    $quote_char = variable_get('mysql_identifier_quote_character', MYSQL_IDENTIFIER_QUOTE_CHARACTER_DEFAULT);
+    $quote_char = $bootstrap->variable_get('mysql_identifier_quote_character', MYSQL_IDENTIFIER_QUOTE_CHARACTER_DEFAULT);
     foreach ($this->prefixSearch as $i => $prefixSearch) {
       if (substr($prefixSearch, 0, 1) === '{') {
         // If the prefix already contains one or more quotes remove them.
@@ -445,7 +445,7 @@ class DatabaseConnection_mysql extends DatabaseConnection {
     }
     if (in_array(strtolower($identifier), $this->reservedKeyWords, TRUE)) {
       // Quote the string for MySQL reserved keywords.
-      $quote_char = variable_get('mysql_identifier_quote_character', MYSQL_IDENTIFIER_QUOTE_CHARACTER_DEFAULT);
+      $quote_char = $bootstrap->variable_get('mysql_identifier_quote_character', MYSQL_IDENTIFIER_QUOTE_CHARACTER_DEFAULT);
       $identifier = $quote_char . $identifier . $quote_char;
     }
     return isset($table) ? $table . '.' . $identifier : $identifier;
@@ -457,11 +457,11 @@ class DatabaseConnection_mysql extends DatabaseConnection {
     }
   }
 
-  public function queryRange($query, $from, $count, array $args = array(), array $options = array()) {
+  public function queryRange($query, $from, $count, array $args = [], array $options = []) {
     return $this->query($query . ' LIMIT ' . (int) $from . ', ' . (int) $count, $args, $options);
   }
 
-  public function queryTemporary($query, array $args = array(), array $options = array()) {
+  public function queryTemporary($query, array $args = [], array $options = []) {
     $tablename = $this->generateTemporaryTableName();
     $this->query('CREATE TEMPORARY TABLE {' . $tablename . '} Engine=MEMORY ' . $query, $args, $options);
     return $tablename;
@@ -481,7 +481,7 @@ class DatabaseConnection_mysql extends DatabaseConnection {
   }
 
   public function nextId($existing_id = 0) {
-    $new_id = $this->query('INSERT INTO {sequences} () VALUES ()', array(), array('return' => Database::RETURN_INSERT_ID));
+    $new_id = $this->query('INSERT INTO {sequences} () VALUES ()', [], array('return' => Database::RETURN_INSERT_ID));
     // This should only happen after an import or similar event.
     if ($existing_id >= $new_id) {
       // If we INSERT a value manually into the sequences table, on the next
@@ -492,7 +492,7 @@ class DatabaseConnection_mysql extends DatabaseConnection {
       // UPDATE in such a way that the UPDATE does not do anything. This way,
       // duplicate keys do not generate errors but everything else does.
       $this->query('INSERT INTO {sequences} (value) VALUES (:value) ON DUPLICATE KEY UPDATE value = value', array(':value' => $existing_id));
-      $new_id = $this->query('INSERT INTO {sequences} () VALUES ()', array(), array('return' => Database::RETURN_INSERT_ID));
+      $new_id = $this->query('INSERT INTO {sequences} () VALUES ()', [], array('return' => Database::RETURN_INSERT_ID));
     }
     $this->needsCleanup = TRUE;
     return $new_id;
@@ -556,7 +556,7 @@ class DatabaseConnection_mysql extends DatabaseConnection {
           if ($e->errorInfo[1] == '1305') {
             // If one SAVEPOINT was released automatically, then all were.
             // Therefore, clean the transaction stack.
-            $this->transactionLayers = array();
+            $this->transactionLayers = [];
             // We also have to explain to PDO that the transaction stack has
             // been cleaned-up.
             PDO::commit();

@@ -39,7 +39,7 @@ function tracker_page($account = NULL, $set_title = FALSE) {
     ->execute()
     ->fetchAllAssoc('nid');
 
-  $rows = array();
+  $rows = [];
   if (!empty($nodes)) {
     // Now, get the data and put into the placeholder array.
     $result = db_query('SELECT n.nid, n.title, n.type, n.changed, n.uid, u.name, l.comment_count FROM {node} n INNER JOIN {node_comment_statistics} l ON n.nid = l.nid INNER JOIN {users} u ON n.uid = u.uid WHERE n.nid IN (:nids)', array(':nids' => array_keys($nodes)), array('target' => 'slave'));
@@ -115,7 +115,7 @@ function tracker_page($account = NULL, $set_title = FALSE) {
     '#theme' => 'table',
     '#empty' => t('No content available.'),
     '#attached' => array(
-      'css' => array(drupal_get_path('module', 'tracker') . '/tracker.css' => array()),
+      'css' => array(drupal_get_path('module', 'tracker') . '/tracker.css' => []),
     ),
   );
   $page['pager'] = array(

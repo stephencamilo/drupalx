@@ -36,7 +36,7 @@ function entity_query_access_test_sample_query($field_name) {
     ->fieldCondition($field_name, 'value', 0, '>')
     ->entityOrderBy('entity_id', 'ASC');
   $results = array(
-    'items' => array(),
+    'items' => [],
     'title' => t('EntityFieldQuery results'),
   );
   foreach ($query->execute() as $entity_type => $entity_ids) {

@@ -26,10 +26,10 @@ function field_test_field_storage_info() {
  * Implements hook_field_storage_details().
  */
 function field_test_field_storage_details($field) {
-  $details = array();
+  $details = [];
 
   // Add field columns.
-  $columns = array();
+  $columns = [];
   foreach ((array) $field['columns'] as $column_name => $attributes) {
     $columns[$column_name] = $column_name;
   }
@@ -50,7 +50,7 @@ function field_test_field_storage_details_alter(&$details, $field) {
 
   // For testing, storage details are changed only because of the field name.
   if ($field['field_name'] == 'field_test_change_my_details') {
-    $columns = array();
+    $columns = [];
     foreach ((array) $field['columns'] as $column_name => $attributes) {
       $columns[$column_name] = $column_name;
     }
@@ -70,7 +70,7 @@ function field_test_field_storage_details_alter(&$details, $field) {
  */
 function _field_test_storage_data($data = NULL) {
   if (!isset($data)) {
-    return variable_get('field_test_storage_data', array());
+    return $bootstrap->variable_get('field_test_storage_data', []);
   }
   else {
     variable_set('field_test_storage_data', $data);
@@ -90,7 +90,7 @@ function field_test_field_storage_load($entity_type, $entities, $age, $fields, $
     $field_name = $field['field_name'];
     $field_data = $data[$field['id']];
     $sub_table = $load_current ? 'current' : 'revisions';
-    $delta_count = array();
+    $delta_count = [];
     foreach ($field_data[$sub_table] as $row) {
       if ($row->type == $entity_type && (!$row->deleted || $options['deleted'])) {
         if (($load_current && in_array($row->entity_id, $ids)) || (!$load_current && in_array($row->revision_id, $ids))) {
@@ -99,7 +99,7 @@ function field_test_field_storage_load($entity_type, $entities, $age, $fields, $
               $delta_count[$row->entity_id][$row->language] = 0;
             }
             if ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED || $delta_count[$row->entity_id][$row->language] < $field['cardinality']) {
-              $item = array();
+              $item = [];
               foreach ($field['columns'] as $column => $attributes) {
                 $item[$column] = $row->{$column};
               }
@@ -257,7 +257,7 @@ function field_test_field_storage_query($field_id, $conditions, $count, &$cursor
   usort($field_data[$sub_table], '_field_test_field_storage_query_sort_helper');
 
     // Initialize results array.
-  $return = array();
+  $return = [];
   $entity_count = 0;
   $rows_count = 0;
   $rows_total = count($field_data[$sub_table]);
@@ -375,8 +375,8 @@ function field_test_field_storage_create_field($field) {
   $data = _field_test_storage_data();
 
   $data[$field['id']] = array(
-    'current' => array(),
-    'revisions' => array(),
+    'current' => [],
+    'revisions' => [],
   );
 
   _field_test_storage_data($data);

@@ -88,7 +88,7 @@ function trigger_test_system_cron_action() {
  */
 function trigger_test_system_cron_conf_action($object, $context) {
   // Indicate successful execution by incrementing a persistent variable.
-  $value = variable_get('trigger_test_system_cron_conf_action', 0) + 1;
+  $value = $bootstrap->variable_get('trigger_test_system_cron_conf_action', 0) + 1;
   variable_set('trigger_test_system_cron_conf_action', $value);
 }
 
@@ -132,5 +132,5 @@ function trigger_test_generic_action($context) {
  */
 function trigger_test_generic_any_action($context) {
   // Indicate successful execution by setting a persistent variable.
-  variable_set('trigger_test_generic_any_action', variable_get('trigger_test_generic_any_action', 0) + 1);
+  variable_set('trigger_test_generic_any_action', $bootstrap->variable_get('trigger_test_generic_any_action', 0) + 1);
 }

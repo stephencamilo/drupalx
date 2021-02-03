@@ -80,7 +80,7 @@ function menu_uninstall() {
 function menu_update_7000() {
   // Act only on sites originally on Drupal 6 that have a custom "Default menu
   // for content" setting.
-  $default_node_menu = variable_get('menu_default_node_menu');
+  $default_node_menu = $bootstrap->variable_get('menu_default_node_menu');
   if (isset($default_node_menu)) {
     // Remove variable no longer used in Drupal 7.
     variable_del('menu_default_node_menu');
@@ -95,7 +95,7 @@ function menu_update_7000() {
 
     // Update the menu settings for each node type.
     foreach (_update_7000_node_get_types() as $type => $type_object) {
-      $type_menus = variable_get('menu_options_' . $type);
+      $type_menus = $bootstrap->variable_get('menu_options_' . $type);
       // If the site already has a custom menu setting for this node type (set
       // on the initial upgrade to Drupal 7.0), don't override it.
       if (!isset($type_menus)) {
@@ -115,7 +115,7 @@ function menu_update_7001() {
   // Migrate D6 menu_primary_links_source to D7 menu_main_links_source (without
   // renaming).
   if (variable_get('menu_primary_links_source') !== NULL) {
-    variable_set('menu_main_links_source', variable_get('menu_primary_links_source'));
+    variable_set('menu_main_links_source', $bootstrap->variable_get('menu_primary_links_source'));
     variable_del('menu_primary_links_source');
   }
 
@@ -142,7 +142,7 @@ function menu_update_7001() {
     // Note: these variables may be unset/default, in which case we leave them
     // alone. See menu_update_7000()
     foreach (_update_7000_node_get_types() as $type => $type_object) {
-      $menu_options = variable_get('menu_options_' . $type);
+      $menu_options = $bootstrap->variable_get('menu_options_' . $type);
       if ($menu_options !== NULL) {
         variable_set('menu_options_' . $type, str_replace($from_menu, $to_menu, $menu_options));
         if (variable_get('menu_parent_' . $type) == $from_menu . ':0') {
@@ -189,7 +189,7 @@ function menu_update_7003(&$sandbox) {
   // Make sure all custom menus are present in the active menus variable so that
   // their items may appear in the active trail.
   // @see menu_set_active_menu_names()
-  $active_menus = variable_get('menu_default_active_menus', array_keys(menu_list_system_menus()));
+  $active_menus = $bootstrap->variable_get('menu_default_active_menus', array_keys(menu_list_system_menus()));
   $update_variable = FALSE;
   foreach (menu_get_names() as $menu_name) {
     if (!in_array($menu_name, $active_menus) && (strpos($menu_name, 'menu-') === 0)) {

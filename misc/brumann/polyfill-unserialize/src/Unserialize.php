@@ -12,7 +12,7 @@ final class Unserialize
      *
      * @return mixed
      */
-    public static function unserialize($serialized, array $options = array())
+    public static function unserialize($serialized, array $options = [])
     {
         if (PHP_VERSION_ID >= 70000) {
             return \unserialize($serialized, $options);
@@ -25,14 +25,14 @@ final class Unserialize
             return \unserialize($serialized);
         }
         if (false === $allowedClasses) {
-            $allowedClasses = array();
+            $allowedClasses = [];
         }
         if (!is_array($allowedClasses)) {
             trigger_error(
                 'unserialize(): allowed_classes option should be array or boolean',
                 E_USER_WARNING
             );
-            $allowedClasses = array();
+            $allowedClasses = [];
         }
 
         $sanitizedSerialized = preg_replace_callback(

@@ -46,7 +46,7 @@ class NodeBodyUpgradePathTestCase extends UpgradePathTestCase {
 
     // Check that fields created during the upgrade can be edited and resaved
     // in the UI.
-    $this->drupalPost('admin/structure/types/manage/story/fields/body', array(), t('Save settings'));
+    $this->drupalPost('admin/structure/types/manage/story/fields/body', [], t('Save settings'));
   }
 }
 

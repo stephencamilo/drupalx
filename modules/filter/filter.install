@@ -300,23 +300,23 @@ function filter_update_7003() {
 
       foreach ($query->execute() as $record) {
         // Port the filter settings.
-        $settings = array();
+        $settings = [];
         if ($new_name == 'filter_html') {
-          if ($setting = variable_get("allowed_html_{$record->format}", NULL)) {
+          if ($setting = $bootstrap->variable_get("allowed_html_{$record->format}", NULL)) {
             $settings['allowed_html'] = $setting;
             variable_del("allowed_html_{$record->format}");
           }
-          if ($setting = variable_get("filter_html_help_{$record->format}", NULL)) {
+          if ($setting = $bootstrap->variable_get("filter_html_help_{$record->format}", NULL)) {
             $settings['filter_html_help'] = $setting;
             variable_del("filter_html_help_{$record->format}");
           }
-          if ($setting = variable_get("filter_html_nofollow_{$record->format}", NULL)) {
+          if ($setting = $bootstrap->variable_get("filter_html_nofollow_{$record->format}", NULL)) {
             $settings['filter_html_nofollow'] = $setting;
             variable_del("filter_html_nofollow_{$record->format}");
           }
         }
         elseif ($new_name == 'filter_url') {
-          if ($setting = variable_get("filter_url_length_{$record->format}", NULL)) {
+          if ($setting = $bootstrap->variable_get("filter_url_length_{$record->format}", NULL)) {
             $settings['filter_url_length'] = $setting;
             variable_del("filter_url_length_{$record->format}");
           }
@@ -352,7 +352,7 @@ function filter_update_7003() {
 function filter_update_7005() {
   // Move role data from the filter system to the user permission system.
   $all_roles = array_keys(user_roles());
-  $default_format = variable_get('filter_default_format', 1);
+  $default_format = $bootstrap->variable_get('filter_default_format', 1);
   $result = db_query("SELECT * FROM {filter_format}");
   foreach ($result as $format) {
     // We need to assign the default format to all roles (regardless of what
@@ -406,7 +406,7 @@ function filter_update_7005() {
       'weight' => 0,
       'status' => 1,
       'module' => 'filter',
-      'settings' => serialize(array()),
+      'settings' => serialize([]),
     ))
     ->values(array(
       'format' => $format_id,
@@ -414,7 +414,7 @@ function filter_update_7005() {
       'weight' => 1,
       'status' => 1,
       'module' => 'filter',
-      'settings' => serialize(array()),
+      'settings' => serialize([]),
     ))
     ->values(array(
       'format' => $format_id,
@@ -422,7 +422,7 @@ function filter_update_7005() {
       'weight' => 2,
       'status' => 1,
       'module' => 'filter',
-      'settings' => serialize(array()),
+      'settings' => serialize([]),
     ))
     ->execute();
 
@@ -446,9 +446,9 @@ function filter_update_7005() {
  */
 function filter_update_7008() {
   // Build the list of permissions to grant.
-  $permissions = array();
+  $permissions = [];
   foreach (db_query('SELECT format FROM {filter_format}')->fetchCol() as $format_id) {
-    if ($format_id != variable_get('filter_fallback_format')) {
+    if ($format_id != $bootstrap->variable_get('filter_fallback_format')) {
       $permissions[] = 'use text format ' . $format_id;
     }
   }

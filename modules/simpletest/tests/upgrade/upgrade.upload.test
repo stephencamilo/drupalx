@@ -58,7 +58,7 @@ class UploadUpgradePathTestCase extends UpgradePathTestCase {
 
       $files = $node->upload[LANGUAGE_NONE];
       // Assemble a list of the filenames as they exist after the upgrade.
-      $filenames = array();
+      $filenames = [];
       foreach ($files as $file) {
         $filenames[] = $file['filename'];
       }

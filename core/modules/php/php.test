@@ -76,7 +76,7 @@ class PHPFilterTestCase extends PHPTestCase {
     $this->assertText('print "SimpleTest PHP was executed!"', 'PHP code is displayed.');
 
     // Change filter to PHP filter and see that PHP code is evaluated.
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["body[$langcode][0][format]"] = $this->php_code_format->format;
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));

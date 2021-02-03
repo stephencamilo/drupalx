@@ -479,7 +479,7 @@ function shortcut_set_unassign_user($account) {
  *   the default set is returned.
  */
 function shortcut_current_displayed_set($account = NULL) {
-  $shortcut_sets = &drupal_static(__FUNCTION__, array());
+  $shortcut_sets = &drupal_static(__FUNCTION__, []);
   global $user;
   if (!isset($account)) {
     $account = $user;

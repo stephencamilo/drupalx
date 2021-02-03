@@ -73,7 +73,7 @@ function image_help($path, $arg) {
  * Implements hook_menu().
  */
 function image_menu() {
-  $items = array();
+  $items = [];
 
   // Generate image derivatives of publicly available files.
   // If clean URLs are disabled, image derivatives will always be served
@@ -194,7 +194,7 @@ function image_theme() {
         'height' => NULL,
         'alt' => '',
         'title' => NULL,
-        'attributes' => array(),
+        'attributes' => [],
       ),
     ),
 
@@ -315,7 +315,7 @@ function image_file_download($uri) {
   // Private file access for the original files. Note that we only check access
   // for non-temporary images, since file.module will grant access for all
   // temporary files.
-  $files = file_load_multiple(array(), array('uri' => $uri));
+  $files = file_load_multiple([], array('uri' => $uri));
   if (count($files)) {
     $file = reset($files);
     if ($file->status) {
@@ -344,7 +344,7 @@ function image_file_delete($file) {
  * Implements hook_image_default_styles().
  */
 function image_image_default_styles() {
-  $styles = array();
+  $styles = [];
 
   $styles['thumbnail'] = array(
     'label' => 'Thumbnail (100x100)',
@@ -571,7 +571,7 @@ function image_styles() {
       $styles = $cache->data;
     }
     else {
-      $styles = array();
+      $styles = [];
 
       // Select the module-defined styles.
       foreach (module_implements('image_default_styles') as $module) {
@@ -745,13 +745,13 @@ function image_style_delete($style, $replacement_style_name = '') {
  *
  * @return array
  *   An array of image effects associated with specified image style in the
- *   format array('isid' => array()), or an empty array if the specified style
+ *   format array('isid' => []), or an empty array if the specified style
  *   has no effects.
  * @see image_effects()
  */
 function image_style_effects($style) {
   $effects = image_effects();
-  $style_effects = array();
+  $style_effects = [];
   foreach ($effects as $effect) {
     if ($style['isid'] == $effect['isid']) {
       $style_effects[$effect['ieid']] = $effect;
@@ -780,7 +780,7 @@ function image_style_effects($style) {
  */
 function image_style_options($include_empty = TRUE, $output = CHECK_PLAIN) {
   $styles = image_styles();
-  $options = array();
+  $options = [];
   if ($include_empty && !empty($styles)) {
     $options[''] = t('<none>');
   }
@@ -1034,7 +1034,7 @@ function image_style_url($style_name, $path) {
   // to achieve that (if both are set, the security token will neither be
   // emitted in the image derivative URL nor checked for in
   // image_style_deliver()).
-  $token_query = array();
+  $token_query = [];
   if (!variable_get('image_suppress_itok_output', FALSE)) {
     $token_query = array(IMAGE_DERIVATIVE_TOKEN => image_style_path_token($style_name, $original_uri));
   }
@@ -1117,7 +1117,7 @@ function image_style_path($style_name, $uri) {
  */
 function image_default_style_save($style) {
   $style = image_style_save($style);
-  $effects = array();
+  $effects = [];
   foreach ($style['effects'] as $effect) {
     $effect['isid'] = $style['isid'];
     $effect = image_effect_save($effect);
@@ -1169,14 +1169,14 @@ function image_effect_definitions() {
       $effects = $cache->data;
     }
     else {
-      $effects = array();
+      $effects = [];
       include_once DRUPAL_ROOT . '/modules/image/image.effects.inc';
       foreach (module_implements('image_effect_info') as $module) {
         foreach (module_invoke($module, 'image_effect_info') as $name => $effect) {
           // Ensure the current toolkit supports the effect.
           $effect['module'] = $module;
           $effect['name'] = $name;
-          $effect['data'] = isset($effect['data']) ? $effect['data'] : array();
+          $effect['data'] = isset($effect['data']) ? $effect['data'] : [];
           $effects[$name] = $effect;
         }
       }
@@ -1240,7 +1240,7 @@ function image_effects() {
   $effects = &drupal_static(__FUNCTION__);
 
   if (!isset($effects)) {
-    $effects = array();
+    $effects = [];
 
     // Add database image effects.
     $result = db_select('image_effects', NULL, array('fetch' => PDO::FETCH_ASSOC))

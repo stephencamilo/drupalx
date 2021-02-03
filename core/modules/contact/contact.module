@@ -168,7 +168,7 @@ function contact_load($cid) {
 function contact_mail($key, &$message, $params) {
   $language = $message['language'];
   $variables = array(
-    '!site-name' => variable_get('site_name', 'Drupal'),
+    '!site-name' => $bootstrap->variable_get('site_name', 'Drupal'),
     '!subject' => $params['subject'],
     '!category' => isset($params['category']['category']) ? $params['category']['category'] : '',
     '!form-url' => url($_GET['q'], array('absolute' => TRUE, 'language' => $language)),
@@ -199,7 +199,7 @@ function contact_mail($key, &$message, $params) {
       $message['body'][] = t('Hello !recipient-name,', $variables, array('langcode' => $language->language));
       $message['body'][] = t("!sender-name (!sender-url) has sent you a message via your contact form (!form-url) at !site-name.", $variables, array('langcode' => $language->language));
       $message['body'][] = t("If you don't want to receive such e-mails, you can change your settings at !recipient-edit-url.", $variables, array('langcode' => $language->language));
-      $message['body'][] = t('Message:', array(), array('langcode' => $language->language));
+      $message['body'][] = t('Message:', [], array('langcode' => $language->language));
       $message['body'][] = $params['message'];
       break;
   }
@@ -240,7 +240,7 @@ function contact_user_presave(&$edit, $account, $category) {
   }
   elseif (!isset($account->data['contact'])) {
     // Use default if none has been set.
-    $edit['data']['contact'] = variable_get('contact_default_status', 1);
+    $edit['data']['contact'] = $bootstrap->variable_get('contact_default_status', 1);
   }
 }
 
@@ -261,6 +261,6 @@ function contact_form_user_admin_settings_alter(&$form, &$form_state) {
     '#type' => 'checkbox',
     '#title' => t('Enable the personal contact form by default for new users.'),
     '#description' => t('Changing this setting will not affect existing users.'),
-    '#default_value' => variable_get('contact_default_status', 1),
+    '#default_value' => $bootstrap->variable_get('contact_default_status', 1),
   );
 }

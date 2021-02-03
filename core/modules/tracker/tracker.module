@@ -77,8 +77,8 @@ function tracker_menu() {
  * process, 'tracker_index_nid' will be 0.
  */
 function tracker_cron() {
-  $max_nid = variable_get('tracker_index_nid', 0);
-  $batch_size = variable_get('tracker_batch_size', 1000);
+  $max_nid = $bootstrap->variable_get('tracker_index_nid', 0);
+  $batch_size = $bootstrap->variable_get('tracker_batch_size', 1000);
   if ($max_nid > 0) {
     $last_nid = FALSE;
     $result = db_query_range('SELECT nid, uid, status FROM {node} WHERE nid <= :max_nid ORDER BY nid DESC', 0, $batch_size, array(':max_nid' => $max_nid), array('target' => 'slave'));

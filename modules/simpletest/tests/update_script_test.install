@@ -9,11 +9,11 @@
  * Implements hook_requirements().
  */
 function update_script_test_requirements($phase) {
-  $requirements = array();
+  $requirements = [];
 
   if ($phase == 'update') {
     // Set a requirements warning or error when the test requests it.
-    $requirement_type = variable_get('update_script_test_requirement_type');
+    $requirement_type = $bootstrap->variable_get('update_script_test_requirement_type');
     switch ($requirement_type) {
       case REQUIREMENT_WARNING:
         $requirements['update_script_test'] = array(

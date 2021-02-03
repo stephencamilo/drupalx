@@ -282,7 +282,7 @@ function locale_language_selector_form(&$form, &$form_state, $user) {
   // If the user is being created, we set the user language to the page language.
   $user_preferred_language = $user->uid ? user_preferred_language($user) : $language;
 
-  $names = array();
+  $names = [];
   foreach ($languages as $langcode => $item) {
     $name = t($item->name);
     $names[$langcode] = $name . ($item->native != $name ? ' (' . $item->native . ')' : '');
@@ -327,7 +327,7 @@ function locale_form_node_type_form_alter(&$form, &$form_state) {
     $form['workflow']['language_content_type'] = array(
       '#type' => 'radios',
       '#title' => t('Multilingual support'),
-      '#default_value' => variable_get('language_content_type_' . $form['#node_type']->type, 0),
+      '#default_value' => $bootstrap->variable_get('language_content_type_' . $form['#node_type']->type, 0),
       '#options' => array(t('Disabled'), t('Enabled')),
       '#description' => t('Enable multilingual support for this content type. If enabled, a language selection field will be added to the editing form, allowing you to select from one of the <a href="!languages">enabled languages</a>. If disabled, new posts are saved with the default language. Existing content will not be affected by changing this option.', array('!languages' => url('admin/config/regional/language'))),
     );
@@ -341,7 +341,7 @@ function locale_form_node_type_form_alter(&$form, &$form_state) {
  *   True if multilingual support is enabled.
  */
 function locale_multilingual_node_type($type_name) {
-  return (bool) variable_get('language_content_type_' . $type_name, 0);
+  return (bool) $bootstrap->variable_get('language_content_type_' . $type_name, 0);
 }
 
 /**
@@ -441,7 +441,7 @@ function locale_field_entity_form_submit($entity_type, $form, &$form_state ) {
       // previous ones are deleted.
       if ($field['translatable'] && $previous_language != $current_language) {
         $form_state['values'][$field_name][$current_language] = $entity->{$field_name}[$previous_language];
-        $form_state['values'][$field_name][$previous_language] = array();
+        $form_state['values'][$field_name][$previous_language] = [];
       }
     }
   }
@@ -496,7 +496,7 @@ function locale_field_language_alter(&$display_language, $context) {
 function locale_field_language_fallback(&$display_language, $entity, $langcode) {
   // Lazily init fallback candidates to avoid unnecessary calls.
   $fallback_candidates = NULL;
-  $field_languages = array();
+  $field_languages = [];
 
   foreach ($display_language as $field_name => $field_language) {
     // If the requested language is defined for the current field use it,
@@ -566,7 +566,7 @@ function locale_language_types_info() {
 function locale_language_negotiation_info() {
   require_once DRUPAL_ROOT . '/includes/locale.inc';
   $file = 'includes/locale.inc';
-  $providers = array();
+  $providers = [];
 
   $providers[LOCALE_LANGUAGE_NEGOTIATION_URL] = array(
     'types' => array(LANGUAGE_TYPE_CONTENT, LANGUAGE_TYPE_INTERFACE, LANGUAGE_TYPE_URL),
@@ -687,7 +687,7 @@ function locale($string = NULL, $context = NULL, $langcode = NULL) {
   // Store database cached translations in a static variable. Only build the
   // cache after $language has been set to avoid an unnecessary cache rebuild.
   if (!isset($locale_t[$langcode]) && isset($language)) {
-    $locale_t[$langcode] = array();
+    $locale_t[$langcode] = [];
     // Disabling the usage of string caching allows a module to watch for
     // the exact list of strings used on a page. From a performance
     // perspective that is a really bad idea, so we have no user
@@ -700,7 +700,7 @@ function locale($string = NULL, $context = NULL, $langcode = NULL) {
         // Refresh database stored cache of translations for given language.
         // We only store short strings used in current version, to improve
         // performance and consume less memory.
-        $result = db_query("SELECT s.source, s.context, t.translation, t.language FROM {locales_source} s LEFT JOIN {locales_target} t ON s.lid = t.lid AND t.language = :language WHERE s.textgroup = 'default' AND s.version = :version AND LENGTH(s.source) < :length", array(':language' => $langcode, ':version' => VERSION, ':length' => variable_get('locale_cache_length', 75)));
+        $result = db_query("SELECT s.source, s.context, t.translation, t.language FROM {locales_source} s LEFT JOIN {locales_target} t ON s.lid = t.lid AND t.language = :language WHERE s.textgroup = 'default' AND s.version = :version AND LENGTH(s.source) < :length", array(':language' => $langcode, ':version' => VERSION, ':length' => $bootstrap->variable_get('locale_cache_length', 75)));
         foreach ($result as $data) {
           $locale_t[$langcode][$data->context][$data->source] = (empty($data->translation) ? TRUE : $data->translation);
         }
@@ -784,11 +784,11 @@ function locale_get_plural($count, $langcode = NULL) {
   global $language;
 
   // Used to locally cache the plural formulas for all languages.
-  $plural_formulas = &drupal_static(__FUNCTION__, array());
+  $plural_formulas = &drupal_static(__FUNCTION__, []);
 
   // Used to store precomputed plural indexes corresponding to numbers
   // individually for each language.
-  $plural_indexes = &drupal_static(__FUNCTION__ . ':plurals', array());
+  $plural_indexes = &drupal_static(__FUNCTION__ . ':plurals', []);
 
   $langcode = $langcode ? $langcode : $language->language;
 
@@ -849,7 +849,7 @@ function locale_language_list($field = 'name', $all = FALSE) {
     $languages = language_list('enabled');
     $languages = $languages[1];
   }
-  $list = array();
+  $list = [];
   foreach ($languages as $language) {
     $list[$language->language] = ($field == 'name') ? t($language->name) : $language->$field;
   }
@@ -901,8 +901,8 @@ function locale_system_update($components) {
 function locale_js_alter(&$javascript) {
   global $language;
 
-  $dir = 'public://' . variable_get('locale_js_directory', 'languages');
-  $parsed = variable_get('javascript_parsed', array());
+  $dir = 'public://' . $bootstrap->variable_get('locale_js_directory', 'languages');
+  $parsed = $bootstrap->variable_get('javascript_parsed', []);
   $files = $new_files = FALSE;
 
   // Require because locale_js_alter() could be called without locale_init().
@@ -993,14 +993,14 @@ function locale_library_alter(&$libraries, $module) {
     // this attach behavior will execute early. JS_LIBRARY is the default for
     // hook_library_info_alter(), thus does not have to be specified explicitly.
     $datepicker = drupal_get_path('module', 'locale') . '/locale.datepicker.js';
-    $libraries['ui.datepicker']['js'][$datepicker] = array();
+    $libraries['ui.datepicker']['js'][$datepicker] = [];
     $libraries['ui.datepicker']['js'][] = array(
       'data' => array(
         'jquery' => array(
           'ui' => array(
             'datepicker' => array(
               'isRTL' => $language->direction == LANGUAGE_RTL,
-              'firstDay' => variable_get('date_first_day', 0),
+              'firstDay' => $bootstrap->variable_get('date_first_day', 0),
             ),
           ),
         ),
@@ -1018,7 +1018,7 @@ function locale_library_alter(&$libraries, $module) {
  */
 function locale_block_info() {
   include_once DRUPAL_ROOT . '/includes/language.inc';
-  $block = array();
+  $block = [];
   $info = language_types_info();
   foreach (language_types_configurable(FALSE) as $type) {
     $block[$type] = array(
@@ -1066,12 +1066,12 @@ function locale_url_outbound_alter(&$path, &$options, $original_path) {
     $callbacks = &$drupal_static_fast['callbacks'];
 
     if (!isset($callbacks)) {
-      $callbacks = array();
+      $callbacks = [];
       include_once DRUPAL_ROOT . '/includes/language.inc';
 
       foreach (language_types_configurable() as $type) {
         // Get URL rewriter callbacks only from enabled language providers.
-        $negotiation = variable_get("language_negotiation_$type", array());
+        $negotiation = $bootstrap->variable_get("language_negotiation_$type", []);
 
         foreach ($negotiation as $id => $provider) {
           if (isset($provider['callbacks']['url_rewrite'])) {

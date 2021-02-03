@@ -9,7 +9,7 @@
  * Menu callback; Retrieve a JSON object containing autocomplete suggestions for existing users.
  */
 function user_autocomplete($string = '') {
-  $matches = array();
+  $matches = [];
   if ($string) {
     $result = db_select('users')->fields('users', array('name'))->condition('name', db_like($string) . '%', 'LIKE')->range(0, 10)->execute();
     foreach ($result as $user) {
@@ -70,13 +70,13 @@ function user_pass_validate($form, &$form_state) {
     form_set_error('name', t('An illegal value has been detected. Please contact the site administrator.'));
     return;
   }
-  $user_pass_reset_ip_window = variable_get('user_pass_reset_ip_window', 3600);
+  $user_pass_reset_ip_window = $bootstrap->variable_get('user_pass_reset_ip_window', 3600);
   // Do not allow any password reset from the current user's IP if the limit
   // has been reached. Default is 50 attempts allowed in one hour. This is
   // independent of the per-user limit to catch attempts from one IP to request
   // resets for many different user accounts. We have a reasonably high limit
   // since there may be only one apparent IP for all users at an institution.
-  if (!flood_is_allowed('pass_reset_ip', variable_get('user_pass_reset_ip_limit', 50), $user_pass_reset_ip_window)) {
+  if (!flood_is_allowed('pass_reset_ip', $bootstrap->variable_get('user_pass_reset_ip_limit', 50), $user_pass_reset_ip_window)) {
     form_set_error('name', t('Sorry, too many password reset attempts from your IP address. This IP address is temporarily blocked. Try again later or <a href="@url">request a new password</a>.', array('@url' => url('user/password'))));
     return;
   }
@@ -84,19 +84,19 @@ function user_pass_validate($form, &$form_state) {
   flood_register_event('pass_reset_ip', $user_pass_reset_ip_window);
   $name = trim($form_state['values']['name']);
   // Try to load by email.
-  $users = user_load_multiple(array(), array('mail' => $name, 'status' => '1'));
+  $users = user_load_multiple([], array('mail' => $name, 'status' => '1'));
   $account = reset($users);
   if (!$account) {
     // No success, try to load by name.
-    $users = user_load_multiple(array(), array('name' => $name, 'status' => '1'));
+    $users = user_load_multiple([], array('name' => $name, 'status' => '1'));
     $account = reset($users);
   }
   if (isset($account->uid)) {
     // Register user flood events based on the uid only, so they can be cleared
     // when a password is reset successfully.
     $identifier = $account->uid;
-    $user_pass_reset_user_window = variable_get('user_pass_reset_user_window', 21600);
-    $user_pass_reset_user_limit = variable_get('user_pass_reset_user_limit', 5);
+    $user_pass_reset_user_window = $bootstrap->variable_get('user_pass_reset_user_window', 21600);
+    $user_pass_reset_user_limit = $bootstrap->variable_get('user_pass_reset_user_limit', 5);
     // Don't allow password reset if the limit for this user has been reached.
     // Default is to allow 5 passwords resets every 6 hours.
     if (!flood_is_allowed('pass_reset_user', $user_pass_reset_user_limit, $user_pass_reset_user_window, $identifier)) {
@@ -148,7 +148,7 @@ function user_pass_reset($form, &$form_state, $uid, $timestamp, $hashed_pass, $a
       // back to the current page; any custom destination set in
       // hook_user_logout() and intended for regular logouts would not be
       // appropriate here.
-      $destination = array();
+      $destination = [];
       if (isset($_GET['destination'])) {
         $destination = drupal_get_destination();
       }
@@ -172,7 +172,7 @@ function user_pass_reset($form, &$form_state, $uid, $timestamp, $hashed_pass, $a
   else {
     // Time out, in seconds, until login URL expires. Defaults to 24 hours =
     // 86400 seconds.
-    $timeout = variable_get('user_password_reset_timeout', 86400);
+    $timeout = $bootstrap->variable_get('user_password_reset_timeout', 86400);
     $current = REQUEST_TIME;
     // Some redundant checks for extra security ?
     $users = user_load_multiple(array($uid), array('status' => '1'));
@@ -406,7 +406,7 @@ function user_profile_form_submit($form, &$form_state) {
  * Submit function for the 'Cancel account' button on the user edit form.
  */
 function user_edit_cancel_submit($form, &$form_state) {
-  $destination = array();
+  $destination = [];
   if (isset($_GET['destination'])) {
     $destination = drupal_get_destination();
     unset($_GET['destination']);
@@ -448,7 +448,7 @@ function user_cancel_confirm_form($form, &$form_state, $account) {
     '#description' => t('When enabled, the user must confirm the account cancellation via e-mail.'),
   );
   // Also allow to send account canceled notification mail, if enabled.
-  $default_notify = variable_get('user_mail_status_canceled_notify', FALSE);
+  $default_notify = $bootstrap->variable_get('user_mail_status_canceled_notify', FALSE);
   $form['user_cancel_notify'] = array(
     '#type' => 'checkbox',
     '#title' => t('Notify user when account is canceled.'),
@@ -549,8 +549,8 @@ function user_cancel_methods() {
       'description' => t('Your account will be blocked and you will no longer be able to log in. All of your content will be hidden from everyone but administrators.'),
     ),
     'user_cancel_reassign' => array(
-      'title' => t('Delete the account and make its content belong to the %anonymous-name user.', array('%anonymous-name' => variable_get('anonymous', t('Anonymous')))),
-      'description' => t('Your account will be removed and all account information deleted. All of your content will be assigned to the %anonymous-name user.', array('%anonymous-name' => variable_get('anonymous', t('Anonymous')))),
+      'title' => t('Delete the account and make its content belong to the %anonymous-name user.', array('%anonymous-name' => $bootstrap->variable_get('anonymous', t('Anonymous')))),
+      'description' => t('Your account will be removed and all account information deleted. All of your content will be assigned to the %anonymous-name user.', array('%anonymous-name' => $bootstrap->variable_get('anonymous', t('Anonymous')))),
     ),
     'user_cancel_delete' => array(
       'title' => t('Delete the account and its content.'),
@@ -562,7 +562,7 @@ function user_cancel_methods() {
   drupal_alter('user_cancel_methods', $methods);
 
   // Turn all methods into real form elements.
-  $default_method = variable_get('user_cancel_method', 'user_cancel_block');
+  $default_method = $bootstrap->variable_get('user_cancel_method', 'user_cancel_block');
   foreach ($methods as $name => $method) {
     $form[$name] = array(
       '#type' => 'radio',
@@ -592,7 +592,7 @@ function user_cancel_confirm($account, $timestamp = 0, $hashed_pass = '') {
     // Validate expiration and hashed password/login.
     if ($timestamp <= $current && $current - $timestamp < $timeout && $account->uid && $timestamp >= $account->login && $hashed_pass == user_pass_rehash($account->pass, $timestamp, $account->login, $account->uid)) {
       $edit = array(
-        'user_cancel_notify' => isset($account->data['user_cancel_notify']) ? $account->data['user_cancel_notify'] : variable_get('user_mail_status_canceled_notify', FALSE),
+        'user_cancel_notify' => isset($account->data['user_cancel_notify']) ? $account->data['user_cancel_notify'] : $bootstrap->variable_get('user_mail_status_canceled_notify', FALSE),
       );
       user_cancel($edit, $account->uid, $account->data['user_cancel_method']);
       // Since user_cancel() is not invoked via Form API, batch processing needs

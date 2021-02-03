@@ -15,7 +15,7 @@ class SimpleTestFunctionalTest extends DrupalWebTestCase {
    * Store the test ID from each test run for comparison, to ensure they are
    * incrementing.
    */
-  protected $test_ids = array();
+  protected $test_ids = [];
 
   public static function getInfo() {
     return array(
@@ -46,7 +46,7 @@ class SimpleTestFunctionalTest extends DrupalWebTestCase {
     if (!$this->inCURL()) {
       $this->drupalGet('node');
       $this->assertTrue($this->drupalGetHeader('Date'), 'An HTTP header was received.');
-      $this->assertTitle(t('Welcome to @site-name | @site-name', array('@site-name' => variable_get('site_name', 'Drupal'))), 'Site title matches.');
+      $this->assertTitle(t('Welcome to @site-name | @site-name', array('@site-name' => $bootstrap->variable_get('site_name', 'Drupal'))), 'Site title matches.');
       $this->assertNoTitle('Foo', 'Site title does not match.');
       // Make sure that we are locked out of the installer when prefixing
       // using the user-agent header. This is an important security check.
@@ -136,7 +136,7 @@ class SimpleTestFunctionalTest extends DrupalWebTestCase {
         // Run this test from web interface.
         $this->drupalGet('admin/config/development/testing');
 
-        $edit = array();
+        $edit = [];
         $edit['SimpleTestFunctionalTest'] = TRUE;
         $this->drupalPost(NULL, $edit, t('Run tests'));
 
@@ -256,17 +256,17 @@ class SimpleTestFunctionalTest extends DrupalWebTestCase {
    * Get the results from a test and store them in the class array $results.
    */
   function getTestResults() {
-    $results = array();
+    $results = [];
     if ($this->parse()) {
       if ($fieldset = $this->getResultFieldSet()) {
         // Code assumes this is the only test in group.
         $results['summary'] = $this->asText($fieldset->div->div[1]);
         $results['name'] = $this->asText($fieldset->legend);
 
-        $results['assertions'] = array();
+        $results['assertions'] = [];
         $tbody = $fieldset->div->table->tbody;
         foreach ($tbody->tr as $row) {
-          $assertion = array();
+          $assertion = [];
           $assertion['message'] = $this->asText($row->td[0]);
           $assertion['type'] = $this->asText($row->td[1]);
           $assertion['file'] = $this->asText($row->td[2]);
@@ -356,7 +356,7 @@ class SimpleTestBrowserTestCase extends DrupalWebTestCase {
     $this->assertEqual($absolute, $this->url, 'Passed and requested URL are equal.');
     $this->assertEqual($this->url, $this->getAbsoluteUrl($this->url), 'Requested and returned absolute URL are equal.');
 
-    $this->drupalPost(NULL, array(), t('Log in'));
+    $this->drupalPost(NULL, [], t('Log in'));
     $this->assertEqual($absolute, $this->url, 'Passed and requested URL are equal.');
     $this->assertEqual($this->url, $this->getAbsoluteUrl($this->url), 'Requested and returned absolute URL are equal.');
 

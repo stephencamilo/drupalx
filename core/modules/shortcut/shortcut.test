@@ -52,7 +52,7 @@ class ShortcutTestCase extends DrupalWebTestCase {
     $set = new stdClass();
     $set->title = empty($title) ? $this->randomName(10) : $title;
     if ($default_links) {
-      $set->links = array();
+      $set->links = [];
       $set->links[] = $this->generateShortcutLink('node/add');
       $set->links[] = $this->generateShortcutLink('admin/content');
     }
@@ -88,7 +88,7 @@ class ShortcutTestCase extends DrupalWebTestCase {
    *   Array of the requested information from each link.
    */
   function getShortcutInformation($set, $key) {
-    $info = array();
+    $info = [];
     foreach ($set->links as $link) {
       $info[] = $link[$key];
     }
@@ -194,7 +194,7 @@ class ShortcutLinksTestCase extends ShortcutTestCase {
   function testShortcutLinkDelete() {
     $set = $this->set;
 
-    $this->drupalPost('admin/config/user-interface/shortcut/link/' . $set->links[0]['mlid'] . '/delete', array(), 'Delete');
+    $this->drupalPost('admin/config/user-interface/shortcut/link/' . $set->links[0]['mlid'] . '/delete', [], 'Delete');
     $saved_set = shortcut_set_load($set->set_name);
     $mlids = $this->getShortcutInformation($saved_set, 'mlid');
     $this->assertFalse(in_array($set->links[0]['mlid'], $mlids), 'Successfully deleted a shortcut.');
@@ -356,7 +356,7 @@ class ShortcutSetsTestCase extends ShortcutTestCase {
   function testShortcutSetDelete() {
     $new_set = $this->generateShortcutSet($this->randomName(10));
 
-    $this->drupalPost('admin/config/user-interface/shortcut/' . $new_set->set_name . '/delete', array(), t('Delete'));
+    $this->drupalPost('admin/config/user-interface/shortcut/' . $new_set->set_name . '/delete', [], t('Delete'));
     $sets = shortcut_sets();
     $this->assertFalse(isset($sets[$new_set->set_name]), 'Successfully deleted a shortcut set.');
   }

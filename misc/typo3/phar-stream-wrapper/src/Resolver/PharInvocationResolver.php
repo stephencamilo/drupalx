@@ -38,7 +38,7 @@ class PharInvocationResolver implements Resolvable
      *
      * @var string[]
      */
-    private $baseNames = array();
+    private $baseNames = [];
 
     /**
      * Resolves PharInvocation value object (baseName and optional alias).

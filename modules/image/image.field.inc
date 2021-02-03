@@ -14,7 +14,7 @@ function image_field_info() {
       'label' => t('Image'),
       'description' => t('This field stores the ID of an image file as an integer value.'),
       'settings' => array(
-        'uri_scheme' => variable_get('file_default_scheme', 'public'),
+        'uri_scheme' => $bootstrap->variable_get('file_default_scheme', 'public'),
         'default_image' => 0,
       ),
       'instance_settings' => array(
@@ -40,7 +40,7 @@ function image_field_settings_form($field, $instance) {
   $defaults = field_info_field_settings($field['type']);
   $settings = array_merge($defaults, $field['settings']);
 
-  $scheme_options = array();
+  $scheme_options = [];
   foreach (file_get_stream_wrappers(STREAM_WRAPPERS_WRITE_VISIBLE) as $scheme => $stream_wrapper) {
     $scheme_options[$scheme] = $stream_wrapper['name'];
   }
@@ -526,7 +526,7 @@ function image_field_formatter_settings_summary($field, $instance, $view_mode) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
-  $summary = array();
+  $summary = [];
 
   $image_styles = image_style_options(FALSE, PASS_THROUGH);
   // Unset possible 'No defined styles' option.
@@ -556,7 +556,7 @@ function image_field_formatter_settings_summary($field, $instance, $view_mode) {
  * Implements hook_field_formatter_view().
  */
 function image_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
+  $element = [];
 
   // Check if the formatter involves a link.
   if ($display['settings']['image_link'] == 'content') {
@@ -570,7 +570,7 @@ function image_field_formatter_view($entity_type, $entity, $field, $instance, $l
     if (isset($link_file)) {
       $uri = array(
         'path' => file_create_url($item['uri']),
-        'options' => array(),
+        'options' => [],
       );
     }
     $element[$delta] = array(
@@ -632,7 +632,7 @@ function theme_image_formatter($variables) {
   // processed, the link path must at least be an empty string.
   if (isset($variables['path']['path'])) {
     $path = $variables['path']['path'];
-    $options = isset($variables['path']['options']) ? $variables['path']['options'] : array();
+    $options = isset($variables['path']['options']) ? $variables['path']['options'] : [];
     // When displaying an image inside a link, the html option must be TRUE.
     $options['html'] = TRUE;
     $output = l($output, $path, $options);

@@ -32,7 +32,7 @@ function statistics_recent_hits() {
     ->orderByHeader($header);
 
   $result = $query->execute();
-  $rows = array();
+  $rows = [];
   foreach ($result as $log) {
     $rows[] = array(
       array('data' => format_date($log->timestamp, 'short'), 'class' => array('nowrap')),
@@ -88,7 +88,7 @@ function statistics_top_pages() {
   $query->setCountQuery($count_query);
 
   $result = $query->execute();
-  $rows = array();
+  $rows = [];
   foreach ($result as $page) {
     $rows[] = array($page->hits, _statistics_format_item($page->title, $page->path), t('%time ms', array('%time' => round($page->average_time))), format_interval(round($page->total_time / 1000)));
   }
@@ -147,7 +147,7 @@ function statistics_top_visitors() {
   $query->setCountQuery($count_query);
 
   $result = $query->execute();
-  $rows = array();
+  $rows = [];
   $destination = drupal_get_destination();
   foreach ($result as $account) {
     $ban_link = $account->iid ? l(t('unblock IP address'), "admin/config/people/ip-blocking/delete/$account->iid", array('query' => $destination)) : l(t('block IP address'), "admin/config/people/ip-blocking/$account->hostname", array('query' => $destination));
@@ -203,7 +203,7 @@ function statistics_top_referrers() {
   $query->setCountQuery($count_query);
 
   $result = $query->execute();
-  $rows = array();
+  $rows = [];
   foreach ($result as $referrer) {
     $rows[] = array($referrer->hits, _statistics_link($referrer->url), t('@time ago', array('@time' => format_interval(REQUEST_TIME - $referrer->last))));
   }
@@ -282,13 +282,13 @@ function statistics_settings_form() {
   $form['access']['statistics_enable_access_log'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable access log'),
-    '#default_value' => variable_get('statistics_enable_access_log', 0),
+    '#default_value' => $bootstrap->variable_get('statistics_enable_access_log', 0),
     '#description' => t('Log each page access. Required for referrer statistics.'),
   );
   $form['access']['statistics_flush_accesslog_timer'] = array(
     '#type' => 'select',
     '#title' => t('Discard access logs older than'),
-    '#default_value' => variable_get('statistics_flush_accesslog_timer', 259200),
+    '#default_value' => $bootstrap->variable_get('statistics_flush_accesslog_timer', 259200),
     '#options' => array(0 => t('Never')) + drupal_map_assoc(array(3600, 10800, 21600, 32400, 43200, 86400, 172800, 259200, 604800, 1209600, 2419200, 4838400, 9676800), 'format_interval'),
     '#description' => t('Older access log entries (including referrer statistics) will be automatically discarded. (Requires a correctly configured <a href="@cron">cron maintenance task</a>.)', array('@cron' => url('admin/reports/status'))),
   );
@@ -301,13 +301,13 @@ function statistics_settings_form() {
   $form['content']['statistics_count_content_views'] = array(
     '#type' => 'checkbox',
     '#title' => t('Count content views'),
-    '#default_value' => variable_get('statistics_count_content_views', 0),
+    '#default_value' => $bootstrap->variable_get('statistics_count_content_views', 0),
     '#description' => t('Increment a counter each time content is viewed.'),
   );
   $form['content']['statistics_count_content_views_ajax'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use Ajax to increment the counter'),
-    '#default_value' => variable_get('statistics_count_content_views_ajax', 0),
+    '#default_value' => $bootstrap->variable_get('statistics_count_content_views_ajax', 0),
     '#description' => t('Perform the count asynchronously after page load rather than during page generation.'),
     '#states' => array(
       'disabled' => array(

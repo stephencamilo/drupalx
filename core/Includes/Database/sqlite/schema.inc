@@ -41,7 +41,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
    *   An array of SQL statements to create the table.
    */
   public function createTableSql($name, $table) {
-    $sql = array();
+    $sql = [];
     $sql[] = "CREATE TABLE {" . $name . "} (\n" . $this->createColumsSql($name, $table) . "\n);\n";
     return array_merge($sql, $this->createIndexSql($name, $table));
   }
@@ -50,7 +50,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
    * Build the SQL expression for indexes.
    */
   protected function createIndexSql($tablename, $schema) {
-    $sql = array();
+    $sql = [];
     $info = $this->getPrefixInfo($tablename);
     if (!empty($schema['unique keys'])) {
       foreach ($schema['unique keys'] as $key => $fields) {
@@ -69,7 +69,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
    * Build the SQL expression for creating columns.
    */
   protected function createColumsSql($tablename, $schema) {
-    $sql_array = array();
+    $sql_array = [];
 
     // Add the SQL statement for each field.
     foreach ($schema['fields'] as $name => $field) {
@@ -93,7 +93,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
    * Build the SQL expression for keys.
    */
   protected function createKeySql($fields) {
-    $return = array();
+    $return = [];
     foreach ($fields as $field) {
       if (is_array($field)) {
         $return[] = $field[0];
@@ -276,7 +276,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
     return TRUE;
   }
 
-  public function addField($table, $field, $specification, $keys_new = array()) {
+  public function addField($table, $field, $specification, $keys_new = []) {
     if (!$this->tableExists($table)) {
       throw new DatabaseSchemaObjectDoesNotExistException(t("Cannot add field @table.@field: table doesn't exist.", array('@field' => $field, '@table' => $table)));
     }
@@ -310,7 +310,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
       $new_schema['fields'][$field] = $specification;
 
       // Build the mapping between the old fields and the new fields.
-      $mapping = array();
+      $mapping = [];
       if (isset($specification['initial'])) {
         // If we have a initial value, copy it over.
         $mapping[$field] = array(
@@ -351,7 +351,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
    *     - an associative array with two keys 'expression' and 'arguments',
    *       that will be used as an expression field.
    */
-  protected function alterTable($table, $old_schema, $new_schema, array $mapping = array()) {
+  protected function alterTable($table, $old_schema, $new_schema, array $mapping = []) {
     $i = 0;
     do {
       $new_table = $table . '_' . $i++;
@@ -410,10 +410,10 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
   protected function introspectSchema($table) {
     $mapped_fields = array_flip($this->getFieldTypeMap());
     $schema = array(
-      'fields' => array(),
-      'primary key' => array(),
-      'unique keys' => array(),
-      'indexes' => array(),
+      'fields' => [],
+      'primary key' => [],
+      'unique keys' => [],
+      'indexes' => [],
     );
 
     $info = $this->getPrefixInfo($table);
@@ -446,7 +446,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
         new Exception("Unable to parse the column type " . $row->type);
       }
     }
-    $indexes = array();
+    $indexes = [];
     $result = $this->connection->query('PRAGMA ' . $info['schema'] . '.index_list(' . $info['table'] . ')');
     foreach ($result as $row) {
       if (strpos($row->name, 'sqlite_autoindex_') !== 0) {
@@ -492,7 +492,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
     return TRUE;
   }
 
-  public function changeField($table, $field, $field_new, $spec, $keys_new = array()) {
+  public function changeField($table, $field, $field_new, $spec, $keys_new = []) {
     if (!$this->fieldExists($table, $field)) {
       throw new DatabaseSchemaObjectDoesNotExistException(t("Cannot change the definition of field @table.@name: field doesn't exist.", array('@table' => $table, '@name' => $field)));
     }
@@ -508,7 +508,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
       $mapping[$field_new] = $field;
     }
     else {
-      $mapping = array();
+      $mapping = [];
     }
 
     // Remove the previous definition and swap in the new one.
@@ -688,7 +688,7 @@ class DatabaseSchema_sqlite extends DatabaseSchema {
    * {@inheritdoc}
    */
   public function findTablesD8($table_expression) {
-    $tables = array();
+    $tables = [];
 
     // The SQLite implementation doesn't need to use the same filtering strategy
     // as the parent one because individually prefixed tables live in their own

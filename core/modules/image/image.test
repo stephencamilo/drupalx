@@ -50,11 +50,11 @@ class ImageFieldTestCase extends DrupalWebTestCase {
    * @param $widget_settings
    *   A list of widget settings that will be added to the widget defaults.
    */
-  function createImageField($name, $type_name, $field_settings = array(), $instance_settings = array(), $widget_settings = array()) {
+  function createImageField($name, $type_name, $field_settings = [], $instance_settings = [], $widget_settings = []) {
     $field = array(
       'field_name' => $name,
       'type' => 'image',
-      'settings' => array(),
+      'settings' => [],
       'cardinality' => !empty($field_settings['cardinality']) ? $field_settings['cardinality'] : 1,
     );
     $field['settings'] = array_merge($field['settings'], $field_settings);
@@ -66,10 +66,10 @@ class ImageFieldTestCase extends DrupalWebTestCase {
       'label' => $name,
       'bundle' => $type_name,
       'required' => !empty($instance_settings['required']),
-      'settings' => array(),
+      'settings' => [],
       'widget' => array(
         'type' => 'image_image',
-        'settings' => array(),
+        'settings' => [],
       ),
     );
     $instance['settings'] = array_merge($instance['settings'], $instance_settings);
@@ -113,7 +113,7 @@ class ImageFieldTestCase extends DrupalWebTestCase {
     $this->drupalPost('node/add/' . $type, $edit, t('Save'));
 
     // Retrieve ID of the newly created node from the current URL.
-    $matches = array();
+    $matches = [];
     preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
     return isset($matches[1]) ? $matches[1] : FALSE;
   }
@@ -461,7 +461,7 @@ class ImageEffectsUnitTest extends ImageToolkitTestCase {
    * Test the image_desaturate_effect() function.
    */
   function testDesaturateEffect() {
-    $this->assertTrue(image_desaturate_effect($this->image, array()), 'Function returned the expected value.');
+    $this->assertTrue(image_desaturate_effect($this->image, []), 'Function returned the expected value.');
     $this->assertToolkitOperationsCalled(array('desaturate'));
 
     // Check the parameters.
@@ -539,7 +539,7 @@ class ImageAdminUiTestCase extends ImageFieldTestCase {
     $random_style = $this->createRandomStyle();
 
     // Add the crop effect to the image style.
-    $edit = array();
+    $edit = [];
     $edit['data[width]'] = 20;
     $edit['data[height]'] = 20;
     $this->drupalPost($random_style['path'] . '/add/image_crop', $edit, t('Add effect'));
@@ -748,13 +748,13 @@ class ImageAdminStylesUnitTest extends ImageFieldTestCase {
 
     // Test effect deletion form.
     $effect = array_pop($style['effects']);
-    $this->drupalPost($style_path . '/effects/' . $effect['ieid'] . '/delete', array(), t('Delete'));
+    $this->drupalPost($style_path . '/effects/' . $effect['ieid'] . '/delete', [], t('Delete'));
     $this->assertRaw(t('The image effect %name has been deleted.', array('%name' => $effect['label'])), 'Image effect deleted.');
 
     // Style deletion form.
 
     // Delete the style.
-    $this->drupalPost('admin/config/media/image-styles/delete/' . $style_name, array(), t('Delete'));
+    $this->drupalPost('admin/config/media/image-styles/delete/' . $style_name, [], t('Delete'));
 
     // Confirm the style directory has been removed.
     $directory = file_default_scheme() . '://styles/' . $style_name;
@@ -799,7 +799,7 @@ class ImageAdminStylesUnitTest extends ImageFieldTestCase {
     }
 
     // Override the default.
-    $this->drupalPost($edit_path, array(), t('Override defaults'));
+    $this->drupalPost($edit_path, [], t('Override defaults'));
     $this->assertRaw(t('The %style style has been overridden, allowing you to change its settings.', array('%style' => $style_label)), 'Default image style may be overridden.');
 
     // Add sample effect to the overridden style.
@@ -828,7 +828,7 @@ class ImageAdminStylesUnitTest extends ImageFieldTestCase {
     $this->assertEqual($this->getImageCount($style), 1, format_string('Image style %style image %file successfully generated.', array('%style' => $style['label'], '%file' => $image_path)));
 
     // Revert the image style.
-    $this->drupalPost($revert_path, array(), t('Revert'));
+    $this->drupalPost($revert_path, [], t('Revert'));
     drupal_static_reset('image_styles');
     $style = image_style_load($style_name);
 
@@ -1013,7 +1013,7 @@ class ImageFieldDisplayTestCase extends ImageFieldTestCase {
     $widget_settings = array(
       'preview_image_style' => 'medium',
     );
-    $field = $this->createImageField($field_name, 'article', array(), $instance_settings, $widget_settings);
+    $field = $this->createImageField($field_name, 'article', [], $instance_settings, $widget_settings);
     $field['deleted'] = 0;
     $table = _field_sql_storage_tablename($field);
     $schema = drupal_get_schema($table, TRUE);
@@ -1190,7 +1190,7 @@ class ImageFieldValidateTestCase extends ImageFieldTestCase {
       'max_resolution' => $max_resolution . 'x' . $max_resolution,
       'min_resolution' => $min_resolution . 'x' . $min_resolution,
     );
-    $this->createImageField($field_name, 'article', array(), $instance_settings);
+    $this->createImageField($field_name, 'article', [], $instance_settings);
 
     // We want a test image that is too small, and a test image that is too
     // big, so cycle through test image files until we have what we need.
@@ -1343,7 +1343,7 @@ class ImageDimensionsTestCase extends DrupalWebTestCase {
     // Add a desaturate effect.
     $effect = array(
       'name' => 'image_desaturate',
-      'data' => array(),
+      'data' => [],
       'isid' => $style['isid'],
     );
 
@@ -1423,7 +1423,7 @@ class ImageDimensionsTestCase extends DrupalWebTestCase {
     // This ensures compatibility with 7.0 contrib modules.
     $effect = array(
       'name' => 'image_module_test_null',
-      'data' => array(),
+      'data' => [],
       'isid' => $style['isid'],
     );
 
@@ -1450,7 +1450,7 @@ class ImageDimensionsScaleTestCase extends DrupalUnitTestCase {
    */
   function testImageDimensionsScale() {
     // Define input / output datasets to test different branch conditions.
-    $test = array();
+    $test = [];
 
     // Test branch conditions:
     // - No height.
@@ -1597,7 +1597,7 @@ class ImageFieldDefaultImagesTestCase extends ImageFieldTestCase {
   function testDefaultImages() {
     // Create files to use as the default images.
     $files = $this->drupalGetTestFiles('image');
-    $default_images = array();
+    $default_images = [];
     foreach (array('field', 'instance', 'instance2', 'field_new', 'instance_new') as $image_target) {
       $file = array_pop($files);
       $file = file_save($file);
@@ -1956,9 +1956,9 @@ class ImageStyleFlushTest extends ImageFieldTestCase {
     // Remove the 'image_scale' effect and updates the style, which in turn
     // forces an image style flush.
     $effect = array_pop($style['effects']);
-    $this->drupalPost($style_path . '/effects/' . $effect['ieid'] . '/delete', array(), t('Delete'));
+    $this->drupalPost($style_path . '/effects/' . $effect['ieid'] . '/delete', [], t('Delete'));
     $this->assertResponse(200);
-    $this->drupalPost($style_path, array(), t('Update style'));
+    $this->drupalPost($style_path, [], t('Update style'));
     $this->assertResponse(200);
 
     // Post flush, expected 1 image in the 'public' wrapper (sample.png).

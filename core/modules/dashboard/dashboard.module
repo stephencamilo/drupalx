@@ -99,8 +99,8 @@ function dashboard_permission() {
  * Implements hook_block_info_alter().
  */
 function dashboard_block_info_alter(&$blocks, $theme, $code_blocks) {
-  $admin_theme = variable_get('admin_theme');
-  if (($admin_theme && $theme == $admin_theme) || (!$admin_theme && $theme == variable_get('theme_default', 'bartik'))) {
+  $admin_theme = $bootstrap->variable_get('admin_theme');
+  if (($admin_theme && $theme == $admin_theme) || (!$admin_theme && $theme == $bootstrap->variable_get('theme_default', 'bartik'))) {
     foreach ($blocks as $module => &$module_blocks) {
       foreach ($module_blocks as $delta => &$block) {
         // Make administrative blocks that are not already in use elsewhere
@@ -140,7 +140,7 @@ function dashboard_page_build(&$page) {
   global $theme_key;
 
   if (dashboard_is_visible()) {
-    $block_info = array();
+    $block_info = [];
 
     // Create a wrapper for the dashboard itself, then insert each dashboard
     // region into it.
@@ -152,13 +152,13 @@ function dashboard_page_build(&$page) {
       }
       // Insert regions even when they are empty, so that they will be
       // displayed when the dashboard is being configured.
-      $page['content']['dashboard'][$region] = !empty($page[$region]) ? $page[$region] : array();
+      $page['content']['dashboard'][$region] = !empty($page[$region]) ? $page[$region] : [];
       $page['content']['dashboard'][$region]['#dashboard_region'] = $region;
       // Allow each dashboard region to be themed differently, or fall back on
       // the generic theme wrapper function for dashboard regions.
       $page['content']['dashboard'][$region]['#theme_wrappers'][] = array($region, 'dashboard_region');
       unset($page[$region]);
-      $blocks_found = array();
+      $blocks_found = [];
       foreach ($page['content']['dashboard'][$region] as $item) {
         if (isset($item['#theme_wrappers']) && is_array($item['#theme_wrappers']) && in_array('block', $item['#theme_wrappers'])) {
           // If this item is a block, ensure it has a subject.
@@ -521,7 +521,7 @@ function dashboard_show_block_content($module, $delta) {
   drupal_theme_initialize();
   global $theme_key;
 
-  $blocks = array();
+  $blocks = [];
   $block_object = db_query("SELECT * FROM {block} WHERE theme = :theme AND module = :module AND delta = :delta", array(
     ":theme" => $theme_key,
     ":module" => $module,

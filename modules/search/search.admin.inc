@@ -9,7 +9,7 @@
  * Menu callback: confirm wiping of the index.
  */
 function search_reindex_confirm() {
-  return confirm_form(array(), t('Are you sure you want to re-index the site?'),
+  return confirm_form([], t('Are you sure you want to re-index the site?'),
                   'admin/config/search/settings', t('The search index is not cleared but systematically updated to reflect the new settings. Searching will continue to work but new content won\'t be indexed until all existing content has been re-indexed. This action cannot be undone.'), t('Re-index site'), t('Cancel'));
 }
 
@@ -32,7 +32,7 @@ function _search_get_module_names() {
 
   $search_info = search_get_info(TRUE);
   $system_info = system_get_info('module');
-  $names = array();
+  $names = [];
   foreach ($search_info as $module => $info) {
     $names[$module] = $system_info[$module]['name'];
   }
@@ -77,7 +77,7 @@ function search_admin_settings($form) {
   $form['indexing_throttle']['search_cron_limit'] = array(
     '#type' => 'select',
     '#title' => t('Number of items to index per cron run'),
-    '#default_value' => variable_get('search_cron_limit', 100),
+    '#default_value' => $bootstrap->variable_get('search_cron_limit', 100),
     '#options' => $items,
     '#description' => t('The maximum number of items indexed in each pass of a <a href="@cron">cron maintenance task</a>. If necessary, reduce the number of items to prevent timeouts and memory errors while indexing.', array('@cron' => url('admin/reports/status')))
   );
@@ -92,7 +92,7 @@ function search_admin_settings($form) {
   $form['indexing_settings']['minimum_word_size'] = array(
     '#type' => 'textfield',
     '#title' => t('Minimum word length to index'),
-    '#default_value' => variable_get('minimum_word_size', 3),
+    '#default_value' => $bootstrap->variable_get('minimum_word_size', 3),
     '#size' => 5,
     '#maxlength' => 3,
     '#description' => t('The number of characters a word has to be to be indexed. A lower setting means better search result ranking, but also a larger database. Each search query must contain at least one keyword that is this size (or longer).'),
@@ -101,7 +101,7 @@ function search_admin_settings($form) {
   $form['indexing_settings']['overlap_cjk'] = array(
     '#type' => 'checkbox',
     '#title' => t('Simple CJK handling'),
-    '#default_value' => variable_get('overlap_cjk', TRUE),
+    '#default_value' => $bootstrap->variable_get('overlap_cjk', TRUE),
     '#description' => t('Whether to apply a simple Chinese/Japanese/Korean tokenizer based on overlapping sequences. Turn this off if you want to use an external preprocessor for this instead. Does not affect other languages.')
   );
 
@@ -114,14 +114,14 @@ function search_admin_settings($form) {
     '#type' => 'checkboxes',
     '#title' => t('Active modules'),
     '#title_display' => 'invisible',
-    '#default_value' => variable_get('search_active_modules', array('node', 'user')),
+    '#default_value' => $bootstrap->variable_get('search_active_modules', array('node', 'user')),
     '#options' => $module_options,
     '#description' => t('Choose which search modules are active from the available modules.')
   );
   $form['active']['search_default_module'] = array(
     '#title' => t('Default search module'),
     '#type' => 'radios',
-    '#default_value' => variable_get('search_default_module', 'node'),
+    '#default_value' => $bootstrap->variable_get('search_default_module', 'node'),
     '#options' => $module_options,
     '#description' => t('Choose which search module is the default.')
   );
@@ -132,7 +132,7 @@ function search_admin_settings($form) {
   $form['logging']['search_logging'] = array(
     '#type' => 'checkbox',
     '#title' => t('Log searches'),
-    '#default_value' => variable_get('search_logging', 1),
+    '#default_value' => $bootstrap->variable_get('search_logging', 1),
     '#description' => t('If checked, all searches will be logged. Uncheck to skip logging. Logging may affect performance.'),
   );
   $form['#validate'][] = 'search_admin_settings_validate';
@@ -173,7 +173,7 @@ function search_admin_settings_submit($form, &$form_state) {
     drupal_set_message(t('The index will be rebuilt.'));
     search_reindex();
   }
-  $current_modules = variable_get('search_active_modules', array('node', 'user'));
+  $current_modules = $bootstrap->variable_get('search_active_modules', array('node', 'user'));
   // Check whether we are resetting the values.
   if ($form_state['triggering_element']['#value'] == t('Reset to defaults')) {
     $new_modules = array('node', 'user');

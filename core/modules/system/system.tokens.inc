@@ -128,7 +128,7 @@ function system_token_info() {
 /**
  * Implements hook_tokens().
  */
-function system_tokens($type, $tokens, array $data = array(), array $options = array()) {
+function system_tokens($type, $tokens, array $data = [], array $options = []) {
   $url_options = array('absolute' => TRUE);
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
@@ -139,23 +139,23 @@ function system_tokens($type, $tokens, array $data = array(), array $options = a
   }
   $sanitize = !empty($options['sanitize']);
 
-  $replacements = array();
+  $replacements = [];
 
   if ($type == 'site') {
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'name':
-          $site_name = variable_get('site_name', 'Drupal');
+          $site_name = $bootstrap->variable_get('site_name', 'Drupal');
           $replacements[$original] = $sanitize ? check_plain($site_name) : $site_name;
           break;
 
         case 'slogan':
-          $slogan = variable_get('site_slogan', '');
+          $slogan = $bootstrap->variable_get('site_slogan', '');
           $replacements[$original] = $sanitize ? check_plain($slogan) : $slogan;
           break;
 
         case 'mail':
-          $replacements[$original] = variable_get('site_mail', '');
+          $replacements[$original] = $bootstrap->variable_get('site_mail', '');
           break;
 
         case 'url':

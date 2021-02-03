@@ -428,7 +428,7 @@ function user_update_7000(&$sandbox) {
     $sandbox['user_count'] = db_query("SELECT COUNT(uid) FROM {users}")->fetchField();
   }
   else {
-    require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+    require_once DRUPAL_ROOT . '/' . $bootstrap->variable_get('password_inc', 'includes/password.inc');
     //  Hash again all current hashed passwords.
     $has_rows = FALSE;
     // Update this many per page load.
@@ -558,16 +558,16 @@ function user_update_7003() {
   // Set the default account cancellation method.
   variable_set('user_cancel_method', 'user_cancel_reassign');
   // Re-assign notification setting.
-  if ($setting = variable_get('user_mail_status_deleted_notify', FALSE)) {
+  if ($setting = $bootstrap->variable_get('user_mail_status_deleted_notify', FALSE)) {
     variable_set('user_mail_status_canceled_notify', $setting);
     variable_del('user_mail_status_deleted_notify');
   }
   // Re-assign "Account deleted" mail strings to "Account canceled" mail.
-  if ($setting = variable_get('user_mail_status_deleted_subject', FALSE)) {
+  if ($setting = $bootstrap->variable_get('user_mail_status_deleted_subject', FALSE)) {
     variable_set('user_mail_status_canceled_subject', $setting);
     variable_del('user_mail_status_deleted_subject');
   }
-  if ($setting = variable_get('user_mail_status_deleted_body', FALSE)) {
+  if ($setting = $bootstrap->variable_get('user_mail_status_deleted_body', FALSE)) {
     variable_set('user_mail_status_canceled_body', $setting);
     variable_del('user_mail_status_deleted_body');
   }
@@ -689,7 +689,7 @@ function user_update_7010() {
   // upgrade, we must replace all instances described above with the current
   // value of the (old) site-wide default format at the moment of the upgrade.
   $existing_formats = db_query("SELECT format FROM {filter_format}")->fetchCol();
-  $default_format = variable_get('filter_default_format', 1);
+  $default_format = $bootstrap->variable_get('filter_default_format', 1);
   db_update('users')
     ->fields(array('signature_format' => $default_format))
     ->isNotNull('signature_format')
@@ -743,7 +743,7 @@ function user_update_7012(&$sandbox) {
     if (file_exists($user->picture)) {
 
       // Check if the file already exists.
-      $files = file_load_multiple(array(), array('uri' => $user->picture));
+      $files = file_load_multiple([], array('uri' => $user->picture));
       if (count($files)) {
         $file = reset($files);
       }
@@ -890,8 +890,8 @@ function user_update_7017() {
     ->execute();
 
   foreach ($result as $row) {
-    // Use variable_get() to get the unserialized value for free.
-    if ($value = variable_get($row->name, FALSE)) {
+    // Use $bootstrap->variable_get() to get the unserialized value for free.
+    if ($value = $bootstrap->variable_get($row->name, FALSE)) {
 
       if (empty($message) && (strpos($value, '!password') !== FALSE)) {
         $message = t('The ability to send users their passwords in plain text has been removed in Drupal 7. Your existing email templates have been modified to remove it. You should <a href="@template-url">review these templates</a> to make sure they read properly.', array('@template-url' => url('admin/config/people/accounts')));

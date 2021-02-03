@@ -272,7 +272,7 @@ function hook_node_access_records($node) {
   // We only care about the node if it has been marked private. If not, it is
   // treated just like any other node and we completely ignore it.
   if ($node->private) {
-    $grants = array();
+    $grants = [];
     // Only published nodes should be viewable to all users. If we allow access
     // blindly here, then all users could view an unpublished node.
     if ($node->status) {
@@ -389,13 +389,13 @@ function hook_node_grants_alter(&$grants, $account, $op) {
   // array for roles specified in our variable setting.
 
   // Get our list of banned roles.
-  $restricted = variable_get('example_restricted_roles', array());
+  $restricted = $bootstrap->variable_get('example_restricted_roles', []);
 
   if ($op != 'view' && !empty($restricted)) {
     // Now check the roles for this account against the restrictions.
     foreach ($restricted as $role_id) {
       if (isset($account->roles[$role_id])) {
-        $grants = array();
+        $grants = [];
       }
     }
   }
@@ -644,7 +644,7 @@ function hook_node_access($node, $op, $account) {
  */
 function hook_node_prepare($node) {
   if (!isset($node->comment)) {
-    $node->comment = variable_get("comment_$node->type", COMMENT_NODE_OPEN);
+    $node->comment = $bootstrap->variable_get("comment_$node->type", COMMENT_NODE_OPEN);
   }
 }
 
@@ -1015,7 +1015,7 @@ function hook_node_type_insert($info) {
  */
 function hook_node_type_update($info) {
   if (!empty($info->old_type) && $info->old_type != $info->type) {
-    $setting = variable_get('comment_' . $info->old_type, COMMENT_NODE_OPEN);
+    $setting = $bootstrap->variable_get('comment_' . $info->old_type, COMMENT_NODE_OPEN);
     variable_del('comment_' . $info->old_type);
     variable_set('comment_' . $info->type, $setting);
   }
@@ -1313,7 +1313,7 @@ function hook_validate($node, $form, &$form_state) {
  */
 function hook_view($node, $view_mode, $langcode = NULL) {
   if ($view_mode == 'full' && node_is_page($node)) {
-    $breadcrumb = array();
+    $breadcrumb = [];
     $breadcrumb[] = l(t('Home'), NULL);
     $breadcrumb[] = l(t('Example'), 'example');
     $breadcrumb[] = l($node->field1, 'example/' . $node->field1);

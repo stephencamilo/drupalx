@@ -65,12 +65,12 @@ class BlogTestCase extends DrupalWebTestCase {
     // Login the admin user.
     $this->drupalLogin($this->big_user);
     // Enable the recent blog block.
-    $edit = array();
+    $edit = [];
     $edit['blocks[blog_recent][region]'] = 'sidebar_second';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
     $this->assertResponse(200);
     // Verify ability to change number of recent blog posts in block.
-    $edit = array();
+    $edit = [];
     $edit['blog_block_count'] = 5;
     $this->drupalPost('admin/structure/block/manage/blog/recent/configure', $edit, t('Save block'));
     $this->assertEqual(variable_get('blog_block_count', 10), 5, 'Number of recent blog posts changed.');
@@ -161,7 +161,7 @@ class BlogTestCase extends DrupalWebTestCase {
 
     if ($response == 200) {
       // Edit blog node.
-      $edit = array();
+      $edit = [];
       $langcode = LANGUAGE_NONE;
       $edit["title"] = 'node/' . $node->nid;
       $edit["body[$langcode][0][value]"] = $this->randomName(256);
@@ -169,7 +169,7 @@ class BlogTestCase extends DrupalWebTestCase {
       $this->assertRaw(t('Blog entry %title has been updated.', array('%title' => $edit["title"])), 'Blog node was edited');
 
       // Delete blog node.
-      $this->drupalPost('node/' . $node->nid . '/delete', array(), t('Delete'));
+      $this->drupalPost('node/' . $node->nid . '/delete', [], t('Delete'));
       $this->assertResponse($response);
       $this->assertRaw(t('Blog entry %title has been deleted.', array('%title' => $edit["title"])), 'Blog node was deleted');
     }

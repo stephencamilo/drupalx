@@ -65,7 +65,7 @@ function _color_theme_select_form_alter(&$form, &$form_state) {
   // Use the generated screenshot in the theme list.
   $themes = list_themes();
   foreach (element_children($form) as $theme) {
-    if ($screenshot = variable_get('color_' . $theme . '_screenshot')) {
+    if ($screenshot = $bootstrap->variable_get('color_' . $theme . '_screenshot')) {
       if (isset($form[$theme]['screenshot'])) {
         $form[$theme]['screenshot']['#markup'] = theme('image', array('path' => $screenshot, 'title' => '', 'attributes' => array('class' => array('screenshot'))));
       }
@@ -87,7 +87,7 @@ function _color_html_alter(&$vars) {
   $themes = list_themes();
 
   // Override stylesheets.
-  $color_paths = variable_get('color_' . $theme_key . '_stylesheets', array());
+  $color_paths = $bootstrap->variable_get('color_' . $theme_key . '_stylesheets', []);
   if (!empty($color_paths)) {
 
     foreach ($themes[$theme_key]->stylesheets['all'] as $base_filename => $old_path) {
@@ -121,7 +121,7 @@ function _color_page_alter(&$vars) {
   global $theme_key;
 
   // Override logo.
-  $logo = variable_get('color_' . $theme_key . '_logo');
+  $logo = $bootstrap->variable_get('color_' . $theme_key . '_logo');
   if ($logo && $vars['logo'] && preg_match('!' . $theme_key . '/logo.png$!', $vars['logo'])) {
     $vars['logo'] = file_create_url($logo);
   }
@@ -131,7 +131,7 @@ function _color_page_alter(&$vars) {
  * Retrieves the Color module information for a particular theme.
  */
 function color_get_info($theme) {
-  static $theme_info = array();
+  static $theme_info = [];
 
   if (isset($theme_info[$theme])) {
     return $theme_info[$theme];
@@ -155,7 +155,7 @@ function color_get_palette($theme, $default = FALSE) {
   $palette = $info['schemes']['default']['colors'];
 
   // Load variable.
-  return $default ? $palette : variable_get('color_' . $theme . '_palette', $palette);
+  return $default ? $palette : $bootstrap->variable_get('color_' . $theme . '_palette', $palette);
 }
 
 /**
@@ -172,9 +172,9 @@ function color_scheme_form($complete_form, &$form_state, $theme) {
   $base = drupal_get_path('module', 'color');
   $info = color_get_info($theme);
 
-  $info['schemes'][''] = array('title' => t('Custom'), 'colors' => array());
-  $color_sets = array();
-  $schemes = array();
+  $info['schemes'][''] = array('title' => t('Custom'), 'colors' => []);
+  $color_sets = [];
+  $schemes = [];
   foreach ($info['schemes'] as $key => $scheme) {
     $color_sets[$key] = $scheme['title'];
     $schemes[$key] = $scheme['colors'];
@@ -183,7 +183,7 @@ function color_scheme_form($complete_form, &$form_state, $theme) {
 
   // See if we're using a predefined scheme.
   // Note: we use the original theme when the default scheme is chosen.
-  $current_scheme = variable_get('color_' . $theme . '_palette', array());
+  $current_scheme = $bootstrap->variable_get('color_' . $theme . '_palette', []);
   foreach ($schemes as $key => $scheme) {
     if ($current_scheme == $scheme) {
       $scheme_name = $key;
@@ -212,7 +212,7 @@ function color_scheme_form($complete_form, &$form_state, $theme) {
       ),
       // Add custom CSS.
       'css' => array(
-        $base . '/color.css' => array(),
+        $base . '/color.css' => [],
       ),
       // Add custom JavaScript.
       'js' => array(
@@ -310,7 +310,7 @@ function theme_color_scheme_form($variables) {
  *   The data that will appear in the $form_state['values'] collection for this
  *   element. Return nothing to use the default.
  */
-function color_palette_color_value($element, $input = FALSE, $form_state = array()) {
+function color_palette_color_value($element, $input = FALSE, $form_state = []) {
   // If we suspect a possible cross-site request forgery attack, only accept
   // hexadecimal CSS color strings from user input, to avoid problems when this
   // value is used in the JavaScript preview.
@@ -402,7 +402,7 @@ function color_scheme_form_submit($form, &$form_state) {
   }
 
   // Delete old files.
-  foreach (variable_get('color_' . $theme . '_files', array()) as $file) {
+  foreach (variable_get('color_' . $theme . '_files', []) as $file) {
     @drupal_unlink($file);
   }
   if (isset($file) && $file = dirname($file)) {
@@ -429,7 +429,7 @@ function color_scheme_form_submit($form, &$form_state) {
   $paths['target'] = $paths['target'] . '/';
   $paths['id'] = $id;
   $paths['source'] = drupal_get_path('theme', $theme) . '/';
-  $paths['files'] = $paths['map'] = array();
+  $paths['files'] = $paths['map'] = [];
 
   // Save palette and logo location.
   variable_set('color_' . $theme . '_palette', $palette);
@@ -450,10 +450,10 @@ function color_scheme_form_submit($form, &$form_state) {
   }
 
   // Rewrite theme stylesheets.
-  $css = array();
+  $css = [];
   foreach ($info['css'] as $stylesheet) {
     // Build a temporary array with LTR and RTL files.
-    $files = array();
+    $files = [];
     if (file_exists($paths['source'] . $stylesheet)) {
       $files[] = $stylesheet;
 

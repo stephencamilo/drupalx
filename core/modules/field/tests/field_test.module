@@ -38,7 +38,7 @@ function field_test_permission() {
  * Implements hook_menu().
  */
 function field_test_menu() {
-  $items = array();
+  $items = [];
   $bundles = field_info_bundles('test_entity');
 
   foreach ($bundles as $bundle_name => $bundle_info) {
@@ -86,7 +86,7 @@ function field_test_field_test_op($entity_type, $entity, $field, $instance, $lan
  * _field_invoke_multiple().
  */
 function field_test_field_test_op_multiple($entity_type, $entities, $field, $instances, $langcode, &$items) {
-  $result = array();
+  $result = [];
   foreach ($entities as $id => $entity) {
     // Entities, instances and items are assumed to be consistently grouped by
     // language. To verify this we try to access all the passed data structures
@@ -166,7 +166,7 @@ function field_test_memorize($key = NULL, $value = NULL) {
 
   if (!isset($key)) {
     $return = $memorize;
-    $memorize = array();
+    $memorize = [];
     return $return;
   }
   if (is_array($memorize)) {

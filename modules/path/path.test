@@ -33,7 +33,7 @@ class PathTestCase extends DrupalWebTestCase {
     $node1 = $this->drupalCreateNode();
 
     // Create alias.
-    $edit = array();
+    $edit = [];
     $edit['source'] = 'node/' . $node1->nid;
     $edit['alias'] = $this->randomName(8);
     $this->drupalPost('admin/config/search/path/add', $edit, t('Save'));
@@ -58,7 +58,7 @@ class PathTestCase extends DrupalWebTestCase {
     $node1 = $this->drupalCreateNode();
 
     // Create alias.
-    $edit = array();
+    $edit = [];
     $edit['source'] = 'node/' . $node1->nid;
     $edit['alias'] = $this->randomName(8);
     $this->drupalPost('admin/config/search/path/add', $edit, t('Save'));
@@ -100,8 +100,8 @@ class PathTestCase extends DrupalWebTestCase {
     $this->assertRaw(t('The alias %alias is already in use in this language.', array('%alias' => $edit['alias'])), 'Attempt to move alias was rejected.');
 
     // Delete alias.
-    $this->drupalPost('admin/config/search/path/edit/' . $pid, array(), t('Delete'));
-    $this->drupalPost(NULL, array(), t('Confirm'));
+    $this->drupalPost('admin/config/search/path/edit/' . $pid, [], t('Delete'));
+    $this->drupalPost(NULL, [], t('Confirm'));
 
     // Confirm that the alias no longer works.
     $this->drupalGet($edit['alias']);
@@ -117,7 +117,7 @@ class PathTestCase extends DrupalWebTestCase {
     $node1 = $this->drupalCreateNode();
 
     // Create alias.
-    $edit = array();
+    $edit = [];
     $edit['path[alias]'] = $this->randomName(8);
     $this->drupalPost('node/' . $node1->nid . '/edit', $edit, t('Save'));
 
@@ -209,7 +209,7 @@ class PathTestCase extends DrupalWebTestCase {
   function testDuplicateNodeAlias() {
     // Create one node with a random alias.
     $node_one = $this->drupalCreateNode();
-    $edit = array();
+    $edit = [];
     $edit['path[alias]'] = $this->randomName();
     $this->drupalPost('node/' . $node_one->nid . '/edit', $edit, t('Save'));
 
@@ -248,7 +248,7 @@ class PathTaxonomyTermTestCase extends DrupalWebTestCase {
     // Create a term in the default 'Tags' vocabulary with URL alias.
     $vocabulary = taxonomy_vocabulary_load(1);
     $description = $this->randomName();;
-    $edit = array();
+    $edit = [];
     $edit['name'] = $this->randomName();
     $edit['description[value]'] = $description;
     $edit['path[alias]'] = $this->randomName();
@@ -260,7 +260,7 @@ class PathTaxonomyTermTestCase extends DrupalWebTestCase {
 
     // Change the term's URL alias.
     $tid = db_query("SELECT tid FROM {taxonomy_term_data} WHERE name = :name", array(':name' => $edit['name']))->fetchField();
-    $edit2 = array();
+    $edit2 = [];
     $edit2['path[alias]'] = $this->randomName();
     $this->drupalPost('taxonomy/term/' . $tid . '/edit', $edit2, t('Save'));
 
@@ -274,7 +274,7 @@ class PathTaxonomyTermTestCase extends DrupalWebTestCase {
     $this->assertResponse(404, 'Old URL alias returns 404.');
 
     // Remove the term's URL alias.
-    $edit3 = array();
+    $edit3 = [];
     $edit3['path[alias]'] = '';
     $this->drupalPost('taxonomy/term/' . $tid . '/edit', $edit3, t('Save'));
 
@@ -305,7 +305,7 @@ class PathLanguageTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->web_user);
 
     // Enable French language.
-    $edit = array();
+    $edit = [];
     $edit['langcode'] = 'fr';
 
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
@@ -326,7 +326,7 @@ class PathLanguageTestCase extends DrupalWebTestCase {
     $english_alias = $this->randomName();
 
     // Edit the node to set language and path.
-    $edit = array();
+    $edit = [];
     $edit['language'] = 'en';
     $edit['path[alias]'] = $english_alias;
     $this->drupalPost('node/' . $english_node->nid . '/edit', $edit, t('Save'));
@@ -338,7 +338,7 @@ class PathLanguageTestCase extends DrupalWebTestCase {
     // Translate the node into French.
     $this->drupalGet('node/' . $english_node->nid . '/translate');
     $this->clickLink(t('add translation'));
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName();
     $edit["body[$langcode][0][value]"] = $this->randomName();
@@ -446,7 +446,7 @@ class PathLanguageUITestCase extends DrupalWebTestCase {
     $this->drupalLogin($web_user);
 
     // Enable French language.
-    $edit = array();
+    $edit = [];
     $edit['langcode'] = 'fr';
 
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
@@ -461,7 +461,7 @@ class PathLanguageUITestCase extends DrupalWebTestCase {
    */
   function testLanguageNeutralURLs() {
     $name = $this->randomName(8);
-    $edit = array();
+    $edit = [];
     $edit['source'] = 'admin/config/search/path';
     $edit['alias'] = $name;
     $this->drupalPost('admin/config/search/path/add', $edit, t('Save'));
@@ -475,7 +475,7 @@ class PathLanguageUITestCase extends DrupalWebTestCase {
    */
   function testDefaultLanguageURLs() {
     $name = $this->randomName(8);
-    $edit = array();
+    $edit = [];
     $edit['source'] = 'admin/config/search/path';
     $edit['alias'] = $name;
     $edit['language'] = 'en';
@@ -490,7 +490,7 @@ class PathLanguageUITestCase extends DrupalWebTestCase {
    */
   function testNonDefaultURLs() {
     $name = $this->randomName(8);
-    $edit = array();
+    $edit = [];
     $edit['source'] = 'admin/config/search/path';
     $edit['alias'] = $name;
     $edit['language'] = 'fr';
@@ -523,7 +523,7 @@ class PathMonolingualTestCase extends DrupalWebTestCase {
     $this->drupalLogin($web_user);
 
     // Enable French language.
-    $edit = array();
+    $edit = [];
     $edit['langcode'] = 'fr';
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
 

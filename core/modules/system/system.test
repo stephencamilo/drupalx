@@ -112,7 +112,7 @@ class ModuleTestCase extends DrupalWebTestCase {
    * @param $link
    *   A link to associate with the message.
    */
-  function assertLogMessage($type, $message, $variables = array(), $severity = WATCHDOG_NOTICE, $link = '') {
+  function assertLogMessage($type, $message, $variables = [], $severity = WATCHDOG_NOTICE, $link = '') {
     $count = db_select('watchdog', 'w')
       ->condition('type', $type)
       ->condition('message', $message)
@@ -167,7 +167,7 @@ class EnableDisableTestCase extends ModuleTestCase {
     // Throughout this test, some modules may be automatically enabled (due to
     // dependencies). We'll keep track of them in an array, so we can handle
     // them separately.
-    $automatically_enabled = array();
+    $automatically_enabled = [];
 
     // Go through each module in the list and try to enable it (unless it was
     // already enabled automatically due to a dependency).
@@ -194,13 +194,13 @@ class EnableDisableTestCase extends ModuleTestCase {
         }
 
         // Install and enable the module.
-        $edit = array();
+        $edit = [];
         $edit['modules[Core][' . $name . '][enable]'] = $name;
         $this->drupalPost('admin/modules', $edit, t('Save configuration'));
         // Handle the case where modules were installed along with this one and
         // where we therefore hit a confirmation screen.
         if (count($modules_to_enable) > 1) {
-          $this->drupalPost(NULL, array(), t('Continue'));
+          $this->drupalPost(NULL, [], t('Continue'));
         }
         $this->assertText(t('The configuration options have been saved.'), 'Modules status has been updated.');
 
@@ -263,7 +263,7 @@ class EnableDisableTestCase extends ModuleTestCase {
     //   uninstalled.
     // - That enabling more than one module at the same time does not lead to
     //   any errors.
-    $edit = array();
+    $edit = [];
     foreach (array_keys($modules) as $name) {
       $edit['modules[Core][' . $name . '][enable]'] = $name;
     }
@@ -299,7 +299,7 @@ class EnableDisableTestCase extends ModuleTestCase {
    */
   function testEntityInfoCacheWatchdog() {
     module_enable(array('entity_cache_test'));
-    $info = variable_get('entity_cache_test');
+    $info = $bootstrap->variable_get('entity_cache_test');
     $this->assertEqual($info['label'], 'Entity Cache Test', 'Entity info label is correct.');
     $this->assertEqual($info['controller class'], 'DrupalDefaultEntityController', 'Entity controller class info is correct.');
   }
@@ -312,7 +312,7 @@ class EnableDisableTestCase extends ModuleTestCase {
    */
   function assertSuccessfulDisableAndUninstall($module) {
     // Disable the module.
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][' . $module . '][enable]'] = FALSE;
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'), 'Modules status has been updated.');
@@ -327,7 +327,7 @@ class EnableDisableTestCase extends ModuleTestCase {
     $this->assertModuleTablesExist($module);
 
     // Uninstall the module.
-    $edit = array();
+    $edit = [];
     $edit['uninstall[' . $module . ']'] = $module;
     $this->drupalPost('admin/modules/uninstall', $edit, t('Uninstall'));
     $this->drupalPost(NULL, NULL, t('Uninstall'));
@@ -367,7 +367,7 @@ class HookRequirementsTestCase extends ModuleTestCase {
     $this->assertModules(array('requirements1_test'), FALSE);
 
     // Attempt to install the requirements1_test module.
-    $edit = array();
+    $edit = [];
     $edit['modules[Testing][requirements1_test][enable]'] = 'requirements1_test';
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
 
@@ -406,7 +406,7 @@ class ModuleDependencyTestCase extends ModuleTestCase {
    */
   function testEnableWithoutDependency() {
     // Attempt to enable content translation without locale enabled.
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][translation][enable]'] = 'translation';
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
     $this->assertText(t('Some required modules must be enabled'), 'Dependency required.');
@@ -443,7 +443,7 @@ class ModuleDependencyTestCase extends ModuleTestCase {
 
     // Verify that the module is forced to be disabled when submitting
     // the module page.
-    $this->drupalPost('admin/modules', array(), t('Save configuration'));
+    $this->drupalPost('admin/modules', [], t('Save configuration'));
     $this->assertText(t('The @module module is missing, so the following module will be disabled: @depends.', array('@module' => '_missing_dependency', '@depends' => 'system_dependencies_test')), 'The module missing dependencies will be disabled.');
 
     // Confirm.
@@ -490,7 +490,7 @@ class ModuleDependencyTestCase extends ModuleTestCase {
     $this->assertModules(array('requirements2_test'), FALSE);
 
     // Attempt to install both modules at the same time.
-    $edit = array();
+    $edit = [];
     $edit['modules[Testing][requirements1_test][enable]'] = 'requirements1_test';
     $edit['modules[Testing][requirements2_test][enable]'] = 'requirements2_test';
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
@@ -521,7 +521,7 @@ class ModuleDependencyTestCase extends ModuleTestCase {
 
     // Enable the modules through the UI, verifying that the dependency chain
     // is correct.
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][forum][enable]'] = 'forum';
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
     $this->assertModules(array('forum'), FALSE);
@@ -725,7 +725,7 @@ class IPAddressBlockingTestCase extends DrupalWebTestCase {
     $this->drupalGet('admin/config/people/ip-blocking');
 
     // Block a valid IP address.
-    $edit = array();
+    $edit = [];
     $edit['ip'] = '1.2.3.3';
     $this->drupalPost('admin/config/people/ip-blocking', $edit, t('Add'));
     $ip = db_query("SELECT iid from {blocked_ips} WHERE ip = :ip", array(':ip' => $edit['ip']))->fetchField();
@@ -733,25 +733,25 @@ class IPAddressBlockingTestCase extends DrupalWebTestCase {
     $this->assertRaw(t('The IP address %ip has been blocked.', array('%ip' => $edit['ip'])), t('IP address was blocked.'));
 
     // Try to block an IP address that's already blocked.
-    $edit = array();
+    $edit = [];
     $edit['ip'] = '1.2.3.3';
     $this->drupalPost('admin/config/people/ip-blocking', $edit, t('Add'));
     $this->assertText(t('This IP address is already blocked.'));
 
     // Try to block a reserved IP address.
-    $edit = array();
+    $edit = [];
     $edit['ip'] = '255.255.255.255';
     $this->drupalPost('admin/config/people/ip-blocking', $edit, t('Add'));
     $this->assertText(t('Enter a valid IP address.'));
 
     // Try to block a reserved IP address.
-    $edit = array();
+    $edit = [];
     $edit['ip'] = 'test.example.com';
     $this->drupalPost('admin/config/people/ip-blocking', $edit, t('Add'));
     $this->assertText(t('Enter a valid IP address.'));
 
     // Submit an empty form.
-    $edit = array();
+    $edit = [];
     $edit['ip'] = '';
     $this->drupalPost('admin/config/people/ip-blocking', $edit, t('Add'));
     $this->assertText(t('Enter a valid IP address.'));
@@ -765,7 +765,7 @@ class IPAddressBlockingTestCase extends DrupalWebTestCase {
 
     // Submit your own IP address. This fails, although it works when testing manually.
      // TODO: on some systems this test fails due to a bug or inconsistency in cURL.
-     // $edit = array();
+     // $edit = [];
      // $edit['ip'] = ip_address();
      // $this->drupalPost('admin/config/people/ip-blocking', $edit, t('Save'));
      // $this->assertText(t('You may not block your own IP address.'));
@@ -823,7 +823,7 @@ class CronRunTestCase extends DrupalWebTestCase {
     $this->assertResponse(403);
 
     // Run cron anonymously with the valid cron key.
-    $key = variable_get('cron_key', 'drupal');
+    $key = $bootstrap->variable_get('cron_key', 'drupal');
     $this->drupalGet($base_url . '/cron.php', array('external' => TRUE, 'query' => array('cron_key' => $key)));
     $this->assertResponse(200);
   }
@@ -842,14 +842,14 @@ class CronRunTestCase extends DrupalWebTestCase {
     variable_set('cron_last', $cron_last);
     variable_set('cron_safe_threshold', $cron_safe_threshold);
     $this->drupalGet('');
-    $this->assertTrue($cron_last == variable_get('cron_last', NULL), 'Cron does not run when the cron threshold is not passed.');
+    $this->assertTrue($cron_last == $bootstrap->variable_get('cron_last', NULL), 'Cron does not run when the cron threshold is not passed.');
 
     // Test if cron runs when the cron threshold was passed.
     $cron_last = time() - 200;
     variable_set('cron_last', $cron_last);
     $this->drupalGet('');
     sleep(1);
-    $this->assertTrue($cron_last < variable_get('cron_last', NULL), 'Cron runs when the cron threshold is passed.');
+    $this->assertTrue($cron_last < $bootstrap->variable_get('cron_last', NULL), 'Cron runs when the cron threshold is passed.');
 
     // Disable the cron threshold through the interface.
     $admin_user = $this->drupalCreateUser(array('administer site configuration'));
@@ -862,7 +862,7 @@ class CronRunTestCase extends DrupalWebTestCase {
     $cron_last = time() - 200;
     variable_set('cron_last', $cron_last);
     $this->drupalGet('');
-    $this->assertTrue($cron_last == variable_get('cron_last', NULL), 'Cron does not run when the cron threshold is disabled.');
+    $this->assertTrue($cron_last == $bootstrap->variable_get('cron_last', NULL), 'Cron does not run when the cron threshold is disabled.');
   }
 
   /**
@@ -921,7 +921,7 @@ class CronRunTestCase extends DrupalWebTestCase {
     // won't finish successfully.
     // The common_test_cron_helper module sets the 'common_test_cron' variable.
     $this->cronRun();
-    $result = variable_get('common_test_cron');
+    $result = $bootstrap->variable_get('common_test_cron');
     $this->assertEqual($result, 'success', 'Cron correctly handles exceptions thrown during hook_cron() invocations.');
   }
 
@@ -1188,7 +1188,7 @@ class SiteMaintenanceTestCase extends DrupalWebTestCase {
 
     $admin_message = t('Operating in maintenance mode. <a href="@url">Go online.</a>', array('@url' => url('admin/config/development/maintenance')));
     $user_message = t('Operating in maintenance mode.');
-    $offline_message = t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal')));
+    $offline_message = t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => $bootstrap->variable_get('site_name', 'Drupal')));
 
     $this->drupalGet('');
     $this->assertRaw($admin_message, 'Found the site maintenance mode message.');
@@ -1248,7 +1248,7 @@ class SiteMaintenanceTestCase extends DrupalWebTestCase {
     $path = substr($mails[0]['body'], $start, 66 + strlen($this->user->uid));
 
     // Log in with temporary login link.
-    $this->drupalPost($path, array(), t('Log in'));
+    $this->drupalPost($path, [], t('Log in'));
     $this->assertText($user_message);
   }
 }
@@ -1332,7 +1332,7 @@ class DateTimeFunctionalTest extends DrupalWebTestCase {
 
     // Delete custom date type.
     $this->clickLink(t('delete'));
-    $this->drupalPost('admin/config/regional/date-time/types/' . $machine_name . '/delete', array(), t('Remove'));
+    $this->drupalPost('admin/config/regional/date-time/types/' . $machine_name . '/delete', [], t('Remove'));
     $this->assertEqual($this->getUrl(), url('admin/config/regional/date-time', array('absolute' => TRUE)), 'Correct page redirection.');
     $this->assertText(t('Removed date type ' . $date_type), 'Custom date type removed.');
   }
@@ -1387,7 +1387,7 @@ class DateTimeFunctionalTest extends DrupalWebTestCase {
     // Delete custom date format.
     $this->drupalGet('admin/config/regional/date-time/formats');
     $this->clickLink(t('delete'));
-    $this->drupalPost($this->getUrl(), array(), t('Remove'));
+    $this->drupalPost($this->getUrl(), [], t('Remove'));
     $this->assertEqual($this->getUrl(), url('admin/config/regional/date-time/formats', array('absolute' => TRUE)), 'Correct page redirection.');
     $this->assertText(t('Removed date format'), 'Custom date format removed successfully.');
   }
@@ -1702,7 +1702,7 @@ class SystemBlockTestCase extends DrupalWebTestCase {
     $this->assertText(t('The block configuration has been saved.'), t('Block configuration set.'));
 
     // Set the powered-by block to the footer region.
-    $edit = array();
+    $edit = [];
     $edit['blocks[system_powered-by][region]'] = 'footer';
     $edit['blocks[system_main][region]'] = 'content';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
@@ -1713,7 +1713,7 @@ class SystemBlockTestCase extends DrupalWebTestCase {
     $this->assertRaw('id="block-system-powered-by"', t('Block successfully being displayed on the page.'));
 
     // Set the block to the disabled region.
-    $edit = array();
+    $edit = [];
     $edit['blocks[system_powered-by][region]'] = '-1';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
 
@@ -1721,13 +1721,13 @@ class SystemBlockTestCase extends DrupalWebTestCase {
     $this->assertNoRaw('id="block-system-powered-by"', t('Block no longer appears on page.'));
 
     // For convenience of developers, set the block to its default settings.
-    $edit = array();
+    $edit = [];
     $edit['blocks[system_powered-by][region]'] = 'footer';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
     $this->drupalPost('admin/structure/block/manage/system/powered-by/configure', array('title' => ''), t('Save block'));
 
     // Set the help block to the help region.
-    $edit = array();
+    $edit = [];
     $edit['blocks[system_help][region]'] = 'help';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
 
@@ -1776,7 +1776,7 @@ class SystemMainContentFallback extends DrupalWebTestCase {
    * Test availability of main content.
    */
   function testMainContentFallback() {
-    $edit = array();
+    $edit = [];
     // Disable the dashboard module, which depends on the block module.
     $edit['modules[Core][dashboard][enable]'] = FALSE;
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
@@ -1815,7 +1815,7 @@ class SystemMainContentFallback extends DrupalWebTestCase {
 
     // Enable the block module again.
     $this->drupalLogin($this->admin_user);
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][block][enable]'] = 'block';
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'), 'Modules status has been updated.');
@@ -1850,7 +1850,7 @@ class SystemThemeFunctionalTest extends DrupalWebTestCase {
   function testThemeSettings() {
     // Specify a filesystem path to be used for the logo.
     $file = current($this->drupalGetTestFiles('image'));
-    $file_relative = strtr($file->uri, array('public:/' => variable_get('file_public_path', conf_path() . '/files')));
+    $file_relative = strtr($file->uri, array('public:/' => $bootstrap->variable_get('file_public_path', conf_path() . '/files')));
     $default_theme_path = 'themes/stark';
 
     $supported_paths = array(
@@ -1908,9 +1908,9 @@ class SystemThemeFunctionalTest extends DrupalWebTestCase {
       // Relative path within the public filesystem to non-existing file.
       'whatever.png',
       // Relative path to non-existing file in public filesystem.
-      variable_get('file_public_path', conf_path() . '/files') . '/whatever.png',
+      $bootstrap->variable_get('file_public_path', conf_path() . '/files') . '/whatever.png',
       // Semi-absolute path to non-existing file in public filesystem.
-      '/' . variable_get('file_public_path', conf_path() . '/files') . '/whatever.png',
+      '/' . $bootstrap->variable_get('file_public_path', conf_path() . '/files') . '/whatever.png',
       // Relative path to arbitrary non-existing file.
       'misc/whatever.png',
       // Semi-absolute path to arbitrary non-existing file.
@@ -2065,7 +2065,7 @@ class QueueTestCase extends DrupalWebTestCase {
     $queue2->createQueue();
 
     // Create four items.
-    $data = array();
+    $data = [];
     for ($i = 0; $i < 4; $i++) {
       $data[] = array($this->randomName() => $this->randomName());
     }
@@ -2075,8 +2075,8 @@ class QueueTestCase extends DrupalWebTestCase {
     $queue1->createItem($data[1]);
 
     // Retrieve two items from queue1.
-    $items = array();
-    $new_items = array();
+    $items = [];
+    $new_items = [];
 
     $items[] = $item = $queue1->claimItem();
     $new_items[] = $item->data;
@@ -2218,7 +2218,7 @@ class TokenReplaceTestCase extends DrupalWebTestCase {
     foreach ($tests as $test) {
       $input = $test['prefix'] . '[site:name]' . $test['suffix'];
       $expected = $test['prefix'] . 'Drupal' . $test['suffix'];
-      $output = token_replace($input, array(), array('language' => $language));
+      $output = token_replace($input, [], array('language' => $language));
       $this->assertTrue($output == $expected, format_string('Token recognized in string %string', array('%string' => $input)));
     }
   }
@@ -2238,7 +2238,7 @@ class TokenReplaceTestCase extends DrupalWebTestCase {
     variable_set('site_slogan', '<blink>Slogan</blink>');
 
     // Generate and test sanitized tokens.
-    $tests = array();
+    $tests = [];
     $tests['[site:name]'] = check_plain(variable_get('site_name', 'Drupal'));
     $tests['[site:slogan]'] = check_plain(variable_get('site_slogan', ''));
     $tests['[site:mail]'] = 'simpletest@example.com';
@@ -2250,16 +2250,16 @@ class TokenReplaceTestCase extends DrupalWebTestCase {
     $this->assertFalse(in_array(0, array_map('strlen', $tests)), 'No empty tokens generated.');
 
     foreach ($tests as $input => $expected) {
-      $output = token_replace($input, array(), array('language' => $language));
+      $output = token_replace($input, [], array('language' => $language));
       $this->assertEqual($output, $expected, format_string('Sanitized system site information token %token replaced.', array('%token' => $input)));
     }
 
     // Generate and test unsanitized tokens.
-    $tests['[site:name]'] = variable_get('site_name', 'Drupal');
-    $tests['[site:slogan]'] = variable_get('site_slogan', '');
+    $tests['[site:name]'] = $bootstrap->variable_get('site_name', 'Drupal');
+    $tests['[site:slogan]'] = $bootstrap->variable_get('site_slogan', '');
 
     foreach ($tests as $input => $expected) {
-      $output = token_replace($input, array(), array('language' => $language, 'sanitize' => FALSE));
+      $output = token_replace($input, [], array('language' => $language, 'sanitize' => FALSE));
       $this->assertEqual($output, $expected, format_string('Unsanitized system site information token %token replaced.', array('%token' => $input)));
     }
   }
@@ -2274,7 +2274,7 @@ class TokenReplaceTestCase extends DrupalWebTestCase {
     $date = REQUEST_TIME - 3600;
 
     // Generate and test tokens.
-    $tests = array();
+    $tests = [];
     $tests['[date:short]'] = format_date($date, 'short', '', NULL, $language->language);
     $tests['[date:medium]'] = format_date($date, 'medium', '', NULL, $language->language);
     $tests['[date:long]'] = format_date($date, 'long', '', NULL, $language->language);
@@ -2461,7 +2461,7 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
     // of a child site during automated testing.
     $this->drupalLogin($this->update_user);
     $this->drupalGet($this->update_url, array('external' => TRUE));
-    $this->drupalPost(NULL, array(), t('Continue'));
+    $this->drupalPost(NULL, [], t('Continue'));
     $this->assertText(t('No pending updates.'), 'End of update process was reached.');
   }
 
@@ -2488,7 +2488,7 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
     // Access the update page as user 1.
     $user1 = user_load(1);
     $user1->pass_raw = user_password();
-    require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+    require_once DRUPAL_ROOT . '/' . $bootstrap->variable_get('password_inc', 'includes/password.inc');
     $user1->pass = user_hash_password(trim($user1->pass_raw));
     db_query("UPDATE {users} SET pass = :pass WHERE uid = :uid", array(':pass' => $user1->pass, ':uid' => $user1->uid));
     $this->drupalLogin($user1);
@@ -2505,7 +2505,7 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
     // If there are no requirements warnings or errors, we expect to be able to
     // go through the update process uninterrupted.
     $this->drupalGet($this->update_url, array('external' => TRUE));
-    $this->drupalPost(NULL, array(), t('Continue'));
+    $this->drupalPost(NULL, [], t('Continue'));
     $this->assertText(t('No pending updates.'), 'End of update process was reached.');
     // Confirm that all caches were cleared.
     $this->assertText(t('hook_flush_caches() invoked for update_script_test.module.'), 'Caches were cleared when there were no requirements warnings or errors.');
@@ -2522,8 +2522,8 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
     $this->assertText('This is a requirements warning provided by the update_script_test module.');
     $this->clickLink('try again');
     $this->assertNoText('This is a requirements warning provided by the update_script_test module.');
-    $this->drupalPost(NULL, array(), t('Continue'));
-    $this->drupalPost(NULL, array(), t('Apply pending updates'));
+    $this->drupalPost(NULL, [], t('Continue'));
+    $this->drupalPost(NULL, [], t('Apply pending updates'));
     $this->assertText(t('The update_script_test_update_7000() update was executed successfully.'), 'End of update process was reached.');
     // Confirm that all caches were cleared.
     $this->assertText(t('hook_flush_caches() invoked for update_script_test.module.'), 'Caches were cleared after resolving a requirements warning and applying updates.');
@@ -2533,7 +2533,7 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
     $this->assertText('This is a requirements warning provided by the update_script_test module.');
     $this->clickLink('try again');
     $this->assertNoText('This is a requirements warning provided by the update_script_test module.');
-    $this->drupalPost(NULL, array(), t('Continue'));
+    $this->drupalPost(NULL, [], t('Continue'));
     $this->assertText(t('No pending updates.'), 'End of update process was reached.');
     // Confirm that all caches were cleared.
     $this->assertText(t('hook_flush_caches() invoked for update_script_test.module.'), 'Caches were cleared after applying updates and re-running the script.');
@@ -2574,7 +2574,7 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
   function testNoUpdateFunctionality() {
     // Click through update.php with 'administer software updates' permission.
     $this->drupalLogin($this->update_user);
-    $this->drupalPost($this->update_url, array(), t('Continue'), array('external' => TRUE));
+    $this->drupalPost($this->update_url, [], t('Continue'), array('external' => TRUE));
     $this->assertText(t('No pending updates.'));
     $this->assertNoLink('Administration pages');
     $this->clickLink('Front page');
@@ -2583,7 +2583,7 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
     // Click through update.php with 'access administration pages' permission.
     $admin_user = $this->drupalCreateUser(array('administer software updates', 'access administration pages'));
     $this->drupalLogin($admin_user);
-    $this->drupalPost($this->update_url, array(), t('Continue'), array('external' => TRUE));
+    $this->drupalPost($this->update_url, [], t('Continue'), array('external' => TRUE));
     $this->assertText(t('No pending updates.'));
     $this->clickLink('Administration pages');
     $this->assertResponse(200);
@@ -2596,8 +2596,8 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
     drupal_set_installed_schema_version('update_script_test', drupal_get_installed_schema_version('update_script_test') - 1);
     // Click through update.php with 'administer software updates' permission.
     $this->drupalLogin($this->update_user);
-    $this->drupalPost($this->update_url, array(), t('Continue'), array('external' => TRUE));
-    $this->drupalPost(NULL, array(), t('Apply pending updates'));
+    $this->drupalPost($this->update_url, [], t('Continue'), array('external' => TRUE));
+    $this->drupalPost(NULL, [], t('Apply pending updates'));
     $this->assertText('Updates were attempted.');
     $this->assertLink('site');
     $this->assertNoLink('Administration pages');
@@ -2610,8 +2610,8 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
     // 'access site reports' permissions.
     $admin_user = $this->drupalCreateUser(array('administer software updates', 'access administration pages', 'access site reports'));
     $this->drupalLogin($admin_user);
-    $this->drupalPost($this->update_url, array(), t('Continue'), array('external' => TRUE));
-    $this->drupalPost(NULL, array(), t('Apply pending updates'));
+    $this->drupalPost($this->update_url, [], t('Continue'), array('external' => TRUE));
+    $this->drupalPost(NULL, [], t('Apply pending updates'));
     $this->assertText('Updates were attempted.');
     $this->assertLink('logged');
     $this->clickLink('Administration pages');
@@ -3005,9 +3005,9 @@ class SystemValidTokenTest extends DrupalUnitTestCase {
       $this->pass('Token NULL, value object throws error exception which is ok.');
     }
 
-    $this->assertFalse(drupal_valid_token(0, array()), 'Token 0, value array returns FALSE.');
-    $this->assertFalse(drupal_valid_token('', array()), "Token '', value array returns FALSE.");
-    $this->assertFalse('' === drupal_get_token(array()), 'Token generation does not return an empty string on invalid parameters.');
+    $this->assertFalse(drupal_valid_token(0, []), 'Token 0, value array returns FALSE.');
+    $this->assertFalse(drupal_valid_token('', []), "Token '', value array returns FALSE.");
+    $this->assertFalse('' === drupal_get_token([]), 'Token generation does not return an empty string on invalid parameters.');
     $this->assertErrors = TRUE;
 
     $this->assertFalse(drupal_valid_token(TRUE, 'foo'), 'Token TRUE, value foo returns FALSE.');

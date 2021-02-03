@@ -92,7 +92,7 @@ class ImageToolkitUnitTest extends ImageToolkitTestCase {
     $toolkits = image_get_available_toolkits();
     $this->assertTrue(isset($toolkits['test']), 'The working toolkit was returned.');
     $this->assertFalse(isset($toolkits['broken']), 'The toolkit marked unavailable was not returned');
-    $this->assertToolkitOperationsCalled(array());
+    $this->assertToolkitOperationsCalled([]);
   }
 
   /**
@@ -404,7 +404,7 @@ class ImageToolkitGdTestCase extends DrupalWebTestCase {
       $operations += array(
         'desaturate' => array(
           'function' => 'desaturate',
-          'arguments' => array(),
+          'arguments' => [],
           'height' => 20,
           'width' => 40,
           // Grayscale corners are a bit funky. Each of the corners are a shade of
@@ -442,7 +442,7 @@ class ImageToolkitGdTestCase extends DrupalWebTestCase {
 
         // Perform our operation.
         $function = 'image_' . $values['function'];
-        $arguments = array();
+        $arguments = [];
         $arguments[] = &$image;
         $arguments = array_merge($arguments, $values['arguments']);
         call_user_func_array($function, $arguments);

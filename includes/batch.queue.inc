@@ -40,7 +40,7 @@ class BatchQueue extends SystemQueue {
    * This is specific to Batch API and is not part of the DrupalQueueInterface.
    */
   public function getAllItems() {
-    $result = array();
+    $result = [];
     $items = db_query('SELECT data FROM {queue} q WHERE name = :name ORDER BY item_id ASC', array(':name' => $this->name))->fetchAll();
     foreach ($items as $item) {
       $result[] = unserialize($item->data);
@@ -75,7 +75,7 @@ class BatchMemoryQueue extends MemoryQueue {
    * This is specific to Batch API and is not part of the DrupalQueueInterface.
    */
   public function getAllItems() {
-    $result = array();
+    $result = [];
     foreach ($this->queue as $item) {
       $result[] = $item->data;
     }

@@ -51,7 +51,7 @@ function filter_test_filter_info() {
  * Replaces all text with filter and text format information.
  */
 function filter_test_replace($text, $filter, $format, $langcode, $cache, $cache_id) {
-  $text = array();
+  $text = [];
   $text[] = 'Filter: ' . $filter->title . ' (' . $filter->name . ')';
   $text[] = 'Format: ' . $format->name . ' (' . $format->format . ')';
   $text[] = 'Language: ' . $langcode;

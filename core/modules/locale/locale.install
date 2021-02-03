@@ -63,7 +63,7 @@ function locale_update_7001() {
   switch (variable_get('language_negotiation', 0)) {
     // LANGUAGE_NEGOTIATION_NONE.
     case 0:
-      $negotiation = array();
+      $negotiation = [];
       break;
 
     // LANGUAGE_NEGOTIATION_PATH_DEFAULT.
@@ -108,7 +108,7 @@ function locale_update_7001() {
   // Unset the old language negotiation system variable.
   variable_del('language_negotiation');
 
-  return array();
+  return [];
 }
 
 /**
@@ -159,7 +159,7 @@ function locale_update_7004() {
       ':context' => $source->context,
     ));
 
-    $translations = array();
+    $translations = [];
     $keep_lids = array($source->lid);
     foreach ($result_target as $target) {
       if (!isset($translations[$target->language])) {
@@ -223,7 +223,7 @@ function locale_update_7005() {
  */
 function locale_uninstall() {
   // Delete all JavaScript translation files.
-  $locale_js_directory = 'public://' . variable_get('locale_js_directory', 'languages');
+  $locale_js_directory = 'public://' . $bootstrap->variable_get('locale_js_directory', 'languages');
 
   if (is_dir($locale_js_directory)) {
     $files = db_query('SELECT language, javascript FROM {languages}');

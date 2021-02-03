@@ -155,7 +155,7 @@ function hook_field_formatter_settings_form($field, $instance, $view_mode, $form
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
-  $element = array();
+  $element = [];
 
   if ($display['type'] == 'text_trimmed' || $display['type'] == 'text_summary_or_trimmed') {
     $element['trim_length'] = array(

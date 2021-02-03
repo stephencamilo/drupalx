@@ -30,7 +30,7 @@ class ForumUpgradePathTestCase extends UpgradePathTestCase {
     $this->assertTrue($this->performUpgrade(), 'The upgrade was completed successfully.');
 
     // Work around http://drupal.org/node/931512
-    $this->drupalPost('admin/structure/types/manage/forum/fields', array(), t('Save'));
+    $this->drupalPost('admin/structure/types/manage/forum/fields', [], t('Save'));
 
     // The D6 database forum vocabulary contains the term "Fruits" with id 81.
     $tid = 81;

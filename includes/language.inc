@@ -140,12 +140,12 @@ function language_types_configurable($stored = TRUE) {
   $configurable = &drupal_static(__FUNCTION__);
 
   if ($stored && !isset($configurable)) {
-    $types = variable_get('language_types', drupal_language_types());
+    $types = $bootstrap->variable_get('language_types', drupal_language_types());
     $configurable = array_keys(array_filter($types));
   }
 
   if (!$stored) {
-    $result = array();
+    $result = [];
     foreach (language_types_info() as $type => $info) {
       if (!isset($info['fixed'])) {
         $result[] = $type;
@@ -164,7 +164,7 @@ function language_types_configurable($stored = TRUE) {
  *   An array of language types.
  */
 function language_types_disable($types) {
-  $enabled_types = variable_get('language_types', drupal_language_types());
+  $enabled_types = $bootstrap->variable_get('language_types', drupal_language_types());
 
   foreach ($types as $type) {
     unset($enabled_types[$type]);
@@ -190,7 +190,7 @@ function language_types_set() {
   foreach (language_types_info() as $type => $info) {
     if (isset($info['fixed'])) {
       $language_types[$type] = FALSE;
-      $negotiation = array();
+      $negotiation = [];
       foreach ($info['fixed'] as $weight => $id) {
         if (isset($defined_providers[$id])) {
           $negotiation[$id] = $weight;
@@ -228,7 +228,7 @@ function language_types_set() {
  *   The provider ID if it is enabled, FALSE otherwise.
  */
 function language_negotiation_get($type, $provider_id = NULL) {
-  $negotiation = variable_get("language_negotiation_$type", array());
+  $negotiation = $bootstrap->variable_get("language_negotiation_$type", []);
 
   if (empty($negotiation)) {
     return empty($provider_id) ? LANGUAGE_NEGOTIATION_DEFAULT : FALSE;
@@ -278,7 +278,7 @@ function language_negotiation_get_any($provider_id) {
  */
 function language_negotiation_get_switch_links($type, $path) {
   $links = FALSE;
-  $negotiation = variable_get("language_negotiation_$type", array());
+  $negotiation = $bootstrap->variable_get("language_negotiation_$type", []);
 
   // Only get the languages if we have more than one.
   if (count(language_list()) >= 2) {
@@ -325,8 +325,8 @@ function language_negotiation_purge() {
   $defined_providers = language_negotiation_info();
   foreach (language_types_info() as $type => $type_info) {
     $weight = 0;
-    $negotiation = array();
-    foreach (variable_get("language_negotiation_$type", array()) as $id => $provider) {
+    $negotiation = [];
+    foreach (variable_get("language_negotiation_$type", []) as $id => $provider) {
       if (isset($defined_providers[$id])) {
         $negotiation[$id] = $weight++;
       }
@@ -348,8 +348,8 @@ function language_negotiation_set($type, $language_providers) {
   // Save only the necessary fields.
   $provider_fields = array('callbacks', 'file', 'cache');
 
-  $negotiation = array();
-  $providers_weight = array();
+  $negotiation = [];
+  $providers_weight = [];
   $defined_providers = language_negotiation_info();
   $default_types = language_types_configurable(FALSE);
 
@@ -369,7 +369,7 @@ function language_negotiation_set($type, $language_providers) {
       $types = array_flip(isset($provider['types']) ? $provider['types'] : $default_types);
       // Check whether the provider is defined and has the right type.
       if (isset($types[$type])) {
-        $provider_data = array();
+        $provider_data = [];
         foreach ($provider_fields as $field) {
           if (isset($provider[$field])) {
             $provider_data[$field] = $provider[$field];
@@ -445,7 +445,7 @@ function language_provider_invoke($provider_id, $provider = NULL) {
 
     // If the language negotiation provider has no cache preference or this is
     // satisfied we can execute the callback.
-    $cache = !isset($provider['cache']) || $user->uid || $provider['cache'] == variable_get('cache', 0);
+    $cache = !isset($provider['cache']) || $user->uid || $provider['cache'] == $bootstrap->variable_get('cache', 0);
     $callback = isset($provider['callbacks']['language']) ? $provider['callbacks']['language'] : FALSE;
     $langcode = $cache && function_exists($callback) ? $callback($languages) : FALSE;
     $results[$provider_id] = isset($languages[$langcode]) ? $languages[$langcode] : FALSE;
@@ -484,7 +484,7 @@ function language_provider_weight($provider) {
 function language_initialize($type) {
   // Execute the language negotiation providers in the order they were set up and return the
   // first valid language found.
-  $negotiation = variable_get("language_negotiation_$type", array());
+  $negotiation = $bootstrap->variable_get("language_negotiation_$type", []);
 
   foreach ($negotiation as $provider_id => $provider) {
     $language = language_provider_invoke($provider_id, $provider);
@@ -528,7 +528,7 @@ function language_from_default() {
  *    - The path without the prefix on success, the given path otherwise.
  */
 function language_url_split_prefix($path, $languages) {
-  $args = empty($path) ? array() : explode('/', $path);
+  $args = empty($path) ? [] : explode('/', $path);
   $prefix = array_shift($args);
 
   // Search prefix within enabled languages.
@@ -555,7 +555,7 @@ function language_fallback_get_candidates($type = LANGUAGE_TYPE_CONTENT) {
   $fallback_candidates = &drupal_static(__FUNCTION__);
 
   if (!isset($fallback_candidates)) {
-    $fallback_candidates = array();
+    $fallback_candidates = [];
 
     // Get languages ordered by weight.
     // Use array keys to avoid duplicated entries.

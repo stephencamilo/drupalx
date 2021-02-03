@@ -212,7 +212,7 @@ function _field_sql_storage_schema($field) {
     ),
   );
 
-  $field += array('columns' => array(), 'indexes' => array(), 'foreign keys' => array());
+  $field += array('columns' => [], 'indexes' => [], 'foreign keys' => []);
   // Add field columns.
   foreach ($field['columns'] as $column_name => $attributes) {
     $real_name = _field_sql_storage_columnname($field['field_name'], $column_name);
@@ -340,7 +340,7 @@ function field_sql_storage_field_storage_update_field($field, $prior_field, $has
     foreach ($field['indexes'] as $name => $columns) {
       if (!isset($prior_field['indexes'][$name]) || $columns != $prior_field['indexes'][$name]) {
         $real_name = _field_sql_storage_indexname($field['field_name'], $name);
-        $real_columns = array();
+        $real_columns = [];
         foreach ($columns as $column_name) {
           // Indexes can be specified as either a column name or an array with
           // column name and length. Allow for either case.
@@ -411,14 +411,14 @@ function field_sql_storage_field_storage_load($entity_type, $entities, $age, $fi
 
     $results = $query->execute();
 
-    $delta_count = array();
+    $delta_count = [];
     foreach ($results as $row) {
       if (!isset($delta_count[$row->entity_id][$row->language])) {
         $delta_count[$row->entity_id][$row->language] = 0;
       }
 
       if ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED || $delta_count[$row->entity_id][$row->language] < $field['cardinality']) {
-        $item = array();
+        $item = [];
         // For each column declared by the field, populate the item
         // from the prefixed database column.
         foreach ($field['columns'] as $column => $attributes) {
@@ -566,7 +566,7 @@ function field_sql_storage_field_storage_query(EntityFieldQuery $query) {
     $tablename_function = '_field_sql_storage_revision_tablename';
     $id_key = 'revision_id';
   }
-  $table_aliases = array();
+  $table_aliases = [];
   $query_tables = NULL;
   // Add tables for the fields used.
   foreach ($query->fields as $key => $field) {
@@ -691,7 +691,7 @@ function _field_sql_storage_query_join_entity(SelectQuery $select_query, $entity
  *   conditions. Accepts a field name and a field column name as parameters.
  */
 function _field_sql_storage_query_field_conditions(EntityFieldQuery $query, SelectQuery $select_query, $conditions, $table_aliases, $column_callback) {
-  $groups = &drupal_static(__FUNCTION__, array());
+  $groups = &drupal_static(__FUNCTION__, []);
   foreach ($conditions as $key => $condition) {
     $table_alias = $table_aliases[$key];
     $field = $condition['field'];
@@ -804,7 +804,7 @@ function field_sql_storage_field_storage_purge_field($field) {
  * Implements hook_field_storage_details().
  */
 function field_sql_storage_field_storage_details($field) {
-  $details = array();
+  $details = [];
   if (!empty($field['columns'])) {
      // Add field columns.
     foreach ($field['columns'] as $column_name => $attributes) {

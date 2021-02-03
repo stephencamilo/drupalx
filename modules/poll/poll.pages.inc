@@ -69,7 +69,7 @@ function poll_votes($node) {
     ->orderByHeader($header)
     ->execute();
 
-  $rows = array();
+  $rows = [];
   foreach ($queried_votes as $vote) {
     $rows[] = array(
       $vote->name ? theme('username', array('account' => $vote)) : check_plain($vote->hostname),

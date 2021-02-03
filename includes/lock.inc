@@ -67,7 +67,7 @@
 function lock_initialize() {
   global $locks;
 
-  $locks = array();
+  $locks = [];
 }
 
 /**
@@ -260,7 +260,7 @@ function lock_release($name) {
 function lock_release_all($lock_id = NULL) {
   global $locks;
 
-  $locks = array();
+  $locks = [];
   if (empty($lock_id)) {
     $lock_id = _lock_id();
   }

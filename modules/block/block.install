@@ -251,7 +251,7 @@ function block_update_7003() {
  */
 function block_update_7004() {
   // Collect a list of themes with blocks.
-  $themes_with_blocks = array();
+  $themes_with_blocks = [];
   $result = db_query("SELECT s.name FROM {system} s INNER JOIN {block} b ON s.name = b.theme WHERE s.type = 'theme' GROUP by s.name");
 
   $insert = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
@@ -293,8 +293,8 @@ function block_update_7004() {
     ->execute();
 
   // Migrate contact form information.
-  $default_format = variable_get('filter_default_format', 1);
-  if ($contact_help = variable_get('contact_form_information', '')) {
+  $default_format = $bootstrap->variable_get('filter_default_format', 1);
+  if ($contact_help = $bootstrap->variable_get('contact_form_information', '')) {
     $bid = db_insert('block_custom')
       ->fields(array(
         'body' => $contact_help,
@@ -323,7 +323,7 @@ function block_update_7004() {
   $insert->execute();
 
   // Migrate user help setting.
-  if ($user_help = variable_get('user_registration_help', '')) {
+  if ($user_help = $bootstrap->variable_get('user_registration_help', '')) {
     $bid = db_insert('block_custom')->fields(array('body' => $user_help, 'info' => 'User registration guidelines', 'format' => $default_format))->execute();
 
     $insert = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'cache'));
@@ -346,7 +346,7 @@ function block_update_7004() {
   }
 
   // Migrate site mission setting.
-  if ($mission = variable_get('site_mission')) {
+  if ($mission = $bootstrap->variable_get('site_mission')) {
     $bid = db_insert('block_custom')->fields(array('body' => $mission, 'info' => 'Site mission', 'format' => $default_format))->execute();
 
     $insert = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'cache'));
@@ -371,7 +371,7 @@ function block_update_7004() {
   }
 
   // Migrate site footer message to a custom block.
-  if ($footer_message = variable_get('site_footer', '')) {
+  if ($footer_message = $bootstrap->variable_get('site_footer', '')) {
     $bid = db_insert('block_custom')->fields(array('body' => $footer_message, 'info' => 'Footer message', 'format' => $default_format))->execute();
 
     $insert = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
@@ -423,7 +423,7 @@ function block_update_7005() {
     ->condition('format', 0)
     ->execute();
   $existing_formats = db_query("SELECT format FROM {filter_format}")->fetchCol();
-  $default_format = variable_get('filter_default_format', 1);
+  $default_format = $bootstrap->variable_get('filter_default_format', 1);
   db_update('block_custom')
     ->fields(array('format' => $default_format))
     ->isNotNull('format')

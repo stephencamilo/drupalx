@@ -249,7 +249,7 @@ class Bootstrap {
    *
    * @see http://php.net/manual/language.functions.php
    */
-  static $drupal_php_function_pattern = '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*';
+  public $drupal_php_function_pattern = '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*';
 
   /**
    * A RFC7231 Compliant date.
@@ -358,7 +358,7 @@ class Bootstrap {
    * @see default.settings.php
    */
   function conf_path($require_settings = TRUE, $reset = FALSE) {
-    $conf = &drupal_static(__FUNCTION__, '');
+    $conf = &$this->drupal_static(__FUNCTION__, '');
 
     if ($conf && !$reset) {
       return $conf;
@@ -767,7 +767,7 @@ class Bootstrap {
     }
     // Otherwise, perform a new file scan to find the item.
     else {
-      $filename = _drupal_get_filename_perform_file_scan($type, $name);
+      $filename = $this->_drupal_get_filename_perform_file_scan($type, $name);
       // Update the static cache, and mark the persistent cache for updating at
       // the end of the page request. See drupal_file_scan_write_cache().
       $file_scans[$type][$name] = $filename;
@@ -782,7 +782,7 @@ class Bootstrap {
     if ($trigger_error) {
       $error_type = $filename === FALSE ? 'missing' : 'moved';
       if ($error_type == 'missing' || !$database_unavailable) {
-        _drupal_get_filename_fallback_trigger_error($type, $name, $error_type);
+        $this->_drupal_get_filename_fallback_trigger_error($type, $name, $error_type);
       }
     }
 
@@ -807,7 +807,7 @@ class Bootstrap {
    *   - A string pointing to the location where the item was found.
    */
   function &_drupal_file_scan_cache() {
-    $file_scans = &drupal_static(__FUNCTION__, []);
+    $file_scans = &$this->drupal_static(__FUNCTION__, []);
 
     // The file scan results are stored in a persistent cache (in addition to the
     // static cache) but because this function can be called before the
@@ -872,14 +872,12 @@ class Bootstrap {
       // Log that we have now scanned this directory/extension combination
       // into a static variable so as to prevent unnecessary file scans.
       $dirs[$dir][$extension] = TRUE;
-      if (!function_exists('drupal_system_listing')) {
-        require_once DRUPAL_ROOT . '/includes/common.inc';
-      }
       // Scan the appropriate directories for all files with the requested
       // extension, not just the file we are currently looking for. This
       // prevents unnecessary scans from being repeated when this function is
       // called more than once in the same page request.
-      $matches = drupal_system_listing("/^" . DRUPAL_PHP_FUNCTION_PATTERN . "\.$extension$/", $dir, 'name', 0);
+      $common = new Common;
+      $matches = $common->drupal_system_listing("/^" . $this->drupal_php_function_pattern . "\.$extension$/", $dir, 'name', 0);
       foreach ($matches as $matched_name => $file) {
         // Log the locations found in the file scan into a static variable.
         $files[$type][$matched_name] = $file->uri;
@@ -919,10 +917,10 @@ class Bootstrap {
       // triggered during low-level operations that cannot necessarily be
       // interrupted by a watchdog() call.
       if ($error_type == 'missing') {
-        _drupal_trigger_error_with_delayed_logging(format_string('The following @type is missing from the file system: %name. For information about how to fix this, see <a href="@documentation">the documentation page</a>.', array('@type' => $type, '%name' => $name, '@documentation' => 'https://www.drupal.org/node/2487215')), E_USER_WARNING);
+        $this->_drupal_trigger_error_with_delayed_logging($this->format_string('The following @type is missing from the file system: %name. For information about how to fix this, see <a href="@documentation">the documentation page</a>.', array('@type' => $type, '%name' => $name, '@documentation' => 'https://www.drupal.org/node/2487215')), E_USER_WARNING);
       }
       elseif ($error_type == 'moved') {
-        _drupal_trigger_error_with_delayed_logging(format_string('The following @type has moved within the file system: %name. In order to fix this, clear caches or put the @type back in its original location. For more information, see <a href="@documentation">the documentation page</a>.', array('@type' => $type, '%name' => $name, '@documentation' => 'https://www.drupal.org/node/2487215')), E_USER_WARNING);
+        _drupal_trigger_error_with_delayed_logging($this->check_plainformat_string('The following @type has moved within the file system: %name. In order to fix this, clear caches or put the @type back in its original location. For more information, see <a href="@documentation">the documentation page</a>.', array('@type' => $type, '%name' => $name, '@documentation' => 'https://www.drupal.org/node/2487215')), E_USER_WARNING);
       }
       $errors_triggered[$type][$name][$error_type] = TRUE;
     }
@@ -957,7 +955,7 @@ class Bootstrap {
    * @see _drupal_log_error()
    */
   function _drupal_trigger_error_with_delayed_logging($error_msg, $error_type = E_USER_NOTICE) {
-    $delay_logging = &drupal_static(__FUNCTION__, FALSE);
+    $delay_logging = &$this->drupal_static(__FUNCTION__, FALSE);
     $delay_logging = TRUE;
     trigger_error($error_msg, $error_type);
     $delay_logging = FALSE;
@@ -999,7 +997,7 @@ class Bootstrap {
       // acquire, optionally just continue with uncached processing.
       $name = 'variable_init';
       $lock_acquired = lock_acquire($name, 1);
-      if (!$lock_acquired && variable_get('variable_initialize_wait_for_lock', FALSE)) {
+      if (!$lock_acquired && $this->variable_get('variable_initialize_wait_for_lock', FALSE)) {
         lock_wait($name);
         return variable_initialize($conf);
       }
@@ -1058,7 +1056,7 @@ class Bootstrap {
    *   of serialization as necessary.
    *
    * @see variable_del()
-   * @see variable_get()
+   * @see $this->variable_get()
    */
   function variable_set($name, $value) {
     global $conf;
@@ -1080,7 +1078,7 @@ class Bootstrap {
    * @param $name
    *   The name of the variable to undefine.
    *
-   * @see variable_get()
+   * @see $this->variable_get()
    * @see variable_set()
    */
   function variable_del($name) {
@@ -1191,7 +1189,7 @@ class Bootstrap {
       return TRUE;
     }
 
-    $filename = $bootstrap->drupal_get_filename($type, $name);
+    $filename = $this->drupal_get_filename($type, $name);
 
     if ($filename) {
       include_once DRUPAL_ROOT . '/' . $filename;
@@ -1386,7 +1384,7 @@ class Bootstrap {
     // max-age > 0, allowing the page to be cached by external proxies, when a
     // session cookie is present unless the Vary header has been replaced or
     // unset in hook_boot().
-    $max_age = !isset($_COOKIE[session_name()]) || isset($hook_boot_headers['vary']) ? variable_get('page_cache_maximum_age', 0) : 0;
+    $max_age = !isset($_COOKIE[session_name()]) || isset($hook_boot_headers['vary']) ? $this->variable_get('page_cache_maximum_age', 0) : 0;
     $default_headers['Cache-Control'] = 'public, max-age=' . $max_age;
 
     // Entity tag should change if the output changes.
@@ -1629,7 +1627,7 @@ class Bootstrap {
       switch ($key[0]) {
         case '@':
           // Escaped only.
-          $args[$key] = check_plain($value);
+          $args[$key] = $this->check_plain($value);
           break;
 
         case '%':
@@ -2000,7 +1998,7 @@ class Bootstrap {
     // Because this function is called on every page request, we first check
     // for an array of IP addresses in settings.php before querying the
     // database.
-    $blocked_ips = variable_get('blocked_ips');
+    $blocked_ips = $this->variable_get('blocked_ips');
     $denied = FALSE;
     if (isset($blocked_ips) && is_array($blocked_ips)) {
       $denied = in_array($ip, $blocked_ips);
@@ -2249,7 +2247,7 @@ class Bootstrap {
    * @return Object - the user object.
    */
   function drupal_anonymous_user() {
-    $user = variable_get('drupal_anonymous_user_object', new stdClass);
+    $user = $this->variable_get('drupal_anonymous_user_object', new stdClass);
     $user->uid = 0;
     $user->hostname = ip_address();
     $user->roles = [];
@@ -2343,7 +2341,7 @@ class Bootstrap {
             break;
 
           case DRUPAL_BOOTSTRAP_SESSION:
-            require_once DRUPAL_ROOT . '/' . variable_get('session_inc', 'includes/session.inc');
+            require_once DRUPAL_ROOT . '/' . $this->variable_get('session_inc', 'includes/session.inc');
             drupal_session_initialize();
             break;
 
@@ -2376,7 +2374,7 @@ class Bootstrap {
     else {
       // Ignore PHP strict notice if time zone has not yet been set in the php.ini
       // configuration.
-      return variable_get('date_default_timezone', @date_default_timezone_get());
+      return $this->variable_get('date_default_timezone', @date_default_timezone_get());
     }
   }
 
@@ -2481,7 +2479,7 @@ class Bootstrap {
     }
     else {
       drupal_bootstrap(DRUPAL_BOOTSTRAP_VARIABLES, FALSE);
-      $cache_enabled = variable_get('cache');
+      $cache_enabled = $this->variable_get('cache');
     }
     drupal_block_denied(ip_address());
     // If there is no session cookie and cache is enabled (or forced), try
@@ -2581,7 +2579,7 @@ class Bootstrap {
     global $conf;
 
     // Initialize the lock system.
-    require_once DRUPAL_ROOT . '/' . variable_get('lock_inc', 'includes/lock.inc');
+    require_once DRUPAL_ROOT . '/' . $this->variable_get('lock_inc', 'includes/lock.inc');
     lock_initialize();
 
     // Load variables from the database, but do not overwrite variables set in settings.php.
@@ -2721,12 +2719,12 @@ class Bootstrap {
    * accounted for in this function.
    */
   function drupal_fast_404() {
-    $exclude_paths = variable_get('404_fast_paths_exclude', FALSE);
+    $exclude_paths = $this->variable_get('404_fast_paths_exclude', FALSE);
     if ($exclude_paths && !preg_match($exclude_paths, $_GET['q'])) {
-      $fast_paths = variable_get('404_fast_paths', FALSE);
+      $fast_paths = $this->variable_get('404_fast_paths', FALSE);
       if ($fast_paths && preg_match($fast_paths, $_GET['q'])) {
         drupal_add_http_header('Status', '404 Not Found');
-        $fast_404_html = variable_get('404_fast_html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>');
+        $fast_404_html = $this->variable_get('404_fast_html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>');
         // Replace @path in the variable with the page path.
         print strtr($fast_404_html, array('@path' => check_plain(request_uri())));
         exit;
@@ -2827,7 +2825,7 @@ class Bootstrap {
     // The "language_count" variable stores the number of enabled languages to
     // avoid unnecessarily querying the database when building the list of
     // enabled languages on monolingual sites.
-    return variable_get('language_count', 1) > 1;
+    return $this->variable_get('language_count', 1) > 1;
   }
 
   /**
@@ -2902,7 +2900,7 @@ class Bootstrap {
    *   or the property of that object named in the $property parameter.
    */
   function language_default($property = NULL) {
-    $language = variable_get('language_default', (object) array('language' => 'en', 'name' => 'English', 'native' => 'English', 'direction' => 0, 'enabled' => 1, 'plurals' => 0, 'formula' => '', 'domain' => '', 'prefix' => '', 'weight' => 0, 'javascript' => ''));
+    $language = $this->variable_get('language_default', (object) array('language' => 'en', 'name' => 'English', 'native' => 'English', 'direction' => 0, 'enabled' => 1, 'plurals' => 0, 'formula' => '', 'domain' => '', 'prefix' => '', 'weight' => 0, 'javascript' => ''));
     return $property ? $language->$property : $language;
   }
 
@@ -3033,11 +3031,11 @@ class Bootstrap {
       $ip_address = $_SERVER['REMOTE_ADDR'];
 
       if (variable_get('reverse_proxy', 0)) {
-        $reverse_proxy_header = variable_get('reverse_proxy_header', 'HTTP_X_FORWARDED_FOR');
+        $reverse_proxy_header = $this->variable_get('reverse_proxy_header', 'HTTP_X_FORWARDED_FOR');
         if (!empty($_SERVER[$reverse_proxy_header])) {
           // If an array of known reverse proxy IPs is provided, then trust
           // the XFF header if request really comes from one of them.
-          $reverse_proxy_addresses = variable_get('reverse_proxy_addresses', []);
+          $reverse_proxy_addresses = $this->variable_get('reverse_proxy_addresses', []);
 
           // Turn XFF header into an array.
           $forwarded = explode(',', $_SERVER[$reverse_proxy_header]);
@@ -3409,7 +3407,7 @@ class Bootstrap {
    *   // $stack tracks the number of recursive calls.
    *   static $stack;
    *   $stack++;
-   *   if ($stack > variable_get('actions_max_stack', 35)) {
+   *   if ($stack > $this->variable_get('actions_max_stack', 35)) {
    *     ...
    *     return;
    *   }
@@ -3564,7 +3562,7 @@ class Bootstrap {
     if (isset($callback)) {
       // Only register the internal shutdown function once.
       if (empty($callbacks)) {
-        register_shutdown_function('_drupal_shutdown_function');
+        register_shutdown_function([$this,'_drupal_shutdown_function']);
       }
       $args = func_get_args();
       array_shift($args);
@@ -3578,7 +3576,7 @@ class Bootstrap {
    * Executes registered shutdown functions.
    */
   function _drupal_shutdown_function() {
-    $callbacks = &drupal_register_shutdown_function();
+    $callbacks = &$this->drupal_register_shutdown_function();
 
     // Set the CWD to DRUPAL_ROOT as it is not guaranteed to be the same as it
     // was in the normal context of execution.

@@ -231,7 +231,7 @@ class Errors {
     // immediately since for a fatal error the page request will end here anyway.
     $bootstrap = new Bootstrap;
     if (!$fatal && $bootstrap->drupal_static('_drupal_trigger_error_with_delayed_logging')) {
-      drupal_register_shutdown_function('watchdog', 'php', '%type: !message in %function (line %line of %file).', $error, $error['severity_level']);
+      $bootstrap->drupal_register_shutdown_function('watchdog', 'php', '%type: !message in %function (line %line of %file).', $error, $error['severity_level']);
     }
     else {
       $bootstrap->watchdog('php', '%type: !message in %function (line %line of %file).', $error, $error['severity_level']);

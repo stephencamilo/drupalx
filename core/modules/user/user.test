@@ -29,22 +29,22 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
 
     // Allow registration by site visitors without administrator approval.
     variable_set('user_register', USER_REGISTER_VISITORS);
-    $edit = array();
+    $edit = [];
     $edit['name'] = $name = $this->randomName();
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
     $this->drupalPost('user/register', $edit, t('Create new account'));
     $this->assertText(t('A welcome message with further instructions has been sent to your e-mail address.'), 'User registered successfully.');
-    $accounts = user_load_multiple(array(), array('name' => $name, 'mail' => $mail));
+    $accounts = user_load_multiple([], array('name' => $name, 'mail' => $mail));
     $new_user = reset($accounts);
     $this->assertTrue($new_user->status, 'New account is active after registration.');
 
     // Allow registration by site visitors, but require administrator approval.
     variable_set('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
-    $edit = array();
+    $edit = [];
     $edit['name'] = $name = $this->randomName();
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
     $this->drupalPost('user/register', $edit, t('Create new account'));
-    $accounts = user_load_multiple(array(), array('name' => $name, 'mail' => $mail));
+    $accounts = user_load_multiple([], array('name' => $name, 'mail' => $mail));
     $new_user = reset($accounts);
     $this->assertFalse($new_user->status, 'New account is blocked until approved by an administrator.');
   }
@@ -55,7 +55,7 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
 
     // Allow registration by site visitors without administrator approval.
     variable_set('user_register', USER_REGISTER_VISITORS);
-    $edit = array();
+    $edit = [];
     $edit['name'] = $name = $this->randomName();
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
 
@@ -69,14 +69,14 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
     $edit['pass[pass1]'] = $new_pass = $this->randomName();
     $edit['pass[pass2]'] = $new_pass;
     $this->drupalPost('user/register', $edit, t('Create new account'));
-    $accounts = user_load_multiple(array(), array('name' => $name, 'mail' => $mail));
+    $accounts = user_load_multiple([], array('name' => $name, 'mail' => $mail));
     $new_user = reset($accounts);
     $this->assertText(t('Registration successful. You are now logged in.'), 'Users are logged in after registering.');
     $this->drupalLogout();
 
     // Allow registration by site visitors, but require administrator approval.
     variable_set('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
-    $edit = array();
+    $edit = [];
     $edit['name'] = $name = $this->randomName();
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
     $edit['pass[pass1]'] = $pass = $this->randomName();
@@ -93,7 +93,7 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
     $this->assertText(t('The username @name has not been activated or is blocked.', array('@name' => $name)), 'User cannot login yet.');
 
     // Activate the new account.
-    $accounts = user_load_multiple(array(), array('name' => $name, 'mail' => $mail));
+    $accounts = user_load_multiple([], array('name' => $name, 'mail' => $mail));
     $new_user = reset($accounts);
     $admin_user = $this->drupalCreateUser(array('administer users'));
     $this->drupalLogin($admin_user);
@@ -118,7 +118,7 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
     // Set up a user to check for duplicates.
     $duplicate_user = $this->drupalCreateUser();
 
-    $edit = array();
+    $edit = [];
     $edit['name'] = $this->randomName();
     $edit['mail'] = $duplicate_user->mail;
 
@@ -149,7 +149,7 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
     $this->drupalGet('user/register');
     $this->assertNoRaw('<fieldset id="edit-account"><legend>Account information</legend>', 'Account settings fieldset was hidden.');
 
-    $edit = array();
+    $edit = [];
     $edit['name'] = $name = $this->randomName();
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
     $edit['pass[pass1]'] = $new_pass = $this->randomName();
@@ -157,15 +157,15 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, $edit, t('Create new account'));
 
     // Check user fields.
-    $accounts = user_load_multiple(array(), array('name' => $name, 'mail' => $mail));
+    $accounts = user_load_multiple([], array('name' => $name, 'mail' => $mail));
     $new_user = reset($accounts);
     $this->assertEqual($new_user->name, $name, 'Username matches.');
     $this->assertEqual($new_user->mail, $mail, 'E-mail address matches.');
     $this->assertEqual($new_user->theme, '', 'Correct theme field.');
     $this->assertEqual($new_user->signature, '', 'Correct signature field.');
     $this->assertTrue(($new_user->created > REQUEST_TIME - 20 ), 'Correct creation time.');
-    $this->assertEqual($new_user->status, variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL) == USER_REGISTER_VISITORS ? 1 : 0, 'Correct status field.');
-    $this->assertEqual($new_user->timezone, variable_get('date_default_timezone'), 'Correct time zone field.');
+    $this->assertEqual($new_user->status, $bootstrap->variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL) == USER_REGISTER_VISITORS ? 1 : 0, 'Correct status field.');
+    $this->assertEqual($new_user->timezone, $bootstrap->variable_get('date_default_timezone'), 'Correct time zone field.');
     $this->assertEqual($new_user->language, '', 'Correct language field.');
     $this->assertEqual($new_user->picture, '', 'Correct picture field.');
     $this->assertEqual($new_user->init, $mail, 'Correct init field.');
@@ -203,7 +203,7 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
     $this->assertText($instance['label'], 'The field appears on user registration form');
 
     // Check that validation errors are correctly reported.
-    $edit = array();
+    $edit = [];
     $edit['name'] = $name = $this->randomName();
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
     // Missing input in required field.
@@ -220,7 +220,7 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
     $edit['test_user_field[und][0][value]'] = $value;
     $this->drupalPost(NULL, $edit, t('Create new account'));
     // Check user fields.
-    $accounts = user_load_multiple(array(), array('name' => $name, 'mail' => $mail));
+    $accounts = user_load_multiple([], array('name' => $name, 'mail' => $mail));
     $new_user = reset($accounts);
     $this->assertEqual($new_user->test_user_field[LANGUAGE_NONE][0]['value'], $value, 'The field value was correctly saved.');
 
@@ -231,7 +231,7 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
       $this->drupalGet('user/register');
       // Add two inputs.
       $value = rand(1, 255);
-      $edit = array();
+      $edit = [];
       $edit['test_user_field[und][0][value]'] = $value;
       if ($js == 'js') {
         $this->drupalPostAJAX(NULL, $edit, 'test_user_field_add_more');
@@ -248,7 +248,7 @@ class UserRegistrationTestCase extends DrupalWebTestCase {
       $edit['mail'] = $mail = $edit['name'] . '@example.com';
       $this->drupalPost(NULL, $edit, t('Create new account'));
       // Check user fields.
-      $accounts = user_load_multiple(array(), array('name' => $name, 'mail' => $mail));
+      $accounts = user_load_multiple([], array('name' => $name, 'mail' => $mail));
       $new_user = reset($accounts);
       $this->assertEqual($new_user->test_user_field[LANGUAGE_NONE][0]['value'], $value, format_string('@js : The field value was correclty saved.', array('@js' => $js)));
       $this->assertEqual($new_user->test_user_field[LANGUAGE_NONE][1]['value'], $value + 1, format_string('@js : The field value was correclty saved.', array('@js' => $js)));
@@ -334,7 +334,7 @@ class UserLoginTestCase extends DrupalWebTestCase {
     // Set a high per-user limit out so that it is not relevant in the test.
     variable_set('user_failed_login_user_limit', 4000);
 
-    $user1 = $this->drupalCreateUser(array());
+    $user1 = $this->drupalCreateUser([]);
     $incorrect_user1 = clone $user1;
     $incorrect_user1->pass_raw .= 'incorrect';
 
@@ -370,11 +370,11 @@ class UserLoginTestCase extends DrupalWebTestCase {
     // Set the per-user login limit.
     variable_set('user_failed_login_user_limit', 3);
 
-    $user1 = $this->drupalCreateUser(array());
+    $user1 = $this->drupalCreateUser([]);
     $incorrect_user1 = clone $user1;
     $incorrect_user1->pass_raw .= 'incorrect';
 
-    $user2 = $this->drupalCreateUser(array());
+    $user2 = $this->drupalCreateUser([]);
 
     // Try 2 failed logins.
     for ($i = 0; $i < 2; $i++) {
@@ -405,11 +405,11 @@ class UserLoginTestCase extends DrupalWebTestCase {
    */
   function testPasswordRehashOnLogin() {
     // Load password hashing API.
-    require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+    require_once DRUPAL_ROOT . '/' . $bootstrap->variable_get('password_inc', 'includes/password.inc');
     // Set initial $count_log2 to the default, DRUPAL_HASH_COUNT.
     variable_set('password_count_log2', DRUPAL_HASH_COUNT);
     // Create a new user and authenticate.
-    $account = $this->drupalCreateUser(array());
+    $account = $this->drupalCreateUser([]);
     $password = $account->pass_raw;
     $this->drupalLogin($account);
     $this->drupalLogout();
@@ -432,7 +432,7 @@ class UserLoginTestCase extends DrupalWebTestCase {
     // Visit the callback to generate a session for this anon user.
     $this->drupalGet('user_session_test_anon_session');
     // Now login.
-    $account = $this->drupalCreateUser(array());
+    $account = $this->drupalCreateUser([]);
     $this->drupalLogin($account);
   }
 
@@ -457,7 +457,7 @@ class UserLoginTestCase extends DrupalWebTestCase {
       $user_log = db_query_range('SELECT message FROM {watchdog} WHERE type = :type ORDER BY wid DESC', 0, 1, array(':type' => 'user'))->fetchField();
       $user_flood_test_log = db_query_range('SELECT message FROM {watchdog} WHERE type = :type ORDER BY wid DESC', 0, 1, array(':type' => 'user_flood_test'))->fetchField();
       if ($flood_trigger == 'user') {
-        $this->assertRaw(t('Sorry, there have been more than @count failed login attempts for this account. It is temporarily blocked. Try again later or <a href="@url">request a new password</a>.', array('@url' => url('user/password'), '@count' => variable_get('user_failed_login_user_limit', 5))));
+        $this->assertRaw(t('Sorry, there have been more than @count failed login attempts for this account. It is temporarily blocked. Try again later or <a href="@url">request a new password</a>.', array('@url' => url('user/password'), '@count' => $bootstrap->variable_get('user_failed_login_user_limit', 5))));
         $this->assertEqual('Flood control blocked login attempt for %user from %ip.', $user_log, 'A watchdog message was logged for the login attempt blocked by flood control per user');
         $this->assertEqual('hook_user_flood_control was passed username %username and IP %ip.', $user_flood_test_log, 'hook_user_flood_control was invoked by flood control per user');
       }
@@ -495,7 +495,7 @@ class UserPasswordResetTestCase extends DrupalWebTestCase {
     // Assume the most recent email.
     $_emails = $this->drupalGetMails();
     $email = end($_emails);
-    $urls = array();
+    $urls = [];
     preg_match('#.+user/reset/.+#', $email['body'], $urls);
 
     return $urls[0];
@@ -521,7 +521,7 @@ class UserPasswordResetTestCase extends DrupalWebTestCase {
     $field = array(
       'field_name' => 'field_avatar',
       'type' => 'image',
-      'settings' => array(),
+      'settings' => [],
       'cardinality' => 1,
     );
     field_create_field($field);
@@ -532,10 +532,10 @@ class UserPasswordResetTestCase extends DrupalWebTestCase {
       'label' => 'Avatar',
       'bundle' => 'user',
       'required' => FALSE,
-      'settings' => array(),
+      'settings' => [],
       'widget' => array(
         'type' => 'image_image',
-        'settings' => array(),
+        'settings' => [],
       ),
     );
     field_create_instance($instance);
@@ -684,7 +684,7 @@ class UserPasswordResetTestCase extends DrupalWebTestCase {
 
     // To attempt an expired password reset, create a password reset link as if
     // its request time was 60 seconds older than the allowed limit of timeout.
-    $bogus_timestamp = REQUEST_TIME - variable_get('user_password_reset_timeout', 86400) - 60;
+    $bogus_timestamp = REQUEST_TIME - $bootstrap->variable_get('user_password_reset_timeout', 86400) - 60;
     $this->drupalGet("user/reset/$account->uid/$bogus_timestamp/" . user_pass_rehash($account->pass, $bogus_timestamp, $account->login, $account->uid));
     $this->assertText(t('You have tried to use a one-time login link that has expired. Please request a new one using the form below.'), 'Expired password reset request rejected.');
   }
@@ -717,7 +717,7 @@ class UserPasswordResetTestCase extends DrupalWebTestCase {
 
     // Create two identical user accounts except for the user name. They must
     // have the same empty password, so we can't use $this->drupalCreateUser().
-    $edit = array();
+    $edit = [];
     $edit['name'] = $this->randomName();
     $edit['mail'] = $edit['name'] . '@example.com';
     $edit['status'] = 1;
@@ -733,7 +733,7 @@ class UserPasswordResetTestCase extends DrupalWebTestCase {
     $attack_reset_url = str_replace("user/reset/$user1->uid", "user/reset/$user2->uid", $reset_url);
     $this->drupalGet($attack_reset_url);
     $this->assertNoText($user2->name, 'The invalid password reset page does not show the user name.');
-    $this->assertUrl('user/password', array(), 'The user is redirected to the password reset request page.');
+    $this->assertUrl('user/password', [], 'The user is redirected to the password reset request page.');
     $this->assertText('You have tried to use a one-time login link that has either been used or is no longer valid. Please request a new one using the form below.');
 
     // When legacy code calls user_pass_rehash() without providing the $uid
@@ -748,12 +748,12 @@ class UserPasswordResetTestCase extends DrupalWebTestCase {
     $reset_url = url("user/reset/$user1->uid/$timestamp/$reset_url_token", array('absolute' => TRUE));
     $this->drupalGet($reset_url);
     $this->assertNoText($user1->name, 'The invalid password reset page does not show the user name.');
-    $this->assertUrl('user/password', array(), 'The user is redirected to the password reset request page.');
+    $this->assertUrl('user/password', [], 'The user is redirected to the password reset request page.');
     $this->assertText('You have tried to use a one-time login link that has either been used or is no longer valid. Please request a new one using the form below.');
     $attack_reset_url = str_replace("user/reset/$user1->uid", "user/reset/$user2->uid", $reset_url);
     $this->drupalGet($attack_reset_url);
     $this->assertNoText($user2->name, 'The invalid password reset page does not show the user name.');
-    $this->assertUrl('user/password', array(), 'The user is redirected to the password reset request page.');
+    $this->assertUrl('user/password', [], 'The user is redirected to the password reset request page.');
     $this->assertText('You have tried to use a one-time login link that has either been used or is no longer valid. Please request a new one using the form below.');
 
     // To verify that user_pass_rehash() never returns a valid result in the
@@ -770,7 +770,7 @@ class UserPasswordResetTestCase extends DrupalWebTestCase {
     $reset_url = url("user/reset/$user1->uid/$timestamp/$reset_url_token", array('absolute' => TRUE));
     $this->drupalGet($reset_url);
     $this->assertText($user1->name, 'The valid password reset page shows the user name.');
-    $this->assertUrl($reset_url, array(), 'The user remains on the password reset login page.');
+    $this->assertUrl($reset_url, [], 'The user remains on the password reset login page.');
     $this->assertNoText('You have tried to use a one-time login link that has either been used or is no longer valid. Please request a new one using the form below.');
   }
 
@@ -799,7 +799,7 @@ class UserCancelTestCase extends DrupalWebTestCase {
     variable_set('user_cancel_method', 'user_cancel_reassign');
 
     // Create a user.
-    $account = $this->drupalCreateUser(array());
+    $account = $this->drupalCreateUser([]);
     $this->drupalLogin($account);
     // Load real user object.
     $account = user_load($account->uid, TRUE);
@@ -832,7 +832,7 @@ class UserCancelTestCase extends DrupalWebTestCase {
   function testUserCancelUid1() {
     // Update uid 1's name and password to we know it.
     $password = user_password();
-    require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+    require_once DRUPAL_ROOT . '/' . $bootstrap->variable_get('password_inc', 'includes/password.inc');
     $account = array(
       'name' => 'user1',
       'pass' => user_hash_password(trim($password)),
@@ -1010,7 +1010,7 @@ class UserCancelTestCase extends DrupalWebTestCase {
     $this->drupalGet('user/' . $account->uid . '/edit');
     $this->drupalPost(NULL, NULL, t('Cancel account'));
     $this->assertText(t('Are you sure you want to cancel your account?'), 'Confirmation form to cancel account displayed.');
-    $this->assertRaw(t('Your account will be removed and all account information deleted. All of your content will be assigned to the %anonymous-name user.', array('%anonymous-name' => variable_get('anonymous', t('Anonymous')))), 'Informs that all content will be attributed to anonymous account.');
+    $this->assertRaw(t('Your account will be removed and all account information deleted. All of your content will be assigned to the %anonymous-name user.', array('%anonymous-name' => $bootstrap->variable_get('anonymous', t('Anonymous')))), 'Informs that all content will be attributed to anonymous account.');
 
     // Confirm account cancellation.
     $timestamp = time();
@@ -1050,14 +1050,14 @@ class UserCancelTestCase extends DrupalWebTestCase {
 
     // Create comment.
     $langcode = LANGUAGE_NONE;
-    $edit = array();
+    $edit = [];
     $edit['subject'] = $this->randomName(8);
     $edit['comment_body[' . $langcode . '][0][value]'] = $this->randomName(16);
 
     $this->drupalPost('comment/reply/' . $node->nid, $edit, t('Preview'));
-    $this->drupalPost(NULL, array(), t('Save'));
+    $this->drupalPost(NULL, [], t('Save'));
     $this->assertText(t('Your comment has been posted.'));
-    $comments = comment_load_multiple(array(), array('subject' => $edit['subject']));
+    $comments = comment_load_multiple([], array('subject' => $edit['subject']));
     $comment = reset($comments);
     $this->assertTrue($comment->cid, 'Comment found.');
 
@@ -1102,7 +1102,7 @@ class UserCancelTestCase extends DrupalWebTestCase {
     variable_set('user_cancel_method', 'user_cancel_reassign');
 
     // Create a regular user.
-    $account = $this->drupalCreateUser(array());
+    $account = $this->drupalCreateUser([]);
 
     // Create administrative user.
     $admin_user = $this->drupalCreateUser(array('administer users'));
@@ -1133,14 +1133,14 @@ class UserCancelTestCase extends DrupalWebTestCase {
     $this->drupalLogin($admin_user);
 
     // Create some users.
-    $users = array();
+    $users = [];
     for ($i = 0; $i < 3; $i++) {
-      $account = $this->drupalCreateUser(array());
+      $account = $this->drupalCreateUser([]);
       $users[$account->uid] = $account;
     }
 
     // Cancel user accounts, including own one.
-    $edit = array();
+    $edit = [];
     $edit['operation'] = 'cancel';
     foreach ($users as $uid => $account) {
       $edit['accounts[' . $uid . ']'] = TRUE;
@@ -1198,7 +1198,7 @@ class UserPictureTestCase extends DrupalWebTestCase {
     $file_check = file_prepare_directory($file_dir, FILE_CREATE_DIRECTORY);
     // TODO: Test public and private methods?
 
-    $picture_dir = variable_get('user_picture_path', 'pictures');
+    $picture_dir = $bootstrap->variable_get('user_picture_path', 'pictures');
     $picture_path = $file_dir . $picture_dir;
 
     $pic_check = file_prepare_directory($picture_path, FILE_CREATE_DIRECTORY);
@@ -1240,7 +1240,7 @@ class UserPictureTestCase extends DrupalWebTestCase {
       $text = t('The image was resized to fit within the maximum allowed dimensions of %dimensions pixels.', array('%dimensions' => $test_dim));
       $this->assertRaw($text, 'Image was resized.');
       $alt = t("@user's picture", array('@user' => format_username($this->user)));
-      $style = variable_get('user_picture_style', '');
+      $style = $bootstrap->variable_get('user_picture_style', '');
       $this->assertRaw(check_plain(image_style_url($style, $pic_path)), "Image is displayed in user's edit page");
 
       // Check if file is located in proper directory.
@@ -1476,7 +1476,7 @@ class UserPictureTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->drupalCreateUser(array('administer users')));
 
     // The default values are valid.
-    $this->drupalPost('admin/config/people/accounts', array(), t('Save configuration'));
+    $this->drupalPost('admin/config/people/accounts', [], t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'), 'The default values are valid.');
 
     // The form does not save with an invalid file size.
@@ -1522,7 +1522,7 @@ class UserPermissionsTestCase extends DrupalWebTestCase {
 
     // Add a permission.
     $this->assertFalse(user_access('administer nodes', $account), 'User does not have "administer nodes" permission.');
-    $edit = array();
+    $edit = [];
     $edit[$rid . '[administer nodes]'] = TRUE;
     $this->drupalPost('admin/people/permissions', $edit, t('Save permissions'));
     $this->assertText(t('The changes have been saved.'), 'Successful save message displayed.');
@@ -1532,7 +1532,7 @@ class UserPermissionsTestCase extends DrupalWebTestCase {
 
     // Remove a permission.
     $this->assertTrue(user_access('access user profiles', $account), 'User has "access user profiles" permission.');
-    $edit = array();
+    $edit = [];
     $edit[$rid . '[access user profiles]'] = FALSE;
     $this->drupalPost('admin/people/permissions', $edit, t('Save permissions'));
     $this->assertText(t('The changes have been saved.'), 'Successful save message displayed.');
@@ -1549,13 +1549,13 @@ class UserPermissionsTestCase extends DrupalWebTestCase {
     $this->drupalGet('admin/config/people/accounts');
 
     // Set the user's role to be the administrator role.
-    $edit = array();
+    $edit = [];
     $edit['user_admin_role'] = $this->rid;
     $this->drupalPost('admin/config/people/accounts', $edit, t('Save configuration'));
 
     // Enable aggregator module and ensure the 'administer news feeds'
     // permission is assigned by default.
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][aggregator][enable]'] = TRUE;
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
     $this->assertTrue(user_access('administer news feeds', $this->admin_user), 'The permission was automatically assigned to the administrator role');
@@ -1601,7 +1601,7 @@ class UserAdminTestCase extends DrupalWebTestCase {
    */
   function testUserAdmin() {
 
-    $user_a = $this->drupalCreateUser(array());
+    $user_a = $this->drupalCreateUser([]);
     $user_b = $this->drupalCreateUser(array('administer taxonomy'));
     $user_c = $this->drupalCreateUser(array('administer taxonomy'));
 
@@ -1619,7 +1619,7 @@ class UserAdminTestCase extends DrupalWebTestCase {
     $this->assertRaw($link, 'Found user A edit link on admin users page');
 
     // Filter the users by permission 'administer taxonomy'.
-    $edit = array();
+    $edit = [];
     $edit['permission'] = 'administer taxonomy';
     $this->drupalPost('admin/people', $edit, t('Filter'));
 
@@ -1640,7 +1640,7 @@ class UserAdminTestCase extends DrupalWebTestCase {
     // Test blocking of a user.
     $account = user_load($user_c->uid);
     $this->assertEqual($account->status, 1, 'User C not blocked');
-    $edit = array();
+    $edit = [];
     $edit['operation'] = 'block';
     $edit['accounts[' . $account->uid . ']'] = TRUE;
     $this->drupalPost('admin/people', $edit, t('Update'));
@@ -1648,7 +1648,7 @@ class UserAdminTestCase extends DrupalWebTestCase {
     $this->assertEqual($account->status, 0, 'User C blocked');
 
     // Test unblocking of a user from /admin/people page and sending of activation mail
-    $editunblock = array();
+    $editunblock = [];
     $editunblock['operation'] = 'unblock';
     $editunblock['accounts[' . $account->uid . ']'] = TRUE;
     $this->drupalPost('admin/people', $editunblock, t('Update'));
@@ -1657,7 +1657,7 @@ class UserAdminTestCase extends DrupalWebTestCase {
     $this->assertMail("to", $account->mail, "Activation mail sent to user C");
 
     // Test blocking and unblocking another user from /user/[uid]/edit form and sending of activation mail
-    $user_d = $this->drupalCreateUser(array());
+    $user_d = $this->drupalCreateUser([]);
     $account1 = user_load($user_d->uid, TRUE);
     $this->drupalPost('user/' . $account1->uid . '/edit', array('status' => 0), t('Save'));
     $account1 = user_load($user_d->uid, TRUE);
@@ -1719,7 +1719,7 @@ class UserTimeZoneFunctionalTest extends DrupalWebTestCase {
     $this->assertText('2007-03-20 21:00 1', 'Date should be PDT.');
 
     // Change user time zone to Santiago time.
-    $edit = array();
+    $edit = [];
     $edit['mail'] = $web_user->mail;
     $edit['timezone'] = 'America/Santiago';
     $this->drupalPost("user/$web_user->uid/edit", $edit, t('Save'));
@@ -1797,7 +1797,7 @@ class UserAccountLinksUnitTests extends DrupalWebTestCase {
    */
   function testSecondaryMenu() {
     // Create a regular user.
-    $user = $this->drupalCreateUser(array());
+    $user = $this->drupalCreateUser([]);
 
     // Log in and get the homepage.
     $this->drupalLogin($user);
@@ -1881,7 +1881,7 @@ class UserBlocksUnitTests extends DrupalWebTestCase {
     $user = $this->drupalCreateUser(array('administer permissions'));
 
     // Log in using the block.
-    $edit = array();
+    $edit = [];
     $edit['name'] = $user->name;
     $edit['pass'] = $user->pass_raw;
     $this->drupalPost('admin/people/permissions', $edit, t('Log in'));
@@ -1909,9 +1909,9 @@ class UserBlocksUnitTests extends DrupalWebTestCase {
    */
   function testWhosOnlineBlock() {
     // Generate users and make sure there are no current user sessions.
-    $user1 = $this->drupalCreateUser(array());
-    $user2 = $this->drupalCreateUser(array());
-    $user3 = $this->drupalCreateUser(array());
+    $user1 = $this->drupalCreateUser([]);
+    $user2 = $this->drupalCreateUser([]);
+    $user3 = $this->drupalCreateUser([]);
     $this->assertEqual(db_query("SELECT COUNT(*) FROM {sessions}")->fetchField(), 0, 'Sessions table is empty.');
 
     // Insert a user with two sessions.
@@ -1923,7 +1923,7 @@ class UserBlocksUnitTests extends DrupalWebTestCase {
     $this->insertSession(array('uid' => $user2->uid, 'timestamp' => REQUEST_TIME + 1));
 
     // Insert an inactive logged-in user who should not be seen in the block.
-    $this->insertSession(array('uid' => $user3->uid, 'timestamp' => (REQUEST_TIME - variable_get('user_block_seconds_online', 900) - 1)));
+    $this->insertSession(array('uid' => $user3->uid, 'timestamp' => (REQUEST_TIME - $bootstrap->variable_get('user_block_seconds_online', 900) - 1)));
 
     // Insert two anonymous user sessions.
     $this->insertSession();
@@ -1943,7 +1943,7 @@ class UserBlocksUnitTests extends DrupalWebTestCase {
    * Insert a user session into the {sessions} table. This function is used
    * since we cannot log in more than one user at the same time in tests.
    */
-  private function insertSession(array $fields = array()) {
+  private function insertSession(array $fields = []) {
     $fields += array(
       'uid' => 0,
       'sid' => drupal_hash_base64(uniqid(mt_rand(), TRUE)),
@@ -2078,7 +2078,7 @@ class UserEditTestCase extends DrupalWebTestCase {
     // Test user edit functionality with user pictures disabled.
     variable_set('user_pictures', 0);
     $user1 = $this->drupalCreateUser(array('change own username'));
-    $user2 = $this->drupalCreateUser(array());
+    $user2 = $this->drupalCreateUser([]);
     $this->drupalLogin($user1);
 
     // Test that error message appears when attempting to use a non-unique user name.
@@ -2092,7 +2092,7 @@ class UserEditTestCase extends DrupalWebTestCase {
     $this->assertRaw(t('The name %name is already taken.', array('%name' => $edit['name'])));
 
     // Check that filling out a single password field does not validate.
-    $edit = array();
+    $edit = [];
     $edit['pass[pass1]'] = '';
     $edit['pass[pass2]'] = $this->randomName();
     $this->drupalPost("user/$user1->uid/edit", $edit, t('Save'));
@@ -2105,7 +2105,7 @@ class UserEditTestCase extends DrupalWebTestCase {
 
     // Test that the error message appears when attempting to change the mail or
     // pass without the current password.
-    $edit = array();
+    $edit = [];
     $edit['mail'] = $this->randomName() . '@new.example.com';
     $this->drupalPost("user/$user1->uid/edit", $edit, t('Save'));
     $this->assertRaw(t("Your current password is missing or incorrect; it's required to change the %name.", array('%name' => t('E-mail address'))));
@@ -2115,7 +2115,7 @@ class UserEditTestCase extends DrupalWebTestCase {
     $this->assertRaw(t("The changes have been saved."));
 
     // Test that the user must enter current password before changing passwords.
-    $edit = array();
+    $edit = [];
     $edit['pass[pass1]'] = $new_pass = $this->randomName();
     $edit['pass[pass2]'] = $new_pass;
     $this->drupalPost("user/$user1->uid/edit", $edit, t('Save'));
@@ -2140,7 +2140,7 @@ class UserEditTestCase extends DrupalWebTestCase {
     $admin = $this->drupalCreateUser(array('administer users'));
     $this->drupalLogin($admin);
     // Create a regular user.
-    $user1 = $this->drupalCreateUser(array());
+    $user1 = $this->drupalCreateUser([]);
 
     $edit = array('pass[pass1]' => '0', 'pass[pass2]' => '0');
     $this->drupalPost("user/" . $user1->uid . "/edit", $edit, t('Save'));
@@ -2179,7 +2179,7 @@ class UserEditRebuildTestCase extends DrupalWebTestCase {
 
     $roles = array_keys($user1->roles);
     // Save the user form twice.
-    $edit = array();
+    $edit = [];
     $edit['current_pass'] = $user1->pass_raw;
     $this->drupalPost("user/$user1->uid/edit", $edit, t('Save'));
     $this->assertRaw(t("The changes have been saved."));
@@ -2225,7 +2225,7 @@ class UserSignatureTestCase extends DrupalWebTestCase {
     $this->plain_text_format = filter_format_load('plain_text');
 
     // Create regular and administrative users.
-    $this->web_user = $this->drupalCreateUser(array());
+    $this->web_user = $this->drupalCreateUser([]);
     $admin_permissions = array('administer comments');
     foreach (filter_formats() as $format) {
       if ($permission = filter_permission_name($format)) {
@@ -2262,11 +2262,11 @@ class UserSignatureTestCase extends DrupalWebTestCase {
 
     // Create a comment.
     $langcode = LANGUAGE_NONE;
-    $edit = array();
+    $edit = [];
     $edit['subject'] = $this->randomName(8);
     $edit['comment_body[' . $langcode . '][0][value]'] = $this->randomName(16);
     $this->drupalPost('comment/reply/' . $node->nid, $edit, t('Preview'));
-    $this->drupalPost(NULL, array(), t('Save'));
+    $this->drupalPost(NULL, [], t('Save'));
 
     // Get the comment ID. (This technique is the same one used in the Comment
     // module's CommentHelperCase test case.)
@@ -2309,7 +2309,7 @@ class UserEditedOwnAccountTestCase extends DrupalWebTestCase {
     $this->drupalLogin($account);
 
     // Change own username.
-    $edit = array();
+    $edit = [];
     $edit['name'] = $this->randomName();
     $this->drupalPost('user/' . $account->uid . '/edit', $edit, t('Save'));
 
@@ -2434,8 +2434,8 @@ class UserTokenReplaceTestCase extends DrupalWebTestCase {
     );
 
     // Create two users and log them in one after another.
-    $user1 = $this->drupalCreateUser(array());
-    $user2 = $this->drupalCreateUser(array());
+    $user1 = $this->drupalCreateUser([]);
+    $user2 = $this->drupalCreateUser([]);
     $this->drupalLogin($user1);
     $this->drupalLogout();
     $this->drupalLogin($user2);
@@ -2444,7 +2444,7 @@ class UserTokenReplaceTestCase extends DrupalWebTestCase {
     $global_account = user_load($GLOBALS['user']->uid);
 
     // Generate and test sanitized tokens.
-    $tests = array();
+    $tests = [];
     $tests['[user:uid]'] = $account->uid;
     $tests['[user:name]'] = check_plain(format_username($account));
     $tests['[user:mail]'] = check_plain($account->mail);
@@ -2736,7 +2736,7 @@ class UserValidateCurrentPassCustomForm extends DrupalWebTestCase {
     $this->drupalLogin($this->adminUser);
 
     // Submit the custom form with the admin user using the access user's password.
-    $edit = array();
+    $edit = [];
     $edit['user_form_test_field'] = $this->accessUser->name;
     $edit['current_pass'] = $this->accessUser->pass_raw;
     $this->drupalPost('user_form_test_current_password/' . $this->accessUser->uid, $edit, t('Test'));

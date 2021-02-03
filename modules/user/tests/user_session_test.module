@@ -9,7 +9,7 @@
  * Implements hook_menu().
  */
 function user_session_test_menu() {
-  $items = array();
+  $items = [];
   $items['user_session_test_anon_session'] = array(
     'page callback' => 'user_session_test_anon_session',
     'access callback' => TRUE,

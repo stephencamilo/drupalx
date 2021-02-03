@@ -116,7 +116,7 @@ function profile_browse() {
  * Callback to allow autocomplete of profile text fields.
  */
 function profile_autocomplete($field, $string) {
-  $matches = array();
+  $matches = [];
   $autocomplete_field = (bool) db_query_range("SELECT 1 FROM {profile_field} WHERE fid = :fid AND autocomplete = 1", 0, 1, array(':fid' => $field))->fetchField();
   if ($autocomplete_field) {
     $values = db_select('profile_value')

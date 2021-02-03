@@ -232,7 +232,7 @@ function node_form($form, &$form_state, $node) {
         drupal_get_path('module', 'node') . '/node.js',
         array(
           'type' => 'setting',
-          'data' => array('anonymous' => variable_get('anonymous', t('Anonymous'))),
+          'data' => array('anonymous' => $bootstrap->variable_get('anonymous', t('Anonymous'))),
         ),
       ),
     ),
@@ -245,7 +245,7 @@ function node_form($form, &$form_state, $node) {
     '#autocomplete_path' => 'user/autocomplete',
     '#default_value' => !empty($node->name) ? $node->name : '',
     '#weight' => -1,
-    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
+    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => $bootstrap->variable_get('anonymous', t('Anonymous')))),
   );
   $form['author']['date'] = array(
     '#type' => 'textfield',
@@ -291,13 +291,13 @@ function node_form($form, &$form_state, $node) {
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#access' => variable_get('node_preview_' . $node->type, DRUPAL_OPTIONAL) != DRUPAL_REQUIRED || (!form_get_errors() && isset($form_state['node_preview'])),
+    '#access' => $bootstrap->variable_get('node_preview_' . $node->type, DRUPAL_OPTIONAL) != DRUPAL_REQUIRED || (!form_get_errors() && isset($form_state['node_preview'])),
     '#value' => t('Save'),
     '#weight' => 5,
     '#submit' => array('node_form_submit'),
   );
   $form['actions']['preview'] = array(
-    '#access' => variable_get('node_preview_' . $node->type, DRUPAL_OPTIONAL) != DRUPAL_DISABLED,
+    '#access' => $bootstrap->variable_get('node_preview_' . $node->type, DRUPAL_OPTIONAL) != DRUPAL_DISABLED,
     '#type' => 'submit',
     '#value' => t('Preview'),
     '#weight' => 10,
@@ -321,7 +321,7 @@ function node_form($form, &$form_state, $node) {
   if (!isset($form['#submit']) && function_exists($node->type . '_node_form_submit')) {
     $form['#submit'][] = $node->type . '_node_form_submit';
   }
-  $form += array('#submit' => array());
+  $form += array('#submit' => []);
 
   field_attach_form('node', $node, $form, $form_state, entity_language('node', $node));
   return $form;
@@ -336,7 +336,7 @@ function node_form($form, &$form_state, $node) {
  * @see node_form_validate()
  */
 function node_form_delete_submit($form, &$form_state) {
-  $destination = array();
+  $destination = [];
   if (isset($_GET['destination'])) {
     $destination = drupal_get_destination();
     unset($_GET['destination']);
@@ -570,7 +570,7 @@ function node_revision_overview($node) {
 
   $revisions = node_revision_list($node);
 
-  $rows = array();
+  $rows = [];
   $revert_permission = FALSE;
   if ((user_access('revert revisions') || user_access('administer nodes')) && node_access('update', $node)) {
     $revert_permission = TRUE;
@@ -580,8 +580,8 @@ function node_revision_overview($node) {
     $delete_permission = TRUE;
   }
   foreach ($revisions as $revision) {
-    $row = array();
-    $operations = array();
+    $row = [];
+    $operations = [];
 
     if ($revision->current_vid > 0) {
       $row[] = array('data' => t('!date by !username', array('!date' => l(format_date($revision->timestamp, 'short'), "node/$node->nid"), '!username' => theme('username', array('account' => $revision))))

@@ -51,9 +51,9 @@ class FieldUpdatePathTestCase extends UpdatePathTestCase {
             ),
           ),
         ),
-        'form' => array(),
+        'form' => [],
       ),
-      'view_modes' => array(),
+      'view_modes' => [],
     );
     $actual_settings = field_bundle_settings('node', 'poll');
     $this->assertEqual($expected_settings, $actual_settings, 'Settings stored in field_bundle_settings were updated to per-bundle settings.');

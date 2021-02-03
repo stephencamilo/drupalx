@@ -175,7 +175,7 @@ function _rdf_get_default_mapping($type) {
     }
   }
 
-  return isset($default_mappings[$type]) ? $default_mappings[$type] : array();
+  return isset($default_mappings[$type]) ? $default_mappings[$type] : [];
 }
 
 /**
@@ -191,7 +191,7 @@ function _rdf_get_default_mapping($type) {
  */
 function _rdf_mapping_load($type, $bundle) {
   $mappings = _rdf_mapping_load_multiple($type, array($bundle));
-  return $mappings ? reset($mappings) : array();
+  return $mappings ? reset($mappings) : [];
 }
 
 /**
@@ -435,10 +435,10 @@ function rdf_comment_load($comments) {
 function rdf_theme() {
   return array(
     'rdf_template_variable_wrapper' => array(
-      'variables' => array('content' => NULL, 'attributes' => array(), 'context' => array(), 'inline' => TRUE),
+      'variables' => array('content' => NULL, 'attributes' => [], 'context' => [], 'inline' => TRUE),
     ),
     'rdf_metadata' => array(
-      'variables' => array('metadata' => array()),
+      'variables' => array('metadata' => []),
     ),
   );
 }
@@ -634,7 +634,7 @@ function rdf_preprocess_username(&$variables) {
     $variables['attributes_array']['about'] = url('user/' . $variables['uid']);
   }
 
-  $attributes = array();
+  $attributes = [];
   // The typeof attribute specifies the RDF type(s) of this resource. They
   // are defined in the 'rdftype' property of the user RDF mapping.
   if (!empty($rdf_mapping['rdftype'])) {

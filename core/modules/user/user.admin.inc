@@ -47,7 +47,7 @@ function user_admin($callback_arg = '') {
  * @see user_filter_form_submit()
  */
 function user_filter_form() {
-  $session = isset($_SESSION['user_overview_filter']) ? $_SESSION['user_overview_filter'] : array();
+  $session = isset($_SESSION['user_overview_filter']) ? $_SESSION['user_overview_filter'] : [];
   $filters = user_filters();
 
   $i = 0;
@@ -143,7 +143,7 @@ function user_filter_form_submit($form, &$form_state) {
       array_pop($_SESSION['user_overview_filter']);
       break;
     case t('Reset'):
-      $_SESSION['user_overview_filter'] = array();
+      $_SESSION['user_overview_filter'] = [];
       break;
     case t('Update'):
       return;
@@ -191,7 +191,7 @@ function user_admin_account() {
     '#title' => t('Update options'),
     '#attributes' => array('class' => array('container-inline')),
   );
-  $options = array();
+  $options = [];
   foreach (module_invoke_all('user_operations') as $operation => $array) {
     $options[$operation] = $array['label'];
   }
@@ -202,7 +202,7 @@ function user_admin_account() {
     '#options' => $options,
     '#default_value' => 'unblock',
   );
-  $options = array();
+  $options = [];
   $form['options']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Update'),
@@ -212,9 +212,9 @@ function user_admin_account() {
 
   $status = array(t('blocked'), t('active'));
   $roles = array_map('check_plain', user_roles(TRUE));
-  $accounts = array();
+  $accounts = [];
   foreach ($result as $account) {
-    $users_roles = array();
+    $users_roles = [];
     $roles_result = db_query('SELECT rid FROM {users_roles} WHERE uid = :uid', array(':uid' => $account->uid));
     foreach ($roles_result as $user_role) {
       $users_roles[] = $roles[$user_role->rid];
@@ -286,7 +286,7 @@ function user_admin_settings() {
   $form['anonymous_settings']['anonymous'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
-    '#default_value' => variable_get('anonymous', t('Anonymous')),
+    '#default_value' => $bootstrap->variable_get('anonymous', t('Anonymous')),
     '#description' => t('The name used to indicate anonymous users.'),
     '#required' => TRUE,
   );
@@ -307,7 +307,7 @@ function user_admin_settings() {
   $form['admin_role']['user_admin_role'] = array(
     '#type' => 'select',
     '#title' => t('Administrator role'),
-    '#default_value' => variable_get('user_admin_role', 0),
+    '#default_value' => $bootstrap->variable_get('user_admin_role', 0),
     '#options' => $roles,
     '#description' => t('This role will be automatically assigned new permissions whenever a module is enabled. Changing this setting will not affect existing permissions.'),
   );
@@ -320,7 +320,7 @@ function user_admin_settings() {
   $form['registration_cancellation']['user_register'] = array(
     '#type' => 'radios',
     '#title' => t('Who can register accounts?'),
-    '#default_value' => variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL),
+    '#default_value' => $bootstrap->variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL),
     '#options' => array(
       USER_REGISTER_ADMINISTRATORS_ONLY => t('Administrators only'),
       USER_REGISTER_VISITORS => t('Visitors'),
@@ -330,7 +330,7 @@ function user_admin_settings() {
   $form['registration_cancellation']['user_email_verification'] = array(
     '#type' => 'checkbox',
     '#title' => t('Require e-mail verification when a visitor creates an account.'),
-    '#default_value' => variable_get('user_email_verification', TRUE),
+    '#default_value' => $bootstrap->variable_get('user_email_verification', TRUE),
     '#description' => t('New users will be required to validate their e-mail address prior to logging into the site, and will be assigned a system-generated password. With this setting disabled, users will be logged in immediately upon registering, and may select their own passwords during registration.')
   );
   module_load_include('inc', 'user', 'user.pages');
@@ -360,17 +360,17 @@ function user_admin_settings() {
   $form['personalization']['user_signatures'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable signatures.'),
-    '#default_value' => variable_get('user_signatures', 0),
+    '#default_value' => $bootstrap->variable_get('user_signatures', 0),
   );
   // If picture support is enabled, check whether the picture directory exists.
   if (variable_get('user_pictures', 0)) {
-    $picture_path =  file_default_scheme() . '://' . variable_get('user_picture_path', 'pictures');
+    $picture_path =  file_default_scheme() . '://' . $bootstrap->variable_get('user_picture_path', 'pictures');
     if (!file_prepare_directory($picture_path, FILE_CREATE_DIRECTORY)) {
       form_set_error('user_picture_path', t('The directory %directory does not exist or is not writable.', array('%directory' => $picture_path)));
       watchdog('file system', 'The directory %directory does not exist or is not writable.', array('%directory' => $picture_path), WATCHDOG_ERROR);
     }
   }
-  $picture_support = variable_get('user_pictures', 0);
+  $picture_support = $bootstrap->variable_get('user_pictures', 0);
   $form['personalization']['user_pictures'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable user pictures.'),
@@ -389,7 +389,7 @@ function user_admin_settings() {
   $form['personalization']['pictures']['user_picture_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Picture directory'),
-    '#default_value' => variable_get('user_picture_path', 'pictures'),
+    '#default_value' => $bootstrap->variable_get('user_picture_path', 'pictures'),
     '#size' => 30,
     '#maxlength' => 255,
     '#description' => t('Subdirectory in the file upload directory where pictures will be stored.'),
@@ -397,7 +397,7 @@ function user_admin_settings() {
   $form['personalization']['pictures']['user_picture_default'] = array(
     '#type' => 'textfield',
     '#title' => t('Default picture'),
-    '#default_value' => variable_get('user_picture_default', ''),
+    '#default_value' => $bootstrap->variable_get('user_picture_default', ''),
     '#size' => 30,
     '#maxlength' => 255,
     '#description' => t('URL of picture to display for users with no custom picture selected. Leave blank for none.'),
@@ -407,14 +407,14 @@ function user_admin_settings() {
       '#type' => 'select',
       '#title' => t('Picture display style'),
       '#options' => image_style_options(TRUE, PASS_THROUGH),
-      '#default_value' => variable_get('user_picture_style', ''),
+      '#default_value' => $bootstrap->variable_get('user_picture_style', ''),
       '#description' => t('The style selected will be used on display, while the original image is retained. Styles may be configured in the <a href="!url">Image styles</a> administration area.', array('!url' => url('admin/config/media/image-styles'))),
     );
   }
   $form['personalization']['pictures']['user_picture_dimensions'] = array(
     '#type' => 'textfield',
     '#title' => t('Picture upload dimensions'),
-    '#default_value' => variable_get('user_picture_dimensions', '85x85'),
+    '#default_value' => $bootstrap->variable_get('user_picture_dimensions', '85x85'),
     '#size' => 10,
     '#maxlength' => 10,
     '#field_suffix' => ' ' . t('pixels'),
@@ -423,7 +423,7 @@ function user_admin_settings() {
   $form['personalization']['pictures']['user_picture_file_size'] = array(
     '#type' => 'textfield',
     '#title' => t('Picture upload file size'),
-    '#default_value' => variable_get('user_picture_file_size', '30'),
+    '#default_value' => $bootstrap->variable_get('user_picture_file_size', '30'),
     '#size' => 10,
     '#maxlength' => 10,
     '#field_suffix' => ' ' . t('KB'),
@@ -433,7 +433,7 @@ function user_admin_settings() {
   $form['personalization']['pictures']['user_picture_guidelines'] = array(
     '#type' => 'textarea',
     '#title' => t('Picture guidelines'),
-    '#default_value' => variable_get('user_picture_guidelines', ''),
+    '#default_value' => $bootstrap->variable_get('user_picture_guidelines', ''),
     '#description' => t("This text is displayed at the picture upload form in addition to the default guidelines. It's useful for helping or instructing your users."),
   );
 
@@ -459,13 +459,13 @@ function user_admin_settings() {
   $form['email_admin_created']['user_mail_register_admin_created_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
-    '#default_value' => _user_mail_text('register_admin_created_subject', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('register_admin_created_subject', NULL, [], FALSE),
     '#maxlength' => 180,
   );
   $form['email_admin_created']['user_mail_register_admin_created_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
-    '#default_value' => _user_mail_text('register_admin_created_body', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('register_admin_created_body', NULL, [], FALSE),
     '#rows' => 15,
   );
 
@@ -480,13 +480,13 @@ function user_admin_settings() {
   $form['email_pending_approval']['user_mail_register_pending_approval_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
-    '#default_value' => _user_mail_text('register_pending_approval_subject', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('register_pending_approval_subject', NULL, [], FALSE),
     '#maxlength' => 180,
   );
   $form['email_pending_approval']['user_mail_register_pending_approval_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
-    '#default_value' => _user_mail_text('register_pending_approval_body', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('register_pending_approval_body', NULL, [], FALSE),
     '#rows' => 8,
   );
 
@@ -501,13 +501,13 @@ function user_admin_settings() {
   $form['email_no_approval_required']['user_mail_register_no_approval_required_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
-    '#default_value' => _user_mail_text('register_no_approval_required_subject', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('register_no_approval_required_subject', NULL, [], FALSE),
     '#maxlength' => 180,
   );
   $form['email_no_approval_required']['user_mail_register_no_approval_required_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
-    '#default_value' => _user_mail_text('register_no_approval_required_body', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('register_no_approval_required_body', NULL, [], FALSE),
     '#rows' => 15,
   );
 
@@ -523,13 +523,13 @@ function user_admin_settings() {
   $form['email_password_reset']['user_mail_password_reset_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
-    '#default_value' => _user_mail_text('password_reset_subject', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('password_reset_subject', NULL, [], FALSE),
     '#maxlength' => 180,
   );
   $form['email_password_reset']['user_mail_password_reset_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
-    '#default_value' => _user_mail_text('password_reset_body', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('password_reset_body', NULL, [], FALSE),
     '#rows' => 12,
   );
 
@@ -544,7 +544,7 @@ function user_admin_settings() {
   $form['email_activated']['user_mail_status_activated_notify'] = array(
     '#type' => 'checkbox',
     '#title' => t('Notify user when account is activated.'),
-    '#default_value' => variable_get('user_mail_status_activated_notify', TRUE),
+    '#default_value' => $bootstrap->variable_get('user_mail_status_activated_notify', TRUE),
   );
   $form['email_activated']['settings'] = array(
     '#type' => 'container',
@@ -558,13 +558,13 @@ function user_admin_settings() {
   $form['email_activated']['settings']['user_mail_status_activated_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
-    '#default_value' => _user_mail_text('status_activated_subject', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('status_activated_subject', NULL, [], FALSE),
     '#maxlength' => 180,
   );
   $form['email_activated']['settings']['user_mail_status_activated_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
-    '#default_value' => _user_mail_text('status_activated_body', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('status_activated_body', NULL, [], FALSE),
     '#rows' => 15,
   );
 
@@ -579,7 +579,7 @@ function user_admin_settings() {
   $form['email_blocked']['user_mail_status_blocked_notify'] = array(
     '#type' => 'checkbox',
     '#title' => t('Notify user when account is blocked.'),
-    '#default_value' => variable_get('user_mail_status_blocked_notify', FALSE),
+    '#default_value' => $bootstrap->variable_get('user_mail_status_blocked_notify', FALSE),
   );
   $form['email_blocked']['settings'] = array(
     '#type' => 'container',
@@ -593,13 +593,13 @@ function user_admin_settings() {
   $form['email_blocked']['settings']['user_mail_status_blocked_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
-    '#default_value' => _user_mail_text('status_blocked_subject', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('status_blocked_subject', NULL, [], FALSE),
     '#maxlength' => 180,
   );
   $form['email_blocked']['settings']['user_mail_status_blocked_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
-    '#default_value' => _user_mail_text('status_blocked_body', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('status_blocked_body', NULL, [], FALSE),
     '#rows' => 3,
   );
 
@@ -614,13 +614,13 @@ function user_admin_settings() {
   $form['email_cancel_confirm']['user_mail_cancel_confirm_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
-    '#default_value' => _user_mail_text('cancel_confirm_subject', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('cancel_confirm_subject', NULL, [], FALSE),
     '#maxlength' => 180,
   );
   $form['email_cancel_confirm']['user_mail_cancel_confirm_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
-    '#default_value' => _user_mail_text('cancel_confirm_body', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('cancel_confirm_body', NULL, [], FALSE),
     '#rows' => 3,
   );
 
@@ -635,7 +635,7 @@ function user_admin_settings() {
   $form['email_canceled']['user_mail_status_canceled_notify'] = array(
     '#type' => 'checkbox',
     '#title' => t('Notify user when account is canceled.'),
-    '#default_value' => variable_get('user_mail_status_canceled_notify', FALSE),
+    '#default_value' => $bootstrap->variable_get('user_mail_status_canceled_notify', FALSE),
   );
   $form['email_canceled']['settings'] = array(
     '#type' => 'container',
@@ -649,13 +649,13 @@ function user_admin_settings() {
   $form['email_canceled']['settings']['user_mail_status_canceled_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
-    '#default_value' => _user_mail_text('status_canceled_subject', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('status_canceled_subject', NULL, [], FALSE),
     '#maxlength' => 180,
   );
   $form['email_canceled']['settings']['user_mail_status_canceled_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
-    '#default_value' => _user_mail_text('status_canceled_body', NULL, array(), FALSE),
+    '#default_value' => _user_mail_text('status_canceled_body', NULL, [], FALSE),
     '#rows' => 3,
   );
 
@@ -685,13 +685,13 @@ function user_admin_permissions($form, $form_state, $rid = NULL) {
     '#value' => $role_names,
   );
   // Render role/permission overview:
-  $options = array();
+  $options = [];
   $module_info = system_get_info('module');
   $hide_descriptions = system_admin_compact_mode();
 
   // Get a list of all the modules implementing a hook_permission() and sort by
   // display name.
-  $modules = array();
+  $modules = [];
   foreach (module_implements('permission') as $module) {
     $modules[$module] = $module_info[$module]['name'];
   }
@@ -731,7 +731,7 @@ function user_admin_permissions($form, $form_state, $rid = NULL) {
     $form['checkboxes'][$rid] = array(
       '#type' => 'checkboxes',
       '#options' => $options,
-      '#default_value' => isset($status[$rid]) ? $status[$rid] : array(),
+      '#default_value' => isset($status[$rid]) ? $status[$rid] : [],
       '#attributes' => array('class' => array('rid-' . $rid)),
     );
     $form['role_names'][$rid] = array('#markup' => check_plain($name), '#tree' => TRUE);
@@ -775,7 +775,7 @@ function theme_user_admin_permissions($variables) {
 
   $roles = user_roles();
   foreach (element_children($form['permission']) as $key) {
-    $row = array();
+    $row = [];
     // Module name
     if (is_numeric($key)) {
       $row[] = array('data' => drupal_render($form['permission'][$key]), 'class' => array('module'), 'id' => 'module-' . $form['permission'][$key]['#id'], 'colspan' => count($form['role_names']['#value']) + 1);
@@ -821,7 +821,7 @@ function theme_user_admin_permissions($variables) {
  */
 function theme_user_permission_description($variables) {
   if (!$variables['hide']) {
-    $description = array();
+    $description = [];
     $permission_item = $variables['permission_item'];
     if (!empty($permission_item['description'])) {
       $description[] = $permission_item['description'];
@@ -916,7 +916,7 @@ function theme_user_admin_roles($variables) {
   $header = array(t('Name'), t('Weight'), array('data' => t('Operations'), 'colspan' => 2));
   foreach (element_children($form['roles']) as $rid) {
     $name = $form['roles'][$rid]['#role']->name;
-    $row = array();
+    $row = [];
     if (in_array($rid, array(DRUPAL_ANONYMOUS_RID, DRUPAL_AUTHENTICATED_RID))) {
       $row[] = t('@name <em>(locked)</em>', array('@name' => $name));
       $row[] = drupal_render($form['roles'][$rid]['weight']);

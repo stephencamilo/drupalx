@@ -196,7 +196,7 @@ class Updater {
    * @return array
    *   An array of configuration parameters for an update or install operation.
    */
-  protected function getInstallArgs($overrides = array()) {
+  protected function getInstallArgs($overrides = []) {
     $args = array(
       'make_backup' => FALSE,
       'install_dir' => $this->getInstallDirectory(),
@@ -217,7 +217,7 @@ class Updater {
    * @return array
    *   An array of links which the user may need to complete the update
    */
-  public function update(&$filetransfer, $overrides = array()) {
+  public function update(&$filetransfer, $overrides = []) {
     try {
       // Establish arguments with possible overrides.
       $args = $this->getInstallArgs($overrides);
@@ -272,7 +272,7 @@ class Updater {
    * @return array
    *   An array of links which the user may need to complete the install.
    */
-  public function install(&$filetransfer, $overrides = array()) {
+  public function install(&$filetransfer, $overrides = []) {
     try {
       // Establish arguments with possible overrides.
       $args = $this->getInstallArgs($overrides);
@@ -392,7 +392,7 @@ class Updater {
    *   Links which provide actions to take after the install is finished.
    */
   public function postInstallTasks() {
-    return array();
+    return [];
   }
 
   /**
@@ -402,7 +402,7 @@ class Updater {
    *   Links which provide actions to take after the update is finished.
    */
   public function postUpdateTasks() {
-    return array();
+    return [];
   }
 }
 

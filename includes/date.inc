@@ -9,7 +9,7 @@
  * Provides a default system list of date formats for system_date_formats().
  */
 function system_default_date_formats() {
-  $formats = array();
+  $formats = [];
 
   // Short date formats.
   $formats[] = array(
@@ -35,52 +35,52 @@ function system_default_date_formats() {
   $formats[] = array(
     'type' => 'short',
     'format' => 'Y-m-d H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'short',
     'format' => 'm/d/Y - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'short',
     'format' => 'd/m/Y - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'short',
     'format' => 'Y/m/d - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'short',
     'format' => 'M j Y - H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'short',
     'format' => 'j M Y - H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'short',
     'format' => 'Y M j - H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'short',
     'format' => 'M j Y - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'short',
     'format' => 'j M Y - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'short',
     'format' => 'Y M j - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
 
   // Medium date formats.
@@ -102,94 +102,94 @@ function system_default_date_formats() {
   $formats[] = array(
     'type' => 'medium',
     'format' => 'D, Y-m-d H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'medium',
     'format' => 'F j, Y - H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'medium',
     'format' => 'j F, Y - H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'medium',
     'format' => 'Y, F j - H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'medium',
     'format' => 'D, m/d/Y - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'medium',
     'format' => 'D, d/m/Y - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'medium',
     'format' => 'D, Y/m/d - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'medium',
     'format' => 'F j, Y - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'medium',
     'format' => 'j F Y - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'medium',
     'format' => 'Y, F j - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'medium',
     'format' => 'j. F Y - G:i',
-    'locales' => array(),
+    'locales' => [],
   );
 
   // Long date formats.
   $formats[] = array(
     'type' => 'long',
     'format' => 'l, F j, Y - H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'long',
     'format' => 'l, j F, Y - H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'long',
     'format' => 'l, Y,  F j - H:i',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'long',
     'format' => 'l, F j, Y - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'long',
     'format' => 'l, j F Y - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'long',
     'format' => 'l, Y,  F j - g:ia',
-    'locales' => array(),
+    'locales' => [],
   );
   $formats[] = array(
     'type' => 'long',
     'format' => 'l, j. F Y - G:i',
-    'locales' => array(),
+    'locales' => [],
   );
 
   return $formats;

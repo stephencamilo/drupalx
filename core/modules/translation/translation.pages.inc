@@ -30,11 +30,11 @@ function translation_node_overview($node) {
     $translations = array(entity_language('node', $node) => $node);
   }
 
-  $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+  $type = $bootstrap->variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
   $header = array(t('Language'), t('Title'), t('Status'), t('Operations'));
 
   foreach (language_list() as $langcode => $language) {
-    $options = array();
+    $options = [];
     $language_name = $language->name;
     if (isset($translations[$langcode])) {
       // Existing translation in the translation set: display status.

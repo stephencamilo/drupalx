@@ -55,7 +55,7 @@ function translation_help($path, $arg) {
  * Implements hook_menu().
  */
 function translation_menu() {
-  $items = array();
+  $items = [];
   $items['node/%node/translate'] = array(
     'title' => 'Translate',
     'page callback' => 'translation_node_overview',
@@ -226,9 +226,9 @@ function translation_node_view($node, $view_mode) {
     // only for configurable language types and interface language is the only
     // configurable language type in core, we use it as default. Contributed
     // modules can change this behavior by setting the system variable below.
-    $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+    $type = $bootstrap->variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
     $custom_links = language_negotiation_get_switch_links($type, "node/$node->nid");
-    $links = array();
+    $links = [];
 
     foreach ($translations as $langcode => $translation) {
       // Do not show links to the same node, to unpublished translations or to
@@ -250,7 +250,7 @@ function translation_node_view($node, $view_mode) {
 
         // Custom switch links are more generic than content translation links,
         // hence we override existing attributes with the ones below.
-        $links[$key] += array('attributes' => array());
+        $links[$key] += array('attributes' => []);
         $attributes = array(
           'title' => $translation->title,
           'class' => array('translation-link'),
@@ -485,10 +485,10 @@ function translation_remove_from_set($node) {
  */
 function translation_node_get_translations($tnid) {
   if (is_numeric($tnid) && $tnid) {
-    $translations = &drupal_static(__FUNCTION__, array());
+    $translations = &drupal_static(__FUNCTION__, []);
 
     if (!isset($translations[$tnid])) {
-      $translations[$tnid] = array();
+      $translations[$tnid] = [];
       $result = db_select('node', 'n')
         ->fields('n', array('nid', 'type', 'uid', 'status', 'title', 'language'))
         ->condition('n.tnid', $tnid)
@@ -511,7 +511,7 @@ function translation_node_get_translations($tnid) {
  *   TRUE if translation is supported, and FALSE if not.
  */
 function translation_supported_type($type) {
-  return variable_get('language_content_type_' . $type, 0) == TRANSLATION_ENABLED;
+  return $bootstrap->variable_get('language_content_type_' . $type, 0) == TRANSLATION_ENABLED;
 }
 
 /**
@@ -525,7 +525,7 @@ function translation_supported_type($type) {
  *   user, keyed with language codes.
  */
 function translation_path_get_translations($path) {
-  $paths = array();
+  $paths = [];
   // Check for a node related path, and for its translations.
   if ((preg_match("!^node/(\d+)(/.+|)$!", $path, $matches)) && ($node = node_load((int) $matches[1])) && !empty($node->tnid)) {
     foreach (translation_node_get_translations($node->tnid) as $language => $translation_node) {
@@ -541,7 +541,7 @@ function translation_path_get_translations($path) {
  * Replaces links with pointers to translated versions of the content.
  */
 function translation_language_switch_links_alter(array &$links, $type, $path) {
-  $language_type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+  $language_type = $bootstrap->variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
 
   if ($type == $language_type && preg_match("!^node/(\d+)(/.+|)!", $path, $matches)) {
     $node = node_load((int) $matches[1]);

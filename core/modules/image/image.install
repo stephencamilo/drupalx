@@ -26,7 +26,7 @@ function image_uninstall() {
  * Implements hook_schema().
  */
 function image_schema() {
-  $schema = array();
+  $schema = [];
 
   $schema['cache_image'] = drupal_get_schema_unprocessed('system', 'cache');
   $schema['cache_image']['description'] = 'Cache table used to store information about image manipulations that are in-progress.';
@@ -177,7 +177,7 @@ function image_update_dependencies() {
  */
 function image_update_7000() {
   if (!db_table_exists('image_styles')) {
-    $schema = array();
+    $schema = [];
 
     $schema['cache_image'] = system_schema_cache_7054();
     $schema['cache_image']['description'] = 'Cache table used to store information about image manipulations that are in-progress.';
@@ -357,7 +357,7 @@ function image_update_7002(array &$sandbox) {
   if (empty($sandbox)) {
     // Setup the sandbox.
     $sandbox = array(
-      'tables' => array(),
+      'tables' => [],
       'total' => 0,
       'processed' => 0,
       'last_fid' => NULL,
@@ -392,7 +392,7 @@ function image_update_7002(array &$sandbox) {
 
     // If no tables need rows populated with dimensions then we are done.
     if (empty($sandbox['tables'])) {
-      $sandbox = array();
+      $sandbox = [];
       return;
     }
   }
@@ -489,7 +489,7 @@ function image_update_7005() {
  * @param $phase
  */
 function image_requirements($phase) {
-  $requirements = array();
+  $requirements = [];
 
   if ($phase == 'runtime') {
     // Check for the PHP GD library.

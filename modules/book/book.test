@@ -77,7 +77,7 @@ class BookTestCase extends DrupalWebTestCase {
      *  |- Node 3
      *  |- Node 4
      */
-    $nodes = array();
+    $nodes = [];
     $nodes[] = $this->createBookNode($book->nid); // Node 0.
     $nodes[] = $this->createBookNode($book->nid, $nodes[0]->book['mlid']); // Node 1.
     $nodes[] = $this->createBookNode($book->nid, $nodes[0]->book['mlid']); // Node 2.
@@ -101,7 +101,7 @@ class BookTestCase extends DrupalWebTestCase {
 
     // Check that book pages display along with the correct outlines and
     // previous/next links.
-    $this->checkBookNode($book, array($nodes[0], $nodes[3], $nodes[4]), FALSE, FALSE, $nodes[0], array());
+    $this->checkBookNode($book, array($nodes[0], $nodes[3], $nodes[4]), FALSE, FALSE, $nodes[0], []);
     $this->checkBookNode($nodes[0], array($nodes[1], $nodes[2]), $book, $book, $nodes[1], array($book));
     $this->checkBookNode($nodes[1], NULL, $nodes[0], $nodes[0], $nodes[2], array($book, $nodes[0]));
     $this->checkBookNode($nodes[2], NULL, $nodes[1], $nodes[0], $nodes[3], array($book, $nodes[0]));
@@ -124,7 +124,7 @@ class BookTestCase extends DrupalWebTestCase {
     // First we must set $this->book to the second book, so that the
     // correct regex will be generated for testing the outline.
     $this->book = $other_book;
-    $this->checkBookNode($other_book, array($node), FALSE, FALSE, $node, array());
+    $this->checkBookNode($other_book, array($node), FALSE, FALSE, $node, []);
     $this->checkBookNode($node, NULL, $other_book, $other_book, FALSE, array($other_book));
   }
 
@@ -174,7 +174,7 @@ class BookTestCase extends DrupalWebTestCase {
     }
 
     // Compute the expected breadcrumb.
-    $expected_breadcrumb = array();
+    $expected_breadcrumb = [];
     $expected_breadcrumb[] = url('');
     foreach ($breadcrumb as $a_node) {
       $expected_breadcrumb[] = url('node/' . $a_node->nid);
@@ -182,7 +182,7 @@ class BookTestCase extends DrupalWebTestCase {
 
     // Fetch links in the current breadcrumb.
     $links = $this->xpath('//div[@class="breadcrumb"]/a');
-    $got_breadcrumb = array();
+    $got_breadcrumb = [];
     foreach ($links as $link) {
       $got_breadcrumb[] = (string) $link['href'];
     }
@@ -229,7 +229,7 @@ class BookTestCase extends DrupalWebTestCase {
     // since it uniquely identifies each call to createBookNode().
     static $number = 0; // Used to ensure that when sorted nodes stay in same order.
 
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $number . ' - SimpleTest test node ' . $this->randomName(10);
     $edit["body[$langcode][0][value]"] = 'SimpleTest test body ' . $this->randomName(32) . ' ' . $this->randomName(32);
@@ -310,13 +310,13 @@ class BookTestCase extends DrupalWebTestCase {
     $this->assertText(t('The block configuration has been saved.'), 'Block configuration set.');
 
     // Set the block to a region to confirm block is available.
-    $edit = array();
+    $edit = [];
     $edit['blocks[book_navigation][region]'] = 'footer';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
     $this->assertText(t('The block settings have been updated.'), 'Block successfully move to footer region.');
 
      // Give anonymous users the permission 'node test view'.
-     $edit = array();
+     $edit = [];
      $edit[DRUPAL_ANONYMOUS_RID . '[node test view]'] = TRUE;
      $this->drupalPost('admin/people/permissions/' . DRUPAL_ANONYMOUS_RID, $edit, t('Save permissions'));
      $this->assertText(t('The changes have been saved.'), "Permission 'node test view' successfully assigned to anonymous users.");
@@ -334,7 +334,7 @@ class BookTestCase extends DrupalWebTestCase {
    */
    function testNavigationBlockOnAccessModuleEnabled() {
      $this->drupalLogin($this->admin_user);
-     $edit = array();
+     $edit = [];
 
      // Set the block title.
      $block_title = $this->randomName(16);
@@ -346,13 +346,13 @@ class BookTestCase extends DrupalWebTestCase {
      $this->assertText(t('The block configuration has been saved.'), 'Block configuration set.');
 
      // Set the block to a region to confirm block is available.
-     $edit = array();
+     $edit = [];
      $edit['blocks[book_navigation][region]'] = 'footer';
      $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
      $this->assertText(t('The block settings have been updated.'), 'Block successfully move to footer region.');
 
      // Give anonymous users the permission 'node test view'.
-     $edit = array();
+     $edit = [];
      $edit[DRUPAL_ANONYMOUS_RID . '[node test view]'] = TRUE;
      $this->drupalPost('admin/people/permissions/' . DRUPAL_ANONYMOUS_RID, $edit, t('Save permissions'));
      $this->assertText(t('The changes have been saved.'), "Permission 'node test view' successfully assigned to anonymous users.");
@@ -377,7 +377,7 @@ class BookTestCase extends DrupalWebTestCase {
    function testBookDelete() {
      $nodes = $this->createBook();
      $this->drupalLogin($this->admin_user);
-     $edit = array();
+     $edit = [];
 
      // Test access to delete top-level and child book nodes.
      $this->drupalGet('node/' . $this->book->nid . '/outline/remove');

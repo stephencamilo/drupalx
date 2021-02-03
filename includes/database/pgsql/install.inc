@@ -14,19 +14,19 @@ class DatabaseTasks_pgsql extends DatabaseTasks {
   public function __construct() {
     $this->tasks[] = array(
       'function' => 'checkEncoding',
-      'arguments' => array(),
+      'arguments' => [],
     );
     $this->tasks[] = array(
       'function' => 'checkPHPVersion',
-      'arguments' => array(),
+      'arguments' => [],
     );
     $this->tasks[] = array(
       'function' => 'checkBinaryOutput',
-      'arguments' => array(),
+      'arguments' => [],
     );
     $this->tasks[] = array(
       'function' => 'initializeDatabase',
-      'arguments' => array(),
+      'arguments' => [],
     );
   }
 

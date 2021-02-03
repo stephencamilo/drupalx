@@ -41,11 +41,11 @@ class CommentHelperCase extends DrupalWebTestCase {
    */
   function postComment($node, $comment, $subject = '', $contact = NULL) {
     $langcode = LANGUAGE_NONE;
-    $edit = array();
+    $edit = [];
     $edit['comment_body[' . $langcode . '][0][value]'] = $comment;
 
-    $preview_mode = variable_get('comment_preview_article', DRUPAL_OPTIONAL);
-    $subject_mode = variable_get('comment_subject_field_article', 1);
+    $preview_mode = $bootstrap->variable_get('comment_preview_article', DRUPAL_OPTIONAL);
+    $subject_mode = $bootstrap->variable_get('comment_subject_field_article', 1);
 
     // Must get the page before we test for fields.
     if ($node !== NULL) {
@@ -81,7 +81,7 @@ class CommentHelperCase extends DrupalWebTestCase {
         $this->drupalPost(NULL, $edit, t('Save'));
         break;
     }
-    $match = array();
+    $match = [];
     // Get comment ID
     preg_match('/#comment-([0-9]+)/', $this->getURL(), $match);
 
@@ -129,7 +129,7 @@ class CommentHelperCase extends DrupalWebTestCase {
    *   Comment to delete.
    */
   function deleteComment($comment) {
-    $this->drupalPost('comment/' . $comment->id . '/delete', array(), t('Delete'));
+    $this->drupalPost('comment/' . $comment->id . '/delete', [], t('Delete'));
     $this->assertText(t('The comment and all its replies have been deleted.'), 'Comment deleted.');
   }
 
@@ -232,13 +232,13 @@ class CommentHelperCase extends DrupalWebTestCase {
    *   Operation is found on approval page.
    */
   function performCommentOperation($comment, $operation, $approval = FALSE) {
-    $edit = array();
+    $edit = [];
     $edit['operation'] = $operation;
     $edit['comments[' . $comment->id . ']'] = TRUE;
     $this->drupalPost('admin/content/comment' . ($approval ? '/approval' : ''), $edit, t('Update'));
 
     if ($operation == 'delete') {
-      $this->drupalPost(NULL, array(), t('Delete comments'));
+      $this->drupalPost(NULL, [], t('Delete comments'));
       $this->assertRaw(format_plural(1, 'Deleted 1 comment.', 'Deleted @count comments.'), format_string('Operation @operation was performed on comment.', array('@operation' => $operation)));
     }
     else {
@@ -977,7 +977,7 @@ class CommentPreviewTest extends CommentHelperCase {
     $this->drupalPost('user/' . $this->web_user->uid . '/edit', $edit, t('Save'));
 
     // As the web user, fill in the comment form and preview the comment.
-    $edit = array();
+    $edit = [];
     $edit['subject'] = $this->randomName(8);
     $edit['comment_body[' . $langcode . '][0][value]'] = $this->randomName(16);
     $this->drupalPost('node/' . $this->node->nid, $edit, t('Preview'));
@@ -1010,7 +1010,7 @@ class CommentPreviewTest extends CommentHelperCase {
     $this->setCommentSubject(TRUE);
     $this->setCommentSettings('comment_default_mode', COMMENT_MODE_THREADED, 'Comment paging changed.');
 
-    $edit = array();
+    $edit = [];
     $edit['subject'] = $this->randomName(8);
     $edit['comment_body[' . $langcode . '][0][value]'] = $this->randomName(16);
     $edit['name'] = $web_user->name;
@@ -1046,7 +1046,7 @@ class CommentPreviewTest extends CommentHelperCase {
     $this->assertFieldByName('date', $expected_form_date, 'Date field displayed.');
 
     // Submit the form using the displayed values.
-    $displayed = array();
+    $displayed = [];
     $displayed['subject'] = (string) current($this->xpath("//input[@id='edit-subject']/@value"));
     $displayed['comment_body[' . $langcode . '][0][value]'] = (string) current($this->xpath("//textarea[@id='edit-comment-body-" . $langcode . "-0-value']"));
     $displayed['name'] = (string) current($this->xpath("//input[@id='edit-name']/@value"));
@@ -1241,7 +1241,7 @@ class CommentPagerTest extends CommentHelperCase {
 
     // Create a node and three comments.
     $node = $this->drupalCreateNode(array('type' => 'article', 'promote' => 1));
-    $comments = array();
+    $comments = [];
     $comments[] = $this->postComment($node, $this->randomName(), $this->randomName(), TRUE);
     $comments[] = $this->postComment($node, $this->randomName(), $this->randomName(), TRUE);
     $comments[] = $this->postComment($node, $this->randomName(), $this->randomName(), TRUE);
@@ -1273,7 +1273,7 @@ class CommentPagerTest extends CommentHelperCase {
     $this->assertFalse($this->commentExists($comments[1]), 'Comment 2 does not appear on page 3.');
 
     // Post a reply to the oldest comment and test again.
-    $replies = array();
+    $replies = [];
     $oldest_comment = reset($comments);
     $this->drupalGet('comment/reply/' . $node->nid . '/' . $oldest_comment->id);
     $reply = $this->postComment(NULL, $this->randomName(), $this->randomName(), TRUE);
@@ -1317,7 +1317,7 @@ class CommentPagerTest extends CommentHelperCase {
 
     // Create a node and three comments.
     $node = $this->drupalCreateNode(array('type' => 'article', 'promote' => 1));
-    $comments = array();
+    $comments = [];
     $comments[] = $this->postComment($node, $this->randomName(), $this->randomName(), TRUE);
     $comments[] = $this->postComment($node, $this->randomName(), $this->randomName(), TRUE);
     $comments[] = $this->postComment($node, $this->randomName(), $this->randomName(), TRUE);
@@ -1385,7 +1385,7 @@ class CommentPagerTest extends CommentHelperCase {
    *   An array of keys from $comments describing the expected order.
    */
   function assertCommentOrder(array $comments, array $expected_order) {
-    $expected_cids = array();
+    $expected_cids = [];
 
     // First, rekey the expected order by cid.
     foreach ($expected_order as $key) {
@@ -1393,7 +1393,7 @@ class CommentPagerTest extends CommentHelperCase {
     }
 
     $comment_anchors = $this->xpath('//a[starts-with(@id,"comment-")]');
-    $result_order = array();
+    $result_order = [];
     foreach ($comment_anchors as $anchor) {
       $result_order[] = substr($anchor['id'], 8);
     }
@@ -1418,7 +1418,7 @@ class CommentPagerTest extends CommentHelperCase {
 
     // Create a node and three comments.
     $node = $this->drupalCreateNode(array('type' => 'article', 'promote' => 1));
-    $comments = array();
+    $comments = [];
     $comments[] = $this->postComment($node, $this->randomName(), $this->randomName(), TRUE);
     $comments[] = $this->postComment($node, $this->randomName(), $this->randomName(), TRUE);
     $comments[] = $this->postComment($node, $this->randomName(), $this->randomName(), TRUE);
@@ -1877,7 +1877,7 @@ class CommentTokenReplaceTestCase extends CommentHelperCase {
     $instance = field_info_instance('comment', 'body', 'comment_body');
 
     // Generate and test sanitized tokens.
-    $tests = array();
+    $tests = [];
     $tests['[comment:cid]'] = $comment->cid;
     $tests['[comment:hostname]'] = check_plain($comment->hostname);
     $tests['[comment:name]'] = filter_xss($comment->name);
@@ -1924,7 +1924,7 @@ class CommentTokenReplaceTestCase extends CommentHelperCase {
     $node = node_load($node->nid);
 
     // Generate comment tokens for the node (it has 2 comments, both new).
-    $tests = array();
+    $tests = [];
     $tests['[node:comment-count]'] = 2;
     $tests['[node:comment-count-new]'] = 2;
 
@@ -2093,14 +2093,14 @@ class CommentFieldsTest extends CommentHelperCase {
     $this->drupalLogin($this->admin_user);
 
     // Disable the comment module.
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][comment][enable]'] = FALSE;
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
     $this->resetAll();
     $this->assertFalse(module_exists('comment'), 'Comment module disabled.');
 
     // Enable core content type modules (blog, book, and poll).
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][blog][enable]'] = 'blog';
     $edit['modules[Core][book][enable]'] = 'book';
     $edit['modules[Core][poll][enable]'] = 'poll';
@@ -2108,7 +2108,7 @@ class CommentFieldsTest extends CommentHelperCase {
     $this->resetAll();
 
     // Now enable the comment module.
-    $edit = array();
+    $edit = [];
     $edit['modules[Core][comment][enable]'] = 'comment';
     $this->drupalPost('admin/modules', $edit, t('Save configuration'));
     $this->resetAll();

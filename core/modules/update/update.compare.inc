@@ -54,7 +54,7 @@
  * @see update_project_cache()
  */
 function update_get_projects() {
-  $projects = &drupal_static(__FUNCTION__, array());
+  $projects = &drupal_static(__FUNCTION__, []);
   if (empty($projects)) {
     // Retrieve the projects from cache, if present.
     $projects = update_project_cache('update_project_projects');
@@ -104,7 +104,7 @@ function update_get_projects() {
  * @see update_get_projects()
  */
 function _update_process_info_list(&$projects, $list, $project_type, $status) {
-  $admin_theme = variable_get('admin_theme', 'seven');
+  $admin_theme = $bootstrap->variable_get('admin_theme', 'seven');
   foreach ($list as $file) {
     // The admin theme is a special case. It should always be considered enabled
     // for the purposes of update checking.
@@ -190,14 +190,14 @@ function _update_process_info_list(&$projects, $list, $project_type, $status) {
     // themes that are "required by" the project.
     if ($project_name == 'drupal') {
       // Drupal core is always required, so this extra info would be noise.
-      $sub_themes = array();
-      $base_themes = array();
+      $sub_themes = [];
+      $base_themes = [];
     }
     else {
       // Add list of enabled sub-themes.
-      $sub_themes = !empty($file->enabled_sub_themes) ? $file->enabled_sub_themes : array();
+      $sub_themes = !empty($file->enabled_sub_themes) ? $file->enabled_sub_themes : [];
       // Add list of base themes.
-      $base_themes = !empty($file->base_themes) ? $file->base_themes : array();
+      $base_themes = !empty($file->base_themes) ? $file->base_themes : [];
     }
     if (!isset($projects[$project_name])) {
       // Only process this if we haven't done this project, since a single
@@ -289,7 +289,7 @@ function update_process_project_info(&$projects) {
       // Figure out what the currently installed major version is. We need
       // to handle both contribution (e.g. "5.x-1.3", major = 1) and core
       // (e.g. "5.1", major = 5) version strings.
-      $matches = array();
+      $matches = [];
       if (preg_match('/^(\d+\.x-)?(\d+)\..*$/', $info['version'], $matches)) {
         $info['major'] = $matches[2];
       }
@@ -445,7 +445,7 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
       case 'insecure':
         $project_data['status'] = UPDATE_NOT_SECURE;
         if (empty($project_data['extra'])) {
-          $project_data['extra'] = array();
+          $project_data['extra'] = [];
         }
         $project_data['extra'][] = array(
           'class' => array('project-not-secure'),
@@ -457,7 +457,7 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
       case 'revoked':
         $project_data['status'] = UPDATE_REVOKED;
         if (empty($project_data['extra'])) {
-          $project_data['extra'] = array();
+          $project_data['extra'] = [];
         }
         $project_data['extra'][] = array(
           'class' => array('project-revoked'),
@@ -468,7 +468,7 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
       case 'unsupported':
         $project_data['status'] = UPDATE_NOT_SUPPORTED;
         if (empty($project_data['extra'])) {
-          $project_data['extra'] = array();
+          $project_data['extra'] = [];
         }
         $project_data['extra'][] = array(
           'class' => array('project-not-supported'),
@@ -497,7 +497,7 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
 
   // Figure out the target major version.
   $existing_major = $project_data['existing_major'];
-  $supported_majors = array();
+  $supported_majors = [];
   if (isset($available['supported_majors'])) {
     $supported_majors = explode(',', $available['supported_majors']);
   }
@@ -567,7 +567,7 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
       elseif ($release['status'] == 'unpublished') {
         $project_data['status'] = UPDATE_REVOKED;
         if (empty($project_data['extra'])) {
-          $project_data['extra'] = array();
+          $project_data['extra'] = [];
         }
         $project_data['extra'][] = array(
           'class' => array('release-revoked'),
@@ -579,7 +579,7 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
               in_array('Unsupported', $release['terms']['Release type'])) {
         $project_data['status'] = UPDATE_NOT_SUPPORTED;
         if (empty($project_data['extra'])) {
-          $project_data['extra'] = array();
+          $project_data['extra'] = [];
         }
         $project_data['extra'][] = array(
           'class' => array('release-not-supported'),
@@ -605,7 +605,7 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
     if (isset($release['version_major']) && $release['version_major'] > $target_major) {
       if (in_array($release['version_major'], $supported_majors)) {
         if (!isset($project_data['also'])) {
-          $project_data['also'] = array();
+          $project_data['also'] = [];
         }
         if (!isset($project_data['also'][$release['version_major']])) {
           $project_data['also'][$release['version_major']] = $version;
@@ -784,7 +784,7 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
  *   when the cache is cleared.
  */
 function update_project_cache($cid) {
-  $projects = array();
+  $projects = [];
 
   // On certain paths, we should clear the cache and recompute the projects for
   // update status of the site to avoid presenting stale information.

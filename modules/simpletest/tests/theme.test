@@ -74,7 +74,7 @@ class ThemeTestCase extends DrupalWebTestCase {
     $q = $_GET['q'];
     // Set $_GET['q'] to node because theme_get_suggestions() will query it to
     // see if we are on the front page.
-    $_GET['q'] = variable_get('site_frontpage', 'node');
+    $_GET['q'] = $bootstrap->variable_get('site_frontpage', 'node');
     $suggestions = theme_get_suggestions(explode('/', $_GET['q']), 'page');
     // Set it back to not annoy the batch runner.
     $_GET['q'] = $q;
@@ -197,9 +197,9 @@ class ThemeTableTestCase extends DrupalWebTestCase {
   function testThemeTableNoStickyHeaders() {
     $header = array('one', 'two', 'three');
     $rows = array(array(1,2,3), array(4,5,6), array(7,8,9));
-    $attributes = array();
+    $attributes = [];
     $caption = NULL;
-    $colgroups = array();
+    $colgroups = [];
     $this->content = theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => $attributes, 'caption' => $caption, 'colgroups' => $colgroups, 'sticky' => FALSE));
     $js = drupal_add_js();
     $this->assertFalse(isset($js['misc/tableheader.js']), 'tableheader.js was not included because $sticky = FALSE.');
@@ -219,7 +219,7 @@ class ThemeTableTestCase extends DrupalWebTestCase {
         'colspan' => 2,
       ),
     );
-    $this->content = theme('table', array('header' => $header, 'rows' => array(), 'empty' => t('No strings available.')));
+    $this->content = theme('table', array('header' => $header, 'rows' => [], 'empty' => t('No strings available.')));
     $this->assertRaw('<tr class="odd"><td colspan="3" class="empty message">No strings available.</td>', 'Correct colspan was set on empty message.');
     $this->assertRaw('<thead><tr><th>Header 1</th>', 'Table header was printed.');
   }
@@ -251,7 +251,7 @@ class ThemeTableTestCase extends DrupalWebTestCase {
     );
 
     $table = array(
-      'rows' => array(),
+      'rows' => [],
       'footer' => $footer,
     );
 

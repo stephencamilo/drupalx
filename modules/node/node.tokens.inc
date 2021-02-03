@@ -89,7 +89,7 @@ function node_token_info() {
 /**
  * Implements hook_tokens().
  */
-function node_tokens($type, $tokens, array $data = array(), array $options = array()) {
+function node_tokens($type, $tokens, array $data = [], array $options = []) {
   $url_options = array('absolute' => TRUE);
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
@@ -100,7 +100,7 @@ function node_tokens($type, $tokens, array $data = array(), array $options = arr
   }
   $sanitize = !empty($options['sanitize']);
 
-  $replacements = array();
+  $replacements = [];
 
   if ($type == 'node' && !empty($data['node'])) {
     $node = $data['node'];

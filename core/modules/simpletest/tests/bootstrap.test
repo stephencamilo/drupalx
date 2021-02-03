@@ -140,26 +140,26 @@ class BootstrapPageCacheTestCase extends DrupalWebTestCase {
     $etag = $this->drupalGetHeader('ETag');
     $last_modified = $this->drupalGetHeader('Last-Modified');
 
-    $this->drupalGet('', array(), array('If-Modified-Since: ' . $last_modified, 'If-None-Match: ' . $etag));
+    $this->drupalGet('', [], array('If-Modified-Since: ' . $last_modified, 'If-None-Match: ' . $etag));
     $this->assertResponse(304, 'Conditional request returned 304 Not Modified.');
 
-    $this->drupalGet('', array(), array('If-Modified-Since: ' . gmdate(DATE_RFC822, strtotime($last_modified)), 'If-None-Match: ' . $etag));
+    $this->drupalGet('', [], array('If-Modified-Since: ' . gmdate(DATE_RFC822, strtotime($last_modified)), 'If-None-Match: ' . $etag));
     $this->assertResponse(304, 'Conditional request with obsolete If-Modified-Since date returned 304 Not Modified.');
 
-    $this->drupalGet('', array(), array('If-Modified-Since: ' . gmdate(DATE_RFC850, strtotime($last_modified)), 'If-None-Match: ' . $etag));
+    $this->drupalGet('', [], array('If-Modified-Since: ' . gmdate(DATE_RFC850, strtotime($last_modified)), 'If-None-Match: ' . $etag));
     $this->assertResponse(304, 'Conditional request with obsolete If-Modified-Since date returned 304 Not Modified.');
 
-    $this->drupalGet('', array(), array('If-Modified-Since: ' . $last_modified));
+    $this->drupalGet('', [], array('If-Modified-Since: ' . $last_modified));
     $this->assertResponse(200, 'Conditional request without If-None-Match returned 200 OK.');
     $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT', 'Page was cached.');
 
-    $this->drupalGet('', array(), array('If-Modified-Since: ' . gmdate(DATE_RFC7231, strtotime($last_modified) + 1), 'If-None-Match: ' . $etag));
+    $this->drupalGet('', [], array('If-Modified-Since: ' . gmdate(DATE_RFC7231, strtotime($last_modified) + 1), 'If-None-Match: ' . $etag));
     $this->assertResponse(200, 'Conditional request with new a If-Modified-Since date newer than Last-Modified returned 200 OK.');
     $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT', 'Page was cached.');
 
     $user = $this->drupalCreateUser();
     $this->drupalLogin($user);
-    $this->drupalGet('', array(), array('If-Modified-Since: ' . $last_modified, 'If-None-Match: ' . $etag));
+    $this->drupalGet('', [], array('If-Modified-Since: ' . $last_modified, 'If-None-Match: ' . $etag));
     $this->assertResponse(200, 'Conditional request returned 200 OK for authenticated user.');
     $this->assertFalse($this->drupalGetHeader('X-Drupal-Cache'), 'Absence of Page was not cached.');
     $this->assertFalse($this->drupalGetHeader('ETag'), 'ETag HTTP headers are not present for logged in users.');
@@ -217,13 +217,13 @@ class BootstrapPageCacheTestCase extends DrupalWebTestCase {
     variable_set('cache', 1);
 
     // Fill the cache and verify that output is compressed.
-    $this->drupalGet('', array(), array('Accept-Encoding: gzip,deflate'));
+    $this->drupalGet('', [], array('Accept-Encoding: gzip,deflate'));
     $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'MISS', 'Page was not cached.');
     $this->drupalSetContent(gzinflate(substr($this->drupalGetContent(), 10, -8)));
     $this->assertRaw('</html>', 'Page was gzip compressed.');
 
     // Verify that cached output is compressed.
-    $this->drupalGet('', array(), array('Accept-Encoding: gzip,deflate'));
+    $this->drupalGet('', [], array('Accept-Encoding: gzip,deflate'));
     $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT', 'Page was cached.');
     $this->assertEqual($this->drupalGetHeader('Content-Encoding'), 'gzip', 'A Content-Encoding header was sent.');
     $this->drupalSetContent(gzinflate(substr($this->drupalGetContent(), 10, -8)));
@@ -233,14 +233,14 @@ class BootstrapPageCacheTestCase extends DrupalWebTestCase {
     $this->drupalGet('');
     $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT', 'Page was cached.');
     $this->assertFalse($this->drupalGetHeader('Content-Encoding'), 'A Content-Encoding header was not sent.');
-    $this->assertTitle(t('Welcome to @site-name | @site-name', array('@site-name' => variable_get('site_name', 'Drupal'))), 'Site title matches.');
+    $this->assertTitle(t('Welcome to @site-name | @site-name', array('@site-name' => $bootstrap->variable_get('site_name', 'Drupal'))), 'Site title matches.');
     $this->assertRaw('</html>', 'Page was not compressed.');
 
     // Disable compression mode.
     variable_set('page_compression', FALSE);
 
     // Verify if cached page is still available for a client with compression support.
-    $this->drupalGet('', array(), array('Accept-Encoding: gzip,deflate'));
+    $this->drupalGet('', [], array('Accept-Encoding: gzip,deflate'));
     $this->drupalSetContent(gzinflate(substr($this->drupalGetContent(), 10, -8)));
     $this->assertRaw('</html>', 'Page was delivered after compression mode is changed (compression support enabled).');
 
@@ -271,7 +271,7 @@ class BootstrapVariableTestCase extends DrupalWebTestCase {
     // Setting and retrieving values.
     $variable = $this->randomName();
     variable_set('simpletest_bootstrap_variable_test', $variable);
-    $this->assertIdentical($variable, variable_get('simpletest_bootstrap_variable_test'), 'Setting and retrieving values');
+    $this->assertIdentical($variable, $bootstrap->variable_get('simpletest_bootstrap_variable_test'), 'Setting and retrieving values');
 
     // Make sure the variable persists across multiple requests.
     $this->drupalGet('system-test/variable-get');
@@ -280,7 +280,7 @@ class BootstrapVariableTestCase extends DrupalWebTestCase {
     // Deleting variables.
     $default_value = $this->randomName();
     variable_del('simpletest_bootstrap_variable_test');
-    $variable = variable_get('simpletest_bootstrap_variable_test', $default_value);
+    $variable = $bootstrap->variable_get('simpletest_bootstrap_variable_test', $default_value);
     $this->assertIdentical($variable, $default_value, 'Deleting variables');
   }
 
@@ -289,10 +289,10 @@ class BootstrapVariableTestCase extends DrupalWebTestCase {
    */
   function testVariableDefaults() {
     // Tests passing nothing through to the default.
-    $this->assertIdentical(NULL, variable_get('simpletest_bootstrap_variable_test'), 'Variables are correctly defaulting to NULL.');
+    $this->assertIdentical(NULL, $bootstrap->variable_get('simpletest_bootstrap_variable_test'), 'Variables are correctly defaulting to NULL.');
 
     // Tests passing 5 to the default parameter.
-    $this->assertIdentical(5, variable_get('simpletest_bootstrap_variable_test', 5), 'The default variable parameter is passed through correctly.');
+    $this->assertIdentical(5, $bootstrap->variable_get('simpletest_bootstrap_variable_test', 5), 'The default variable parameter is passed through correctly.');
   }
 
 }
@@ -622,8 +622,8 @@ class BootstrapGetFilenameWebTestCase extends DrupalWebTestCase {
     $non_existing_module = $this->randomName();
     variable_set('system_test_drupal_get_filename_test_module_name', $non_existing_module);
     $this->drupalGet('system-test/drupal-get-filename-with-schema-rebuild');
-    $original_drupal_get_schema_tables = variable_get('system_test_drupal_get_filename_with_schema_rebuild_original_tables');
-    $final_drupal_get_schema_tables = variable_get('system_test_drupal_get_filename_with_schema_rebuild_final_tables');
+    $original_drupal_get_schema_tables = $bootstrap->variable_get('system_test_drupal_get_filename_with_schema_rebuild_original_tables');
+    $final_drupal_get_schema_tables = $bootstrap->variable_get('system_test_drupal_get_filename_with_schema_rebuild_final_tables');
     $this->assertTrue(!empty($original_drupal_get_schema_tables));
     $this->assertTrue(!empty($final_drupal_get_schema_tables));
     $this->assertEqual($original_drupal_get_schema_tables, $final_drupal_get_schema_tables);
@@ -859,7 +859,7 @@ class BootstrapDestinationTestCase extends DrupalWebTestCase {
         CURLOPT_URL => $this->getAbsoluteUrl('system-test/request-destination'),
         CURLOPT_POST => TRUE,
         CURLOPT_POSTFIELDS => 'destination=' . urlencode($test_case['input']),
-        CURLOPT_HTTPHEADER => array(),
+        CURLOPT_HTTPHEADER => [],
       );
       $post_output = $this->curlExec($curl_parameters);
       $this->assertIdentical($test_case['output'], $post_output, $test_case['message']);

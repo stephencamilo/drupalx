@@ -81,7 +81,7 @@ function drupal_json_encode_helper($var) {
       // has sequential whole number keys starting with 0, it's not associative
       // so we can go ahead and convert it as an array.
       if (empty($var) || array_keys($var) === range(0, sizeof($var) - 1)) {
-        $output = array();
+        $output = [];
         foreach ($var as $v) {
           $output[] = drupal_json_encode_helper($v);
         }
@@ -90,7 +90,7 @@ function drupal_json_encode_helper($var) {
       // Otherwise, fall through to convert the array as an object.
 
     case 'object':
-      $output = array();
+      $output = [];
       foreach ($var as $k => $v) {
         $output[] = drupal_json_encode_helper(strval($k)) . ':' . drupal_json_encode_helper($v);
       }

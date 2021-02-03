@@ -17,7 +17,7 @@ function drupal_path_initialize() {
   // Ensure $_GET['q'] is set before calling drupal_normal_path(), to support
   // path caching with hook_url_inbound_alter().
   if (empty($_GET['q'])) {
-    $_GET['q'] = variable_get('site_frontpage', 'node');
+    $_GET['q'] = $bootstrap->variable_get('site_frontpage', 'node');
   }
   $_GET['q'] = drupal_get_normal_path($_GET['q']);
 }
@@ -54,18 +54,18 @@ function drupal_lookup_path($action, $path = '', $path_language = NULL) {
 
   if (!isset($cache)) {
     $cache = array(
-      'map' => array(),
-      'no_source' => array(),
+      'map' => [],
+      'no_source' => [],
       'whitelist' => NULL,
-      'system_paths' => array(),
-      'no_aliases' => array(),
+      'system_paths' => [],
+      'no_aliases' => [],
       'first_call' => TRUE,
     );
   }
 
   // Retrieve the path alias whitelist.
   if (!isset($cache['whitelist'])) {
-    $cache['whitelist'] = variable_get('path_alias_whitelist', NULL);
+    $cache['whitelist'] = $bootstrap->variable_get('path_alias_whitelist', NULL);
     if (!isset($cache['whitelist'])) {
       $cache['whitelist'] = drupal_path_alias_whitelist_rebuild();
     }
@@ -78,7 +78,7 @@ function drupal_lookup_path($action, $path = '', $path_language = NULL) {
   $path_language = $path_language ? $path_language : $language_url->language;
 
   if ($action == 'wipe') {
-    $cache = array();
+    $cache = [];
     $cache['whitelist'] = drupal_path_alias_whitelist_rebuild();
   }
   elseif ($cache['whitelist'] && $path != '') {
@@ -88,7 +88,7 @@ function drupal_lookup_path($action, $path = '', $path_language = NULL) {
       if (!empty($cache['first_call'])) {
         $cache['first_call'] = FALSE;
 
-        $cache['map'][$path_language] = array();
+        $cache['map'][$path_language] = [];
         // Load system paths from cache.
         $cid = current_path();
         if ($cached = cache_get($cid, 'cache_path')) {
@@ -204,7 +204,7 @@ function drupal_lookup_path($action, $path = '', $path_language = NULL) {
 function drupal_cache_system_paths() {
   // Check if the system paths for this page were loaded from cache in this
   // request to avoid writing to cache on every request.
-  $cache = &drupal_static('drupal_lookup_path', array());
+  $cache = &drupal_static('drupal_lookup_path', []);
   if (empty($cache['system_paths']) && !empty($cache['map'])) {
     // Generate a cache ID (cid) specifically for this page.
     $cid = current_path();
@@ -293,7 +293,7 @@ function drupal_is_front_page() {
   if (!isset($is_front_page)) {
     // As drupal_path_initialize updates $_GET['q'] with the 'site_frontpage' path,
     // we can check it against the 'site_frontpage' variable.
-    $is_front_page = ($_GET['q'] == variable_get('site_frontpage', 'node'));
+    $is_front_page = ($_GET['q'] == $bootstrap->variable_get('site_frontpage', 'node'));
   }
 
   return $is_front_page;
@@ -370,7 +370,7 @@ function drupal_path_alias_whitelist_rebuild($source = NULL) {
   // When paths are inserted, only rebuild the whitelist if the system path
   // has a top level component which is not already in the whitelist.
   if (!empty($source)) {
-    $whitelist = variable_get('path_alias_whitelist', NULL);
+    $whitelist = $bootstrap->variable_get('path_alias_whitelist', NULL);
     if (isset($whitelist[strtok($source, '/')])) {
       return $whitelist;
     }
@@ -378,7 +378,7 @@ function drupal_path_alias_whitelist_rebuild($source = NULL) {
   // For each alias in the database, get the top level component of the system
   // path it corresponds to. This is the portion of the path before the first
   // '/', if present, otherwise the whole path itself.
-  $whitelist = array();
+  $whitelist = [];
   $result = db_query("SELECT DISTINCT SUBSTRING_INDEX(source, '/', 1) AS path FROM {url_alias}");
   foreach ($result as $row) {
     $whitelist[$row->path] = TRUE;
@@ -525,9 +525,9 @@ function path_get_admin_paths() {
     drupal_alter('admin_paths', $paths);
     // Combine all admin paths into one array, and likewise for non-admin paths,
     // for easier handling.
-    $patterns = array();
-    $patterns['admin'] = array();
-    $patterns['non_admin'] = array();
+    $patterns = [];
+    $patterns['admin'] = [];
+    $patterns['non_admin'] = [];
     foreach ($paths as $path => $enabled) {
       if ($enabled) {
         $patterns['admin'][] = $path;

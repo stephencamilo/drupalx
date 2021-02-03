@@ -11,7 +11,7 @@
  * Sets up a form that allows a user to validate password.
  */
 function user_form_test_menu() {
-  $items = array();
+  $items = [];
   $items['user_form_test_current_password/%user'] = array(
     'title' => 'User form test for current password validation',
     'page callback' => 'drupal_get_form',

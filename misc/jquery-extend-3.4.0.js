@@ -32,7 +32,7 @@ if (
  *
  * Only two minor changes have been made:
  * - The call to isFunction() is changed to jQuery.isFunction().
- * - The two calls to Array.isArray() is changed to jQuery.isArray().
+ * - The two calls to Array.is[] is changed to jQuery.is[].
  *
  * The above two changes ensure compatibility with all older jQuery versions
  * (1.4.4 - 3.3.1) and older browser versions (e.g., IE8).

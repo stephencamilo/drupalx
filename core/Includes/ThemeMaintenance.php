@@ -62,7 +62,7 @@ function _drupal_maintenance_theme() {
   $theme_key = $theme;
   
   // Find all our ancestor themes and put them in an array.
-  $base_theme = array();
+  $base_theme = [];
   $ancestor = $theme;
   while ($ancestor && isset($themes[$ancestor]->base_theme)) {
     $base_theme[] = $new_base_theme = $themes[$themes[$ancestor]->base_theme];
@@ -171,7 +171,7 @@ function theme_authorize_report($variables) {
   if (!empty($messages)) {
     $output .= '<div id="authorize-results">';
     foreach ($messages as $heading => $logs) {
-      $items = array();
+      $items = [];
       foreach ($logs as $number => $log_message) {
         if ($number === '#abort') {
           continue;

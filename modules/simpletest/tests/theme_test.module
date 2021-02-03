@@ -100,7 +100,7 @@ function theme_test_exit() {
   if (arg(0) == 'user') {
     // Register a fake registry loading callback. If it gets called by
     // theme_get_registry(), the registry has not been initialized yet.
-    _theme_registry_callback('_theme_test_load_registry', array());
+    _theme_registry_callback('_theme_test_load_registry', []);
     print theme_get_registry() ? 'registry initialized' : 'registry not initialized';
   }
 }
@@ -109,7 +109,7 @@ function theme_test_exit() {
  * Fake registry loading callback.
  */
 function _theme_test_load_registry() {
-  return array();
+  return [];
 }
 
 /**
@@ -143,7 +143,7 @@ function _theme_test_alter() {
  * Page callback, calls a theme hook suggestion.
  */
 function _theme_test_suggestion() {
-  return theme(array('theme_test__suggestion', 'theme_test'), array());
+  return theme(array('theme_test__suggestion', 'theme_test'), []);
 }
 
 /**

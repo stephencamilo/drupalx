@@ -134,7 +134,7 @@ class NodeLoadHooksTestCase extends DrupalWebTestCase {
     // Check that when a set of nodes that only contains articles is loaded,
     // the properties added to the node by node_test_load_node() correctly
     // reflect the expected values.
-    $nodes = node_load_multiple(array(), array('status' => NODE_PUBLISHED));
+    $nodes = node_load_multiple([], array('status' => NODE_PUBLISHED));
     $loaded_node = end($nodes);
     $this->assertEqual($loaded_node->node_test_loaded_nids, array($node1->nid, $node2->nid), 'hook_node_load() received the correct list of node IDs the first time it was called.');
     $this->assertEqual($loaded_node->node_test_loaded_types, array('article'), 'hook_node_load() received the correct list of node types the first time it was called.');
@@ -142,7 +142,7 @@ class NodeLoadHooksTestCase extends DrupalWebTestCase {
     // Now, as part of the same page request, load a set of nodes that contain
     // both articles and pages, and make sure the parameters passed to
     // node_test_node_load() are correctly updated.
-    $nodes = node_load_multiple(array(), array('status' => NODE_NOT_PUBLISHED));
+    $nodes = node_load_multiple([], array('status' => NODE_NOT_PUBLISHED));
     $loaded_node = end($nodes);
     $this->assertEqual($loaded_node->node_test_loaded_nids, array($node3->nid, $node4->nid), 'hook_node_load() received the correct list of node IDs the second time it was called.');
     $this->assertEqual($loaded_node->node_test_loaded_types, array('article', 'page'), 'hook_node_load() received the correct list of node types the second time it was called.');
@@ -189,8 +189,8 @@ class NodeRevisionsTestCase extends DrupalWebTestCase {
     $settings = get_object_vars($node);
     $settings['revision'] = 1;
 
-    $nodes = array();
-    $logs = array();
+    $nodes = [];
+    $logs = [];
 
     // Get original node.
     $nodes[] = $node;
@@ -233,7 +233,7 @@ class NodeRevisionsTestCase extends DrupalWebTestCase {
     }
 
     // Confirm that revisions revert properly.
-    $this->drupalPost("node/$node->nid/revisions/{$nodes[1]->vid}/revert", array(), t('Revert'));
+    $this->drupalPost("node/$node->nid/revisions/{$nodes[1]->vid}/revert", [], t('Revert'));
     $this->assertRaw(t('@type %title has been reverted back to the revision from %revision-date.',
                         array('@type' => 'Basic page', '%title' => $nodes[1]->title,
                               '%revision-date' => format_date($nodes[1]->revision_timestamp))), 'Revision reverted.');
@@ -241,7 +241,7 @@ class NodeRevisionsTestCase extends DrupalWebTestCase {
     $this->assertTrue(($nodes[1]->body[LANGUAGE_NONE][0]['value'] == $reverted_node->body[LANGUAGE_NONE][0]['value']), 'Node reverted correctly.');
 
     // Confirm revisions delete properly.
-    $this->drupalPost("node/$node->nid/revisions/{$nodes[1]->vid}/delete", array(), t('Delete'));
+    $this->drupalPost("node/$node->nid/revisions/{$nodes[1]->vid}/delete", [], t('Delete'));
     $this->assertRaw(t('Revision from %revision-date of @type %title has been deleted.',
                         array('%revision-date' => format_date($nodes[1]->revision_timestamp),
                               '@type' => 'Basic page', '%title' => $nodes[1]->title)), 'Revision deleted.');
@@ -341,7 +341,7 @@ class PageEditTestCase extends DrupalWebTestCase {
     $title_key = "title";
     $body_key = "body[$langcode][0][value]";
     // Create node to edit.
-    $edit = array();
+    $edit = [];
     $edit[$title_key] = $this->randomName(8);
     $edit[$body_key] = $this->randomName(16);
     $this->drupalPost('node/add/page', $edit, t('Save'));
@@ -364,7 +364,7 @@ class PageEditTestCase extends DrupalWebTestCase {
     $this->assertFieldByName($body_key, $edit[$body_key], 'Body field displayed.');
 
     // Edit the content of the node.
-    $edit = array();
+    $edit = [];
     $edit[$title_key] = $this->randomName(8);
     $edit[$body_key] = $this->randomName(16);
     // Stay on the current page, without reloading.
@@ -379,7 +379,7 @@ class PageEditTestCase extends DrupalWebTestCase {
     $this->drupalLogin($second_web_user);
     // Edit the same node, creating a new revision.
     $this->drupalGet("node/$node->nid/edit");
-    $edit = array();
+    $edit = [];
     $edit['title'] = $this->randomName(8);
     $edit[$body_key] = $this->randomName(16);
     $edit['revision'] = TRUE;
@@ -407,7 +407,7 @@ class PageEditTestCase extends DrupalWebTestCase {
     // Create node to edit.
     $langcode = LANGUAGE_NONE;
     $body_key = "body[$langcode][0][value]";
-    $edit = array();
+    $edit = [];
     $edit['title'] = $this->randomName(8);
     $edit[$body_key] = $this->randomName(16);
     $this->drupalPost('node/add/page', $edit, t('Save'));
@@ -533,7 +533,7 @@ class PagePreviewTestCase extends DrupalWebTestCase {
     $term_key = "{$this->field_name}[$langcode]";
 
     // Fill in node creation form and preview node.
-    $edit = array();
+    $edit = [];
     $edit[$title_key] = $this->randomName(8);
     $edit[$body_key] = $this->randomName(16);
     $edit[$term_key] = $this->term->tid;
@@ -564,7 +564,7 @@ class PagePreviewTestCase extends DrupalWebTestCase {
     variable_set('node_options_page', array('status', 'revision'));
 
     // Fill in node creation form and preview node.
-    $edit = array();
+    $edit = [];
     $edit[$title_key] = $this->randomName(8);
     $edit[$body_key] = $this->randomName(16);
     $edit[$term_key] = $this->term->tid;
@@ -613,7 +613,7 @@ class NodeCreationTestCase extends DrupalWebTestCase {
    */
   function testNodeCreation() {
     // Create a node.
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName(8);
     $edit["body[$langcode][0][value]"] = $this->randomName(16);
@@ -675,12 +675,12 @@ class NodeCreationTestCase extends DrupalWebTestCase {
    */
   function testUnpublishedNodeCreation() {
     // Set "Basic page" content type to be unpublished by default.
-    variable_set('node_options_page', array());
+    variable_set('node_options_page', []);
     // Set the front page to the default "node" page.
     variable_set('site_frontpage', 'node');
 
     // Create a node.
-    $edit = array();
+    $edit = [];
     $edit["title"] = $this->randomName(8);
     $edit["body[" . LANGUAGE_NONE . "][0][value]"] = $this->randomName(16);
     $this->drupalPost('node/add/page', $edit, t('Save'));
@@ -846,7 +846,7 @@ class NodeBlockTestCase extends DrupalWebTestCase {
     $this->assertText(t('The block configuration has been saved.'), 'Block configuration set.');
 
     // Set the block to a region to confirm block is available.
-    $edit = array();
+    $edit = [];
     $edit['blocks[node_syndicate][region]'] = 'footer';
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
     $this->assertText(t('The block settings have been updated.'), 'Block successfully move to footer region.');
@@ -878,12 +878,12 @@ class NodePostSettingsTestCase extends DrupalWebTestCase {
   function testPagePostInfo() {
 
     // Set "Basic page" content type to display post information.
-    $edit = array();
+    $edit = [];
     $edit['node_submitted'] = TRUE;
     $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
 
     // Create a node.
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName(8);
     $edit["body[$langcode][0][value]"] = $this->randomName(16);
@@ -901,12 +901,12 @@ class NodePostSettingsTestCase extends DrupalWebTestCase {
   function testPageNotPostInfo() {
 
     // Set "Basic page" content type to display post information.
-    $edit = array();
+    $edit = [];
     $edit['node_submitted'] = FALSE;
     $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
 
     // Create a node.
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName(8);
     $edit["body[$langcode][0][value]"] = $this->randomName(16);
@@ -1173,12 +1173,12 @@ class NodeAccessBaseTableTestCase extends DrupalWebTestCase {
    */
   function testNodeAccessBasic() {
     $num_simple_users = 2;
-    $simple_users = array();
+    $simple_users = [];
 
     // nodes keyed by uid and nid: $nodes[$uid][$nid] = $is_private;
-    $this->nodesByUser = array();
-    $titles = array(); // Titles keyed by nid
-    $private_nodes = array(); // Array of nids marked private.
+    $this->nodesByUser = [];
+    $titles = []; // Titles keyed by nid
+    $private_nodes = []; // Array of nids marked private.
     for ($i = 0; $i < $num_simple_users; $i++) {
       $simple_users[$i] = $this->drupalCreateUser(array('access content', 'create article content'));
     }
@@ -1266,7 +1266,7 @@ class NodeAccessBaseTableTestCase extends DrupalWebTestCase {
   protected function assertTaxonomyPage($is_admin) {
     foreach (array($this->publicTid, $this->privateTid) as $tid_is_private => $tid) {
       $this->drupalGet("taxonomy/term/$tid");
-      $this->nids_visible = array();
+      $this->nids_visible = [];
       foreach ($this->xpath("//a[text()='Read more']") as $link) {
         $this->assertTrue(preg_match('|node/(\d+)$|', (string) $link['href'], $matches), 'Read more points to a node');
         $this->nids_visible[$matches[1]] = TRUE;
@@ -1561,7 +1561,7 @@ class NodeTypeTestCase extends DrupalWebTestCase {
     // Remove the body field.
     $this->drupalPost('admin/structure/types/manage/bar/fields/body/delete', NULL, t('Delete'));
     // Resave the settings for this type.
-    $this->drupalPost('admin/structure/types/manage/bar', array(), t('Save content type'));
+    $this->drupalPost('admin/structure/types/manage/bar', [], t('Save content type'));
     // Check that the body field doesn't exist.
     $this->drupalGet('node/add/bar');
     $this->assertNoRaw('Body', 'Body field was not found.');
@@ -1678,7 +1678,7 @@ class NodeTypePersistenceTestCase extends DrupalWebTestCase {
     $this->drupalPost('admin/modules', $poll_disable, t('Save configuration'));
     $edit = array('uninstall[poll]' => 'poll');
     $this->drupalPost('admin/modules/uninstall', $edit, t('Uninstall'));
-    $this->drupalPost(NULL, array(), t('Uninstall'));
+    $this->drupalPost(NULL, [], t('Uninstall'));
     $disabled = db_query('SELECT disabled FROM {node_type} WHERE type = :type', array(':type' => 'poll'))->fetchField();
     $this->assertTrue($disabled, 'Poll node type is in the database and is disabled');
     $this->drupalGet('node/add');
@@ -1718,7 +1718,7 @@ class NodeAccessRebuildTestCase extends DrupalWebTestCase {
   function testNodeAccessRebuild() {
     $this->drupalGet('admin/reports/status');
     $this->clickLink(t('Rebuild permissions'));
-    $this->drupalPost(NULL, array(), t('Rebuild permissions'));
+    $this->drupalPost(NULL, [], t('Rebuild permissions'));
     $this->assertText(t('Content permissions have been rebuilt.'));
   }
 }
@@ -1765,7 +1765,7 @@ class NodeAdminTestCase extends DrupalWebTestCase {
       ->execute()
       ->fetchCol();
 
-    $nodes_form = array();
+    $nodes_form = [];
     $this->drupalGet('admin/content');
     foreach ($this->xpath('//table/tbody/tr/td/div/input/@value') as $input) {
       $nodes_form[] = $input;
@@ -1780,7 +1780,7 @@ class NodeAdminTestCase extends DrupalWebTestCase {
       ->execute()
       ->fetchCol();
 
-    $nodes_form = array();
+    $nodes_form = [];
     $this->drupalGet('admin/content', array('query' => array('sort' => 'asc', 'order' => 'Title')));
     foreach ($this->xpath('//table/tbody/tr/td/div/input/@value') as $input) {
       $nodes_form[] = $input;
@@ -1963,7 +1963,7 @@ class NodeFeedTestCase extends DrupalWebTestCase {
    */
   function testNodeFeedExtraChannelElements() {
     ob_start();
-    node_feed(array(), array('copyright' => 'Drupal is a registered trademark of Dries Buytaert.'));
+    node_feed([], array('copyright' => 'Drupal is a registered trademark of Dries Buytaert.'));
     $output = ob_get_clean();
 
     $this->assertTrue(strpos($output, '<copyright>Drupal is a registered trademark of Dries Buytaert.</copyright>') !== FALSE);
@@ -2075,13 +2075,13 @@ class NodeBlockFunctionalTest extends DrupalWebTestCase {
     $this->assertText($node4->title, 'Node found in block.');
 
     // Create the custom block.
-    $custom_block = array();
+    $custom_block = [];
     $custom_block['info'] = $this->randomName();
     $custom_block['title'] = $this->randomName();
     $custom_block['types[article]'] = TRUE;
     $custom_block['body[value]'] = $this->randomName(32);
-    $custom_block['regions[' . variable_get('theme_default', 'bartik') . ']'] = 'content';
-    if ($admin_theme = variable_get('admin_theme')) {
+    $custom_block['regions[' . $bootstrap->variable_get('theme_default', 'bartik') . ']'] = 'content';
+    if ($admin_theme = $bootstrap->variable_get('admin_theme')) {
       $custom_block['regions[' . $admin_theme . ']'] = 'content';
     }
     $this->drupalPost('admin/structure/block/add', $custom_block, t('Save block'));
@@ -2098,7 +2098,7 @@ class NodeBlockFunctionalTest extends DrupalWebTestCase {
     $this->assertText($custom_block['title'], 'Block was displayed on the node/N.');
 
     // Delete the created custom block & verify that it's been deleted.
-    $this->drupalPost('admin/structure/block/manage/block/' . $bid . '/delete', array(), t('Delete'));
+    $this->drupalPost('admin/structure/block/manage/block/' . $bid . '/delete', [], t('Delete'));
     $bid = db_query("SELECT 1 FROM {block_node_type} WHERE module = 'block' AND delta = :delta", array(':delta' => $bid))->fetchField();
     $this->assertFalse($bid, 'Custom block was deleted.');
   }
@@ -2476,7 +2476,7 @@ class NodeTokenReplaceTestCase extends DrupalWebTestCase {
     $instance = field_info_instance('node', 'body', $node->type);
 
     // Generate and test sanitized tokens.
-    $tests = array();
+    $tests = [];
     $langcode = entity_language('node', $node);
     $tests['[node:nid]'] = $node->nid;
     $tests['[node:vid]'] = $node->vid;
@@ -2525,7 +2525,7 @@ class NodeTokenReplaceTestCase extends DrupalWebTestCase {
     $instance = field_info_instance('node', 'body', $node->type);
 
     // Generate and test sanitized token - use full body as expected value.
-    $tests = array();
+    $tests = [];
     $tests['[node:summary]'] = _text_sanitize($instance, $langcode, $node->body[$langcode][0], 'value');
 
     // Test to make sure that we generated something for each token.
@@ -2556,14 +2556,14 @@ class NodeRevisionPermissionsTestCase extends DrupalWebTestCase {
    *
    * @var array
    */
-  protected $node_revisions = array();
+  protected $node_revisions = [];
 
   /**
    * Users with different revision permission used by the test.
    *
    * @var array
    */
-  protected $accounts = array();
+  protected $accounts = [];
 
   /**
    * Map revision permission names to node revision access ops.
@@ -2719,7 +2719,7 @@ class NodeAccessPagerTestCase extends DrupalWebTestCase {
    */
   public function testForumPager() {
     // Look up the forums vocabulary ID.
-    $vid = variable_get('forum_nav_vocabulary', 0);
+    $vid = $bootstrap->variable_get('forum_nav_vocabulary', 0);
     $this->assertTrue($vid, 'Forum navigation vocabulary ID is set.');
 
     // Look up the general discussion term.
@@ -2787,7 +2787,7 @@ class NodeAccessFieldTestCase extends NodeWebTestCase {
   function testNodeAccessAdministerField() {
     // Create a page node.
     $langcode = LANGUAGE_NONE;
-    $field_data = array();
+    $field_data = [];
     $value = $field_data[$langcode][0]['value'] = $this->randomName();
     $node = $this->drupalCreateNode(array($this->field_name => $field_data));
 
@@ -2802,7 +2802,7 @@ class NodeAccessFieldTestCase extends NodeWebTestCase {
     $this->assertText('Access denied', 'Access is denied for the content admin.');
 
     // Modify the field default as the content admin.
-    $edit = array();
+    $edit = [];
     $default = 'Sometimes words have two meanings';
     $edit["{$this->field_name}[$langcode][0][value]"] = $default;
     $this->drupalPost(
@@ -2849,7 +2849,7 @@ class NodeEntityViewModeAlterTest extends NodeWebTestCase {
     $this->drupalLogin($web_user);
 
     // Create a node.
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName(8);
     $edit["body[$langcode][0][value]"] = 'Data that should appear only in the body for the node.';
@@ -2885,7 +2885,7 @@ class NodeEntityViewModeAlterTest extends NodeWebTestCase {
     $this->drupalLogin($web_user);
 
     // Create a node.
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName(8);
     $edit["body[$langcode][0][value]"] = 'Data that should appear only in the body for the node.';
@@ -2954,7 +2954,7 @@ class NodePageCacheTest extends NodeWebTestCase {
 
     // Login and delete the node.
     $this->drupalLogin($this->admin_user);
-    $this->drupalPost($node_path . '/delete', array(), t('Delete'));
+    $this->drupalPost($node_path . '/delete', [], t('Delete'));
 
     // Logout and check the node is not available.
     $this->drupalLogout();
@@ -2978,7 +2978,7 @@ class NodePageCacheTest extends NodeWebTestCase {
         'nodes[' . $nodes[1]->nid . ']' => TRUE,
     );
     $this->drupalPost(NULL, $edit, t('Update'));
-    $this->drupalPost(NULL, array(), t('Delete'));
+    $this->drupalPost(NULL, [], t('Delete'));
 
     // Logout and check the node is not available.
     $this->drupalLogout();

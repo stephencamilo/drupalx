@@ -40,7 +40,7 @@ class TranslationTestCase extends DrupalWebTestCase {
     // Set "Basic page" content type to use multilingual support with
     // translation.
     $this->drupalGet('admin/structure/types/manage/page');
-    $edit = array();
+    $edit = [];
     $edit['language_content_type'] = 2;
     $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
     $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Basic page')), 'Basic page content type has been updated.');
@@ -100,7 +100,7 @@ class TranslationTestCase extends DrupalWebTestCase {
 
     // Attempt a resubmission of the form - this emulates using the back button
     // to return to the page then resubmitting the form without a refresh.
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName();
     $edit["body[$langcode][0][value]"] = $this->randomName();
@@ -111,7 +111,7 @@ class TranslationTestCase extends DrupalWebTestCase {
     // Update original and mark translation as outdated.
     $node_body = $this->randomName();
     $node->body[LANGUAGE_NONE][0]['value'] = $node_body;
-    $edit = array();
+    $edit = [];
     $edit["body[$langcode][0][value]"] = $node_body;
     $edit['translation[retranslate]'] = TRUE;
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
@@ -122,7 +122,7 @@ class TranslationTestCase extends DrupalWebTestCase {
     $this->assertRaw('<span class="marker">' . t('outdated') . '</span>', 'Translation marked as outdated.');
 
     // Update translation and mark as updated.
-    $edit = array();
+    $edit = [];
     $edit["body[$langcode][0][value]"] = $this->randomName();
     $edit['translation[status]'] = FALSE;
     $this->drupalPost('node/' . $node_translation->nid . '/edit', $edit, t('Save'));
@@ -287,7 +287,7 @@ class TranslationTestCase extends DrupalWebTestCase {
 
     if (strpos($this->drupalGetContent(), 'enabled[' . $language_code . ']') === FALSE) {
       // Doesn't have language installed so add it.
-      $edit = array();
+      $edit = [];
       $edit['langcode'] = $language_code;
       $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
 
@@ -326,7 +326,7 @@ class TranslationTestCase extends DrupalWebTestCase {
    *   A node object.
    */
   function createPage($title, $body, $language = NULL) {
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $title;
     $edit["body[$langcode][0][value]"] = $body;
@@ -366,7 +366,7 @@ class TranslationTestCase extends DrupalWebTestCase {
     $this->assertFieldByXPath('//input[@id="edit-title"]', $node->title, "Original title value correctly populated.");
     $this->assertFieldByXPath("//textarea[@name='$body_key']", $node->body[LANGUAGE_NONE][0]['value'], "Original body value correctly populated.");
 
-    $edit = array();
+    $edit = [];
     $edit["title"] = $title;
     $edit[$body_key] = $body;
     $this->drupalPost(NULL, $edit, t('Save'));
@@ -399,7 +399,7 @@ class TranslationTestCase extends DrupalWebTestCase {
    * @return
    *   TRUE on pass, FALSE on fail.
    */
-  function assertContentByXPath($xpath, array $arguments = array(), $value = NULL, $message = '', $group = 'Other') {
+  function assertContentByXPath($xpath, array $arguments = [], $value = NULL, $message = '', $group = 'Other') {
     $found = $this->findContentByXPath($xpath, $arguments, $value);
     return $this->assertTrue($found, $message, $group);
   }
@@ -473,7 +473,7 @@ class TranslationTestCase extends DrupalWebTestCase {
    * @return
    *   TRUE if found, otherwise FALSE.
    */
-  function findContentByXPath($xpath, array $arguments = array(), $value = NULL) {
+  function findContentByXPath($xpath, array $arguments = [], $value = NULL) {
     $elements = $this->xpath($xpath, $arguments);
 
     $found = TRUE;

@@ -33,7 +33,7 @@ class MenuWebTestCase extends DrupalWebTestCase {
    *   (optional) Whether the last link in $tree is expected to be active (TRUE)
    *   or just to be in the active trail (FALSE).
    */
-  protected function assertBreadcrumb($goto, array $trail, $page_title = NULL, array $tree = array(), $last_active = TRUE) {
+  protected function assertBreadcrumb($goto, array $trail, $page_title = NULL, array $tree = [], $last_active = TRUE) {
     if (isset($goto)) {
       $this->drupalGet($goto);
     }
@@ -106,7 +106,7 @@ class MenuWebTestCase extends DrupalWebTestCase {
    * Returns the breadcrumb contents of the current page in the internal browser.
    */
   protected function getParts() {
-    $parts = array();
+    $parts = [];
     $elements = $this->xpath('//div[@class="breadcrumb"]/a');
     if (!empty($elements)) {
       foreach ($elements as $element) {
@@ -226,7 +226,7 @@ class MenuRouterTestCase extends DrupalWebTestCase {
   function testMaintenanceModeLoginPaths() {
     variable_set('maintenance_mode', TRUE);
 
-    $offline_message = t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal')));
+    $offline_message = t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => $bootstrap->variable_get('site_name', 'Drupal')));
     $this->drupalLogout();
     $this->drupalGet('node');
     $this->assertText($offline_message);
@@ -239,7 +239,7 @@ class MenuRouterTestCase extends DrupalWebTestCase {
    * 'user' and 'user/register' gets redirected to the user edit page.
    */
   function testAuthUserUserLogin() {
-    $loggedInUser = $this->drupalCreateUser(array());
+    $loggedInUser = $this->drupalCreateUser([]);
     $this->drupalLogin($loggedInUser);
 
     $this->drupalGet('user/login');
@@ -514,7 +514,7 @@ class MenuRouterTestCase extends DrupalWebTestCase {
    * Test menu_get_item() with empty ancestors.
    */
   function testMenuGetItemNoAncestors() {
-    variable_set('menu_masks', array());
+    variable_set('menu_masks', []);
     $this->drupalGet('');
   }
 
@@ -594,7 +594,7 @@ class MenuRouterTestCase extends DrupalWebTestCase {
       $this->menuItemTitlesCasesHelper($case_no);
       variable_set('locale_custom_strings_en', array('' => $override));
       $this->menuItemTitlesCasesHelper($case_no, TRUE);
-      variable_set('locale_custom_strings_en', array());
+      variable_set('locale_custom_strings_en', []);
     }
   }
 
@@ -656,7 +656,7 @@ class MenuRouterTestCase extends DrupalWebTestCase {
       ),
       // Explicit loader arguments should not be overriden by parent.
       'menu-test/arguments/%/%/explicit-arguments' => array(
-        2 => array('menu_test_argument_load' => array()),
+        2 => array('menu_test_argument_load' => []),
         3 => NULL,
       ),
     );
@@ -994,9 +994,9 @@ class MenuTreeOutputTestCase extends DrupalWebTestCase {
         '2' => array('link' => array( 'menu_name' => 'main-menu', 'mlid' => 2, 'hidden'=>0, 'has_children' => 1, 'title' => 'Item 2', 'in_active_trail' => 1, 'access'=>1, 'href' => 'a/b', 'localized_options' => array('attributes' => array('title' =>'')) ),
           'below' => array(
             '3' => array('link' => array( 'menu_name' => 'main-menu', 'mlid' => 3, 'hidden'=>0, 'has_children' => 0, 'title' => 'Item 3', 'in_active_trail' => 0, 'access'=>1, 'href' => 'a/b/c', 'localized_options' => array('attributes' => array('title' =>'')) ),
-              'below' => array() ),
+              'below' => [] ),
             '4' => array('link' => array( 'menu_name' => 'main-menu', 'mlid' => 4, 'hidden'=>0, 'has_children' => 0, 'title' => 'Item 4', 'in_active_trail' => 0, 'access'=>1, 'href' => 'a/b/d', 'localized_options' => array('attributes' => array('title' =>'')) ),
-              'below' => array() )
+              'below' => [] )
             )
           )
         )
@@ -1208,7 +1208,7 @@ class MenuBreadcrumbTestCase extends MenuWebTestCase {
     $this->assertBreadcrumb("node/$nid1/edit", $trail);
 
     // Verify that breadcrumb on node listing page contains "Home" only.
-    $trail = array();
+    $trail = [];
     $this->assertBreadcrumb('node', $trail);
 
     // Verify node breadcrumbs (in menu).
@@ -1278,7 +1278,7 @@ class MenuBreadcrumbTestCase extends MenuWebTestCase {
       $this->assertBreadcrumb("node/$nid3/edit", $trail);
 
       // Verify that node listing page still contains "Home" only.
-      $trail = array();
+      $trail = [];
       $this->assertBreadcrumb('node', $trail);
 
       if ($menu == 'navigation') {
@@ -1320,8 +1320,8 @@ class MenuBreadcrumbTestCase extends MenuWebTestCase {
     // Add a taxonomy term/tag to last node, and add a link for that term to the
     // Navigation menu.
     $tags = array(
-      'Drupal' => array(),
-      'Breadcrumbs' => array(),
+      'Drupal' => [],
+      'Breadcrumbs' => [],
     );
     $edit = array(
       "field_tags[$langcode]" => implode(',', array_keys($tags)),
@@ -1363,7 +1363,7 @@ class MenuBreadcrumbTestCase extends MenuWebTestCase {
 
     // Verify expected breadcrumbs for menu links.
     $trail = $home;
-    $tree = array();
+    $tree = [];
     foreach ($tags as $name => $data) {
       $term = $data['term'];
       $link = $data['link'];
@@ -1400,7 +1400,7 @@ class MenuBreadcrumbTestCase extends MenuWebTestCase {
     $this->drupalLogout();
 
     // Verify breadcrumb on front page.
-    $this->assertBreadcrumb('<front>', array());
+    $this->assertBreadcrumb('<front>', []);
 
     // Verify breadcrumb on user pages (without menu link) for anonymous user.
     $trail = $home;
@@ -1520,7 +1520,7 @@ class MenuBreadcrumbTestCase extends MenuWebTestCase {
     // Verify that we can access recent log entries, there is a corresponding
     // page title, and that the breadcrumb is empty (because the user is not
     // able to access "Administer", so the trail cannot recurse into it).
-    $trail = array();
+    $trail = [];
     $this->assertBreadcrumb('admin', $trail, t('Access denied'));
     $this->assertResponse(403);
 
@@ -1697,7 +1697,7 @@ class MenuTrailTestCase extends MenuWebTestCase {
 
       // Check that the initial trail (during the Drupal bootstrap) matches
       // what we expect.
-      $initial_trail = variable_get('menu_test_active_trail_initial', array());
+      $initial_trail = $bootstrap->variable_get('menu_test_active_trail_initial', []);
       $this->assertEqual(count($initial_trail), count($expected_trail[$status_code]['initial']), format_string('The initial active trail for a @status_code page contains the expected number of items (expected: @expected, found: @found).', array(
         '@status_code' => $status_code,
         '@expected' => count($expected_trail[$status_code]['initial']),
@@ -1714,7 +1714,7 @@ class MenuTrailTestCase extends MenuWebTestCase {
 
       // Check that the final trail (after the user has been redirected to the
       // custom 403/404 page) matches what we expect.
-      $final_trail = variable_get('menu_test_active_trail_final', array());
+      $final_trail = $bootstrap->variable_get('menu_test_active_trail_final', []);
       $this->assertEqual(count($final_trail), count($expected_trail[$status_code]['final']), format_string('The final active trail for a @status_code page contains the expected number of items (expected: @expected, found: @found).', array(
         '@status_code' => $status_code,
         '@expected' => count($expected_trail[$status_code]['final']),

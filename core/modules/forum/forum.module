@@ -169,7 +169,7 @@ function forum_menu_local_tasks_alter(&$data, $router_item, $root_path) {
     $tid = (isset($router_item['page_arguments'][0]) ? $router_item['page_arguments'][0]->tid : 0);
     $forum_term = forum_forum_load($tid);
     if ($forum_term) {
-      $links = array();
+      $links = [];
       // Loop through all bundles for forum taxonomy vocabulary field.
       $field = field_info_field('taxonomy_forums');
       foreach ($field['bundles']['node'] as $type) {
@@ -216,7 +216,7 @@ function forum_menu_local_tasks_alter(&$data, $router_item, $root_path) {
  */
 function forum_entity_info_alter(&$info) {
   // Take over URI construction for taxonomy terms that are forums.
-  if ($vid = variable_get('forum_nav_vocabulary', 0)) {
+  if ($vid = $bootstrap->variable_get('forum_nav_vocabulary', 0)) {
     // Within hook_entity_info(), we can't invoke entity_load() as that would
     // cause infinite recursion, so we call taxonomy_vocabulary_get_names()
     // instead of taxonomy_vocabulary_load(). All we need is the machine name
@@ -265,7 +265,7 @@ function _forum_node_check_node_type($node) {
 function forum_node_view($node, $view_mode) {
   if (_forum_node_check_node_type($node)) {
     if ($view_mode == 'full' && node_is_page($node)) {
-      $vid = variable_get('forum_nav_vocabulary', 0);
+      $vid = $bootstrap->variable_get('forum_nav_vocabulary', 0);
       $vocabulary = taxonomy_vocabulary_load($vid);
       // Breadcrumb navigation
       $breadcrumb[] = l(t('Home'), NULL);
@@ -294,7 +294,7 @@ function forum_node_validate($node, $form) {
     // vocabulary is selected, not a "container" term.
     if (!empty($node->taxonomy_forums[$langcode])) {
       // Extract the node's proper topic ID.
-      $containers = variable_get('forum_containers', array());
+      $containers = $bootstrap->variable_get('forum_containers', []);
       foreach ($node->taxonomy_forums[$langcode] as $delta => $item) {
         // If no term was selected (e.g. when no terms exist yet), remove the
         // item.
@@ -426,7 +426,7 @@ function forum_node_delete($node) {
  * Implements hook_node_load().
  */
 function forum_node_load($nodes) {
-  $node_vids = array();
+  $node_vids = [];
   foreach ($nodes as $node) {
     if (_forum_node_check_node_type($node)) {
       $node_vids[] = $node->vid;
@@ -475,7 +475,7 @@ function forum_permission() {
  */
 function forum_taxonomy_term_delete($term) {
   // For containers, remove the tid from the forum_containers variable.
-  $containers = variable_get('forum_containers', array());
+  $containers = $bootstrap->variable_get('forum_containers', []);
   $key = array_search($term->tid, $containers);
   if ($key !== FALSE) {
     unset($containers[$key]);
@@ -548,7 +548,7 @@ function forum_field_storage_pre_insert($entity_type, $entity, &$skip_fields) {
  * Implements hook_field_storage_pre_update().
  */
 function forum_field_storage_pre_update($entity_type, $entity, &$skip_fields) {
-  $first_call = &drupal_static(__FUNCTION__, array());
+  $first_call = &drupal_static(__FUNCTION__, []);
 
   if ($entity_type == 'node' && _forum_node_check_node_type($entity)) {
 
@@ -594,7 +594,7 @@ function forum_field_storage_pre_update($entity_type, $entity, &$skip_fields) {
  * Implements hook_form_FORM_ID_alter() for taxonomy_form_vocabulary().
  */
 function forum_form_taxonomy_form_vocabulary_alter(&$form, &$form_state, $form_id) {
-  $vid = variable_get('forum_nav_vocabulary', 0);
+  $vid = $bootstrap->variable_get('forum_nav_vocabulary', 0);
   if (isset($form['vid']['#value']) && $form['vid']['#value'] == $vid) {
     $form['help_forum_vocab'] = array(
       '#markup' => t('This is the designated forum vocabulary. Some of the normal vocabulary options have been removed.'),
@@ -613,7 +613,7 @@ function forum_form_taxonomy_form_vocabulary_alter(&$form, &$form_state, $form_i
  * Implements hook_form_FORM_ID_alter() for taxonomy_form_term().
  */
 function forum_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id) {
-   $vid = variable_get('forum_nav_vocabulary', 0);
+   $vid = $bootstrap->variable_get('forum_nav_vocabulary', 0);
    if (isset($form['vid']['#value']) && $form['vid']['#value'] == $vid) {
     // Hide multiple parents select from forum terms.
     $form['relations']['parent']['#access'] = FALSE;
@@ -663,7 +663,7 @@ function forum_block_configure($delta = '') {
   $form['forum_block_num_' . $delta] = array(
     '#type' => 'select',
     '#title' => t('Number of topics'),
-    '#default_value' => variable_get('forum_block_num_' . $delta, '5'),
+    '#default_value' => $bootstrap->variable_get('forum_block_num_' . $delta, '5'),
     '#options' => drupal_map_assoc(range(2, 20))
   );
   return $form;
@@ -672,7 +672,7 @@ function forum_block_configure($delta = '') {
 /**
  * Implements hook_block_save().
  */
-function forum_block_save($delta = '', $edit = array()) {
+function forum_block_save($delta = '', $edit = []) {
   variable_set('forum_block_num_' . $delta, $edit['forum_block_num_' . $delta]);
 }
 
@@ -691,14 +691,14 @@ function forum_block_view($delta = '') {
       $title = t('Active forum topics');
       $query
         ->orderBy('f.last_comment_timestamp', 'DESC')
-        ->range(0, variable_get('forum_block_num_active', '5'));
+        ->range(0, $bootstrap->variable_get('forum_block_num_active', '5'));
       break;
 
     case 'new':
       $title = t('New forum topics');
       $query
         ->orderBy('f.created', 'DESC')
-        ->range(0, variable_get('forum_block_num_new', '5'));
+        ->range(0, $bootstrap->variable_get('forum_block_num_new', '5'));
       break;
   }
 
@@ -763,7 +763,7 @@ function forum_form($node, $form_state) {
  *   - forums: An array of child forums.
  */
 function forum_forum_load($tid = NULL) {
-  $cache = &drupal_static(__FUNCTION__, array());
+  $cache = &drupal_static(__FUNCTION__, []);
 
   // Return a cached forum tree if available.
   if (!isset($tid)) {
@@ -773,7 +773,7 @@ function forum_forum_load($tid = NULL) {
     return $cache[$tid];
   }
 
-  $vid = variable_get('forum_nav_vocabulary', 0);
+  $vid = $bootstrap->variable_get('forum_nav_vocabulary', 0);
 
   // Load and validate the parent term.
   if ($tid) {
@@ -790,7 +790,7 @@ function forum_forum_load($tid = NULL) {
   }
 
   // Determine if the requested term is a container.
-  if (!$forum_term->tid || in_array($forum_term->tid, variable_get('forum_containers', array()))) {
+  if (!$forum_term->tid || in_array($forum_term->tid, $bootstrap->variable_get('forum_containers', []))) {
     $forum_term->container = 1;
   }
 
@@ -798,7 +798,7 @@ function forum_forum_load($tid = NULL) {
   $forum_term->parents = taxonomy_get_parents_all($forum_term->tid);
 
   // Load the tree below.
-  $forums = array();
+  $forums = [];
   $_forums = taxonomy_get_tree($vid, $tid);
 
   if (count($_forums)) {
@@ -818,7 +818,7 @@ function forum_forum_load($tid = NULL) {
 
   foreach ($_forums as $forum) {
     // Determine if the child term is a container.
-    if (in_array($forum->tid, variable_get('forum_containers', array()))) {
+    if (in_array($forum->tid, $bootstrap->variable_get('forum_containers', []))) {
       $forum->container = 1;
     }
 
@@ -945,7 +945,7 @@ function forum_get_topics($tid, $sortby, $forum_per_page) {
 
   $query->setCountQuery($count_query);
   $result = $query->execute();
-  $nids = array();
+  $nids = [];
   foreach ($result as $record) {
     $nids[] = $record->nid;
   }
@@ -975,10 +975,10 @@ function forum_get_topics($tid, $sortby, $forum_per_page) {
     $result = $query->execute();
   }
   else {
-    $result = array();
+    $result = [];
   }
 
-  $topics = array();
+  $topics = [];
   $first_new_found = FALSE;
   foreach ($result as $topic) {
     if ($user->uid) {
@@ -1042,7 +1042,7 @@ function forum_get_topics($tid, $sortby, $forum_per_page) {
 function template_preprocess_forums(&$variables) {
   global $user;
 
-  $vid = variable_get('forum_nav_vocabulary', 0);
+  $vid = $bootstrap->variable_get('forum_nav_vocabulary', 0);
   $vocabulary = taxonomy_vocabulary_load($vid);
   $title = !empty($vocabulary->name) ? $vocabulary->name : '';
 
@@ -1073,7 +1073,7 @@ function template_preprocess_forums(&$variables) {
       $variables['forums'] = '';
     }
 
-    if ($variables['tid'] && !in_array($variables['tid'], variable_get('forum_containers', array()))) {
+    if ($variables['tid'] && !in_array($variables['tid'], $bootstrap->variable_get('forum_containers', []))) {
       $variables['topics'] = theme('forum_topic_list', $variables);
       drupal_add_feed('taxonomy/term/' . $variables['tid'] . '/feed', 'RSS - ' . $title);
     }
@@ -1212,7 +1212,7 @@ function template_preprocess_forum_topic_list(&$variables) {
   }
   else {
     // Make this safe for the template.
-    $variables['topics'] = array();
+    $variables['topics'] = [];
   }
   // Give meaning to $tid for themers. $tid actually stands for term id.
   $variables['topic_id'] = $variables['tid'];
@@ -1237,7 +1237,7 @@ function template_preprocess_forum_topic_list(&$variables) {
  * @see theme_forum_icon()
  */
 function template_preprocess_forum_icon(&$variables) {
-  $variables['hot_threshold'] = variable_get('forum_hot_topic', 15);
+  $variables['hot_threshold'] = $bootstrap->variable_get('forum_hot_topic', 15);
   if ($variables['num_posts'] > $variables['hot_threshold']) {
     $variables['icon_class'] = $variables['new_posts'] ? 'hot-new' : 'hot';
     $variables['icon_title'] = $variables['new_posts'] ? t('Hot topic, new comments') : t('Hot topic');
@@ -1288,7 +1288,7 @@ function template_preprocess_forum_submitted(&$variables) {
  */
 function _forum_user_last_visit($nid) {
   global $user;
-  $history = &drupal_static(__FUNCTION__, array());
+  $history = &drupal_static(__FUNCTION__, []);
 
   if (empty($history)) {
     $result = db_query('SELECT nid, timestamp FROM {history} WHERE uid = :uid', array(':uid' => $user->uid));

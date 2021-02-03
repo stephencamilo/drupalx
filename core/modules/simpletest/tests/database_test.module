@@ -81,7 +81,7 @@ function database_test_menu() {
  * table should automatically dropped.
  */
 function database_test_db_query_temporary() {
-  $table_name = db_query_temporary('SELECT status FROM {system}', array());
+  $table_name = db_query_temporary('SELECT status FROM {system}', []);
   drupal_json_output(array(
     'table_name' => $table_name,
     'row_count' => db_select($table_name)->countQuery()->execute()->fetchField(),
@@ -219,10 +219,10 @@ function database_test_theme_tablesort($form, &$form_state) {
     ->setCountQuery($count_query);
   $result = $query->execute();
 
-  $options = array();
+  $options = [];
 
   $status = array(t('blocked'), t('active'));
-  $accounts = array();
+  $accounts = [];
   foreach ($result as $account) {
     $options[$account->uid] = array(
       'username' => check_plain($account->name),

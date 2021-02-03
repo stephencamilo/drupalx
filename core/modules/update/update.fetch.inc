@@ -16,7 +16,7 @@ function update_manual_status() {
   _update_refresh();
   $batch = array(
     'operations' => array(
-      array('update_fetch_data_batch', array()),
+      array('update_fetch_data_batch', []),
     ),
     'finished' => 'update_fetch_data_finished',
     'title' => t('Checking available update data'),
@@ -111,7 +111,7 @@ function update_fetch_data_finished($success, $results) {
  */
 function _update_fetch_data() {
   $queue = DrupalQueue::get('update_fetch_tasks');
-  $end = time() + variable_get('update_max_fetch_time', UPDATE_MAX_FETCH_TIME);
+  $end = time() + $bootstrap->variable_get('update_max_fetch_time', UPDATE_MAX_FETCH_TIME);
   while (time() < $end && ($item = $queue->claimItem())) {
     _update_process_fetch_task($item->data);
     $queue->deleteItem($item);
@@ -132,7 +132,7 @@ function _update_fetch_data() {
  */
 function _update_process_fetch_task($project) {
   global $base_url;
-  $fail = &drupal_static(__FUNCTION__, array());
+  $fail = &drupal_static(__FUNCTION__, []);
   // This can be in the middle of a long-running batch, so REQUEST_TIME won't
   // necessarily be valid.
   $now = time();
@@ -144,10 +144,10 @@ function _update_process_fetch_task($project) {
     }
   }
 
-  $max_fetch_attempts = variable_get('update_max_fetch_attempts', UPDATE_MAX_FETCH_ATTEMPTS);
+  $max_fetch_attempts = $bootstrap->variable_get('update_max_fetch_attempts', UPDATE_MAX_FETCH_ATTEMPTS);
 
   $success = FALSE;
-  $available = array();
+  $available = [];
   $site_key = drupal_hmac_base64($base_url, drupal_get_private_key());
   $url = _update_build_fetch_url($project, $site_key);
   $fetch_url_base = _update_get_fetch_url_base($project);
@@ -178,7 +178,7 @@ function _update_process_fetch_task($project) {
     }
   }
 
-  $frequency = variable_get('update_check_frequency', 1);
+  $frequency = $bootstrap->variable_get('update_check_frequency', 1);
   $cid = 'available_releases::' . $project_name;
   _update_cache_set($cid, $available, $now + (60 * 60 * 24 * $frequency));
 
@@ -241,7 +241,7 @@ function _update_refresh() {
  * @see _update_process_fetch_task()
  */
 function _update_create_fetch_task($project) {
-  $fetch_tasks = &drupal_static(__FUNCTION__, array());
+  $fetch_tasks = &drupal_static(__FUNCTION__, []);
   if (empty($fetch_tasks)) {
     $fetch_tasks = _update_get_cache_multiple('fetch_task');
   }
@@ -329,7 +329,7 @@ function _update_build_fetch_url($project, $site_key = '') {
  * @see _update_build_fetch_url()
  */
 function _update_get_fetch_url_base($project) {
-  return isset($project['info']['project status url']) ? $project['info']['project status url'] : variable_get('update_fetch_url', UPDATE_DEFAULT_URL);
+  return isset($project['info']['project status url']) ? $project['info']['project status url'] : $bootstrap->variable_get('update_fetch_url', UPDATE_DEFAULT_URL);
 }
 
 /**
@@ -344,7 +344,7 @@ function _update_get_fetch_url_base($project) {
 function _update_cron_notify() {
   module_load_install('update');
   $status = update_requirements('runtime');
-  $params = array();
+  $params = [];
   $notify_all = (variable_get('update_notification_threshold', 'all') == 'all');
   foreach (array('core', 'contrib') as $report_type) {
     $type = 'update_' . $report_type;
@@ -354,7 +354,7 @@ function _update_cron_notify() {
     }
   }
   if (!empty($params)) {
-    $notify_list = variable_get('update_notify_emails', '');
+    $notify_list = $bootstrap->variable_get('update_notify_emails', '');
     if (!empty($notify_list)) {
       $default_language = language_default();
       foreach ($notify_list as $target) {
@@ -400,23 +400,23 @@ function update_parse_xml($raw_xml) {
     return;
   }
   $short_name = (string) $xml->short_name;
-  $data = array();
+  $data = [];
   foreach ($xml as $k => $v) {
     $data[$k] = (string) $v;
   }
-  $data['releases'] = array();
+  $data['releases'] = [];
   if (isset($xml->releases)) {
     foreach ($xml->releases->children() as $release) {
       $version = (string) $release->version;
-      $data['releases'][$version] = array();
+      $data['releases'][$version] = [];
       foreach ($release->children() as $k => $v) {
         $data['releases'][$version][$k] = (string) $v;
       }
-      $data['releases'][$version]['terms'] = array();
+      $data['releases'][$version]['terms'] = [];
       if ($release->terms) {
         foreach ($release->terms->children() as $term) {
           if (!isset($data['releases'][$version]['terms'][(string) $term->name])) {
-            $data['releases'][$version]['terms'][(string) $term->name] = array();
+            $data['releases'][$version]['terms'][(string) $term->name] = [];
           }
           $data['releases'][$version]['terms'][(string) $term->name][] = (string) $term->value;
         }

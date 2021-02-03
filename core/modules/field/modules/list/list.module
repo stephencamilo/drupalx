@@ -26,28 +26,28 @@ function list_field_info() {
     'list_integer' => array(
       'label' => t('List (integer)'),
       'description' => t("This field stores integer values from a list of allowed 'value => label' pairs, i.e. 'Lifetime in days': 1 => 1 day, 7 => 1 week, 31 => 1 month."),
-      'settings' => array('allowed_values' => array(), 'allowed_values_function' => ''),
+      'settings' => array('allowed_values' => [], 'allowed_values_function' => ''),
       'default_widget' => 'options_select',
       'default_formatter' => 'list_default',
     ),
     'list_float' => array(
       'label' => t('List (float)'),
       'description' => t("This field stores float values from a list of allowed 'value => label' pairs, i.e. 'Fraction': 0 => 0, .25 => 1/4, .75 => 3/4, 1 => 1."),
-      'settings' => array('allowed_values' => array(), 'allowed_values_function' => ''),
+      'settings' => array('allowed_values' => [], 'allowed_values_function' => ''),
       'default_widget' => 'options_select',
       'default_formatter' => 'list_default',
     ),
     'list_text' => array(
       'label' => t('List (text)'),
       'description' => t("This field stores text values from a list of allowed 'value => label' pairs, i.e. 'US States': IL => Illinois, IA => Iowa, IN => Indiana."),
-      'settings' => array('allowed_values' => array(), 'allowed_values_function' => ''),
+      'settings' => array('allowed_values' => [], 'allowed_values_function' => ''),
       'default_widget' => 'options_select',
       'default_formatter' => 'list_default',
     ),
     'list_boolean' => array(
       'label' => t('Boolean'),
       'description' => t('This field stores simple on/off or yes/no options.'),
-      'settings' => array('allowed_values' => array(), 'allowed_values_function' => ''),
+      'settings' => array('allowed_values' => [], 'allowed_values_function' => ''),
       'default_widget' => 'options_buttons',
       'default_formatter' => 'list_default',
     ),
@@ -233,7 +233,7 @@ function list_field_update_field($field, $prior_field, $has_data) {
  *   (number or text), values of the array are the display labels.
  */
 function list_allowed_values($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
-  $allowed_values = &drupal_static(__FUNCTION__, array());
+  $allowed_values = &drupal_static(__FUNCTION__, []);
 
   if (!isset($allowed_values[$field['id']])) {
     $function = $field['settings']['allowed_values_function'];
@@ -278,7 +278,7 @@ function list_allowed_values($field, $instance = NULL, $entity_type = NULL, $ent
  * @see list_allowed_values_string()
  */
 function list_extract_allowed_values($string, $field_type, $generate_keys) {
-  $values = array();
+  $values = [];
 
   $list = explode("\n", $string);
   $list = array_map('trim', $list);
@@ -289,7 +289,7 @@ function list_extract_allowed_values($string, $field_type, $generate_keys) {
     $value = $key = FALSE;
 
     // Check for an explicit key.
-    $matches = array();
+    $matches = [];
     if (preg_match('/(.*)\|(.*)/', $text, $matches)) {
       $key = $matches[1];
       $value = $matches[2];
@@ -345,7 +345,7 @@ function list_extract_allowed_values($string, $field_type, $generate_keys) {
  *    - Each value is in the format "value|label" or "value".
  */
 function list_allowed_values_string($values) {
-  $lines = array();
+  $lines = [];
   foreach ($values as $key => $value) {
     $lines[] = "$key|$value";
   }
@@ -458,7 +458,7 @@ function list_field_formatter_info() {
  * Implements hook_field_formatter_view().
  */
 function list_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
+  $element = [];
 
   switch ($display['type']) {
     case 'list_default':

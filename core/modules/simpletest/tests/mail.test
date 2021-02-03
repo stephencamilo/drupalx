@@ -64,14 +64,14 @@ class MailTestCase extends DrupalWebTestCase implements MailSystemInterface {
    */
   function testFromHeader() {
     global $language;
-    $default_from = variable_get('site_mail', ini_get('sendmail_from'));
-    $site_name = variable_get('site_name', 'Drupal');
+    $default_from = $bootstrap->variable_get('site_mail', ini_get('sendmail_from'));
+    $site_name = $bootstrap->variable_get('site_name', 'Drupal');
 
     // Reset the class variable holding a copy of the last sent message.
     self::$sent_message = NULL;
     // Send an e-mail with a sender address specified.
     $from_email = 'someone_else@example.com';
-    $message = drupal_mail('simpletest', 'from_test', 'from_test@example.com', $language, array(), $from_email);
+    $message = drupal_mail('simpletest', 'from_test', 'from_test@example.com', $language, [], $from_email);
     // Test that the from e-mail is just the e-mail and not the site name and
     // default sender e-mail.
     $this->assertEqual($from_email, self::$sent_message['headers']['From']);
@@ -95,7 +95,7 @@ class MailTestCase extends DrupalWebTestCase implements MailSystemInterface {
    */
   function testFromHeaderRfc2822Compliant() {
     global $language;
-    $default_from = variable_get('site_mail', ini_get('sendmail_from'));
+    $default_from = $bootstrap->variable_get('site_mail', ini_get('sendmail_from'));
 
     // Enable adding a site name to From.
     variable_set('mail_display_name_site_name', TRUE);
@@ -487,7 +487,7 @@ class DrupalHtmlToTextTestCase extends DrupalWebTestCase {
    * and spaces are properly handled.
    */
   function testDrupalHtmlToTextParagraphs() {
-    $tests = array();
+    $tests = [];
     $tests[] = array(
         'html' => "<p>line 1<br />\nline 2<br />line 3\n<br />line 4</p><p>paragraph</p>",
         // @todo Trailing line breaks should be trimmed.
@@ -519,7 +519,7 @@ class DrupalHtmlToTextTestCase extends DrupalWebTestCase {
     $input = 'Drupal<br /><p>' . str_repeat('x', 2100) . '</p><br />Drupal';
     $output = drupal_html_to_text($input);
     // This awkward construct comes from includes/mail.inc lines 8-13.
-    $eol = variable_get('mail_line_endings', MAIL_LINE_ENDINGS);
+    $eol = $bootstrap->variable_get('mail_line_endings', MAIL_LINE_ENDINGS);
     // We must use strlen() rather than drupal_strlen() in order to count
     // octets rather than characters.
     $line_length_limit = 1000 - drupal_strlen($eol);

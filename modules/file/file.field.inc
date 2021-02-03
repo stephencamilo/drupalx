@@ -16,7 +16,7 @@ function file_field_info() {
       'settings' => array(
         'display_field' => 0,
         'display_default' => 0,
-        'uri_scheme' => variable_get('file_default_scheme', 'public'),
+        'uri_scheme' => $bootstrap->variable_get('file_default_scheme', 'public'),
       ),
       'instance_settings' => array(
         'file_extensions' => 'txt',
@@ -52,7 +52,7 @@ function file_field_settings_form($field, $instance, $has_data) {
     '#description' => t('This setting only has an effect if the display option is enabled.'),
   );
 
-  $scheme_options = array();
+  $scheme_options = [];
   foreach (file_get_stream_wrappers(STREAM_WRAPPERS_WRITE_VISIBLE) as $scheme => $stream_wrapper) {
     $scheme_options[$scheme] = $stream_wrapper['name'];
   }
@@ -169,7 +169,7 @@ function _file_generic_settings_file_directory_validate($element, &$form_state) 
  */
 function file_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
 
-  $fids = array();
+  $fids = [];
   foreach ($entities as $id => $entity) {
     // Load the files from the files table.
     foreach ($items[$id] as $delta => $item) {
@@ -271,7 +271,7 @@ function file_field_update($entity_type, $entity, $field, $instance, $langcode, 
   }
 
   // Build a display of the current FIDs.
-  $current_fids = array();
+  $current_fids = [];
   foreach ($items as $item) {
     $current_fids[] = $item['fid'];
   }
@@ -286,7 +286,7 @@ function file_field_update($entity_type, $entity, $field, $instance, $langcode, 
     $original = entity_create_stub_entity($entity_type, array($id, $vid, $bundle));
     field_attach_load($entity_type, array($id => $original), FIELD_LOAD_CURRENT, array('field_id' => $field['id']));
   }
-  $original_fids = array();
+  $original_fids = [];
   if (!empty($original->{$field['field_name']}[$langcode])) {
     foreach ($original->{$field['field_name']}[$langcode] as $original_item) {
       $original_fids[] = $original_item['fid'];
@@ -553,7 +553,7 @@ function file_field_widget_upload_validators($field, $instance) {
     $max_filesize = parse_size($instance['settings']['max_filesize']);
   }
 
-  $validators = array();
+  $validators = [];
 
   // There is always a file size limit due to the PHP server limit.
   $validators['file_validate_size'] = array($max_filesize);
@@ -581,7 +581,7 @@ function file_field_widget_upload_validators($field, $instance) {
  *
  * @see token_replace()
  */
-function file_field_widget_uri($field, $instance, $data = array()) {
+function file_field_widget_uri($field, $instance, $data = []) {
   $destination = trim($instance['settings']['file_directory'], '/');
 
   // Replace tokens.
@@ -650,10 +650,10 @@ function file_field_widget_process($element, &$form_state, $form) {
   // Add the description field if enabled.
   if (!empty($instance['settings']['description_field']) && $item['fid']) {
     $element['description'] = array(
-      '#type' => variable_get('file_description_type', 'textfield'),
+      '#type' => $bootstrap->variable_get('file_description_type', 'textfield'),
       '#title' => t('Description'),
       '#value' => isset($item['description']) ? $item['description'] : '',
-      '#maxlength' => variable_get('file_description_length', 128),
+      '#maxlength' => $bootstrap->variable_get('file_description_length', 128),
       '#description' => t('The description may be used as the label of the link to the file.'),
     );
   }
@@ -836,7 +836,7 @@ function theme_file_widget_multiple($variables) {
   $table_id = $element['#id'] . '-table';
 
   // Build up a table of applicable fields.
-  $headers = array();
+  $headers = [];
   $headers[] = t('File information');
   if ($element['#display_field']) {
     $headers[] = array(
@@ -849,13 +849,13 @@ function theme_file_widget_multiple($variables) {
 
   // Get our list of widgets in order (needed when the form comes back after
   // preview or failed validation).
-  $widgets = array();
+  $widgets = [];
   foreach (element_children($element) as $key) {
     $widgets[] = &$element[$key];
   }
   usort($widgets, '_field_sort_items_value_helper');
 
-  $rows = array();
+  $rows = [];
   foreach ($widgets as $key => &$widget) {
     // Save the uploading row for last.
     if ($widget['#file'] == FALSE) {
@@ -866,7 +866,7 @@ function theme_file_widget_multiple($variables) {
 
     // Delay rendering of the buttons, so that they can be rendered later in the
     // "operations" column.
-    $operations_elements = array();
+    $operations_elements = [];
     foreach (element_children($widget) as $sub_key) {
       if (isset($widget[$sub_key]['#type']) && $widget[$sub_key]['#type'] == 'submit') {
         hide($widget[$sub_key]);
@@ -882,7 +882,7 @@ function theme_file_widget_multiple($variables) {
     hide($widget['_weight']);
 
     // Render everything else together in a column, without the normal wrappers.
-    $widget['#theme_wrappers'] = array();
+    $widget['#theme_wrappers'] = [];
     $information = drupal_render($widget);
 
     // Render the previously hidden elements, using render() instead of
@@ -903,7 +903,7 @@ function theme_file_widget_multiple($variables) {
     $weight = render($widget['_weight']);
 
     // Arrange the row with all of the rendered columns.
-    $row = array();
+    $row = [];
     $row[] = $information;
     if ($element['#display_field']) {
       $row[] = $display;
@@ -941,7 +941,7 @@ function theme_file_upload_help($variables) {
   $description = $variables['description'];
   $upload_validators = $variables['upload_validators'];
 
-  $descriptions = array();
+  $descriptions = [];
 
   if (strlen($description)) {
     $descriptions[] = $description;
@@ -976,7 +976,7 @@ function theme_file_upload_help($variables) {
  * Implements hook_field_formatter_view().
  */
 function file_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
+  $element = [];
 
   switch ($display['type']) {
     case 'file_default':
@@ -1019,7 +1019,7 @@ function file_field_formatter_view($entity_type, $entity, $field, $instance, $la
  */
 function theme_file_formatter_table($variables) {
   $header = array(t('Attachment'), t('Size'));
-  $rows = array();
+  $rows = [];
   foreach ($variables['items'] as $delta => $item) {
     $rows[] = array(
       theme('file_link', array('file' => (object) $item)),

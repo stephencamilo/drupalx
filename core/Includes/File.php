@@ -1,5 +1,7 @@
 <?php
+namespace Core\Includes;
 
+class File {
 /**
  * @file
  * API for handling file uploads and server file management.
@@ -12,7 +14,6 @@
  * File API is needed before a bootstrap, or in an alternate order (e.g.
  * maintenance theme).
  */
-require_once DRUPAL_ROOT . '/includes/stream_wrappers.inc';
 
 /**
  * @defgroup file File interface
@@ -38,27 +39,27 @@ require_once DRUPAL_ROOT . '/includes/stream_wrappers.inc';
 /**
  * Flag used by file_prepare_directory() -- create directory if not present.
  */
-define('FILE_CREATE_DIRECTORY', 1);
+public $file_create_directory = 1;
 
 /**
  * Flag used by file_prepare_directory() -- file permissions may be changed.
  */
-define('FILE_MODIFY_PERMISSIONS', 2);
+public $file_modify_permissions = 2;
 
 /**
  * Flag for dealing with existing files: Appends number until name is unique.
  */
-define('FILE_EXISTS_RENAME', 0);
+public $file_exists_rename = 0;
 
 /**
  * Flag for dealing with existing files: Replace the existing file.
  */
-define('FILE_EXISTS_REPLACE', 1);
+public $file_exists_replace = 1;
 
 /**
  * Flag for dealing with existing files: Do nothing and return FALSE.
  */
-define('FILE_EXISTS_ERROR', 2);
+public $file_exists_error = 2;
 
 /**
  * Indicates that the file is permanent and should not be deleted.
@@ -67,7 +68,7 @@ define('FILE_EXISTS_ERROR', 2);
  * during cron runs, but permanent files will not be removed during the file
  * garbage collection process.
  */
-define('FILE_STATUS_PERMANENT', 1);
+public $file_status_permanent = 1;
 
 /**
  * Provides Drupal stream wrapper registry.
@@ -158,7 +159,7 @@ function file_get_stream_wrappers($filter = STREAM_WRAPPERS_ALL) {
   }
 
   if (!isset($wrappers_storage[$filter])) {
-    $wrappers_storage[$filter] = array();
+    $wrappers_storage[$filter] = [];
     foreach ($wrappers_storage[STREAM_WRAPPERS_ALL] as $scheme => $info) {
       // Bit-wise filter.
       if (($info['type'] & $filter) == $filter) {
@@ -254,7 +255,7 @@ function file_uri_target($uri) {
  *   'public', 'private' or any other file scheme defined as the default.
  */
 function file_default_scheme() {
-  return variable_get('file_default_scheme', 'public');
+  return $bootstrap->variable_get('file_default_scheme', 'public');
 }
 
 /**
@@ -577,7 +578,7 @@ EOF
  * @see entity_load()
  * @see EntityFieldQuery
  */
-function file_load_multiple($fids = array(), $conditions = array()) {
+function file_load_multiple($fids = [], $conditions = []) {
   return entity_load('file', $fids, $conditions);
 }
 
@@ -594,7 +595,7 @@ function file_load_multiple($fids = array(), $conditions = array()) {
  * @see file_load_multiple()
  */
 function file_load($fid) {
-  $files = file_load_multiple(array($fid), array());
+  $files = file_load_multiple(array($fid), []);
   return reset($files);
 }
 
@@ -665,7 +666,7 @@ function file_usage_list(stdClass $file) {
     ->condition('fid', $file->fid)
     ->condition('count', 0, '>')
     ->execute();
-  $references = array();
+  $references = [];
   foreach ($result as $usage) {
     $references[$usage->module][$usage->type][$usage->id] = $usage->count;
   }
@@ -822,7 +823,7 @@ function file_copy(stdClass $source, $destination = NULL, $replace = FILE_EXISTS
     $file->filename = drupal_basename($uri);
     // If we are replacing an existing file re-use its database record.
     if ($replace == FILE_EXISTS_REPLACE) {
-      $existing_files = file_load_multiple(array(), array('uri' => $uri));
+      $existing_files = file_load_multiple([], array('uri' => $uri));
       if (count($existing_files)) {
         $existing = reset($existing_files);
         $file->fid = $existing->fid;
@@ -1076,7 +1077,7 @@ function file_move(stdClass $source, $destination = NULL, $replace = FILE_EXISTS
     $file->uri = $uri;
     // If we are replacing an existing file re-use its database record.
     if ($replace == FILE_EXISTS_REPLACE) {
-      $existing_files = file_load_multiple(array(), array('uri' => $uri));
+      $existing_files = file_load_multiple([], array('uri' => $uri));
       if (count($existing_files)) {
         $existing = reset($existing_files);
         $delete_source = TRUE;
@@ -1475,7 +1476,7 @@ function file_space_used($uid = NULL, $status = FILE_STATUS_PERMANENT) {
  *   - source: Path to the file before it is moved.
  *   - destination: Path to the file after it is moved (same as 'uri').
  */
-function file_save_upload($form_field_name, $validators = array(), $destination = FALSE, $replace = FILE_EXISTS_RENAME) {
+function file_save_upload($form_field_name, $validators = [], $destination = FALSE, $replace = FILE_EXISTS_RENAME) {
   global $user;
   static $upload_cache;
 
@@ -1543,7 +1544,7 @@ function file_save_upload($form_field_name, $validators = array(), $destination 
     // No validator was provided, so add one using the default list.
     // Build a default non-munged safe list for file_munge_filename().
     $extensions = 'jpg jpeg gif png txt doc xls pdf ppt pps odt ods odp';
-    $validators['file_validate_extensions'] = array();
+    $validators['file_validate_extensions'] = [];
     $validators['file_validate_extensions'][0] = $extensions;
   }
 
@@ -1611,7 +1612,7 @@ function file_save_upload($form_field_name, $validators = array(), $destination 
   }
 
   // Add in our check of the file name length.
-  $validators['file_validate_name_length'] = array();
+  $validators['file_validate_name_length'] = [];
 
   // Call the validation functions specified by this function's caller.
   $errors = file_validate($file, $validators);
@@ -1644,7 +1645,7 @@ function file_save_upload($form_field_name, $validators = array(), $destination 
 
   // If we are replacing an existing file re-use its database record.
   if ($replace == FILE_EXISTS_REPLACE) {
-    $existing_files = file_load_multiple(array(), array('uri' => $file->uri));
+    $existing_files = file_load_multiple([], array('uri' => $file->uri));
     if (count($existing_files)) {
       $existing = reset($existing_files);
       $file->fid = $existing->fid;
@@ -1664,7 +1665,7 @@ function file_save_upload($form_field_name, $validators = array(), $destination 
     // security reasons, only schemes that are completely publicly accessible,
     // with no download restrictions, should be added to this variable. See
     // file_managed_file_value().
-    if (!$user->uid && !in_array($destination_scheme, variable_get('file_public_schema', array('public')))) {
+    if (!$user->uid && !in_array($destination_scheme, $bootstrap->variable_get('file_public_schema', array('public')))) {
       $_SESSION['anonymous_allowed_file_ids'][$file->fid] = $file->fid;
     }
     // Add file to the cache.
@@ -1732,9 +1733,9 @@ function drupal_move_uploaded_file($filename, $uri) {
  *
  * @see hook_file_validate()
  */
-function file_validate(stdClass &$file, $validators = array()) {
+function file_validate(stdClass &$file, $validators = []) {
   // Call the validation functions specified by this function's caller.
-  $errors = array();
+  $errors = [];
   foreach ($validators as $function => $args) {
     if (function_exists($function)) {
       array_unshift($args, $file);
@@ -1767,7 +1768,7 @@ function file_validate(stdClass &$file, $validators = array()) {
  *   An array. If the file name is too long, it will contain an error message.
  */
 function file_validate_name_length(stdClass $file) {
-  $errors = array();
+  $errors = [];
 
   if (empty($file->filename)) {
     $errors[] = t("The file's name is empty. Please give a name to the file.");
@@ -1793,7 +1794,7 @@ function file_validate_name_length(stdClass $file) {
  * @see hook_file_validate()
  */
 function file_validate_extensions(stdClass $file, $extensions) {
-  $errors = array();
+  $errors = [];
 
   $regex = '/\.(' . preg_replace('/ +/', '|', preg_quote($extensions)) . ')$/i';
   if (!preg_match($regex, $file->filename)) {
@@ -1822,7 +1823,7 @@ function file_validate_extensions(stdClass $file, $extensions) {
  */
 function file_validate_size(stdClass $file, $file_limit = 0, $user_limit = 0) {
   global $user;
-  $errors = array();
+  $errors = [];
 
   if ($file_limit && $file->filesize > $file_limit) {
     $errors[] = t('The file is %filesize exceeding the maximum file size of %maxsize.', array('%filesize' => format_size($file->filesize), '%maxsize' => format_size($file_limit)));
@@ -1848,7 +1849,7 @@ function file_validate_size(stdClass $file, $file_limit = 0, $user_limit = 0) {
  * @see hook_file_validate()
  */
 function file_validate_is_image(stdClass $file) {
-  $errors = array();
+  $errors = [];
 
   $info = image_get_info($file->uri);
   if (!$info || empty($info['extension'])) {
@@ -1883,7 +1884,7 @@ function file_validate_is_image(stdClass $file) {
  * @see hook_file_validate()
  */
 function file_validate_image_resolution(stdClass $file, $maximum_dimensions = 0, $minimum_dimensions = 0) {
-  $errors = array();
+  $errors = [];
 
   // Check first that the file is an image.
   if ($info = image_get_info($file->uri)) {
@@ -1962,7 +1963,7 @@ function file_save_data($data, $destination = NULL, $replace = FILE_EXISTS_RENAM
     $file->status   = FILE_STATUS_PERMANENT;
     // If we are replacing an existing file re-use its database record.
     if ($replace == FILE_EXISTS_REPLACE) {
-      $existing_files = file_load_multiple(array(), array('uri' => $uri));
+      $existing_files = file_load_multiple([], array('uri' => $uri));
       if (count($existing_files)) {
         $existing = reset($existing_files);
         $file->fid = $existing->fid;
@@ -2105,13 +2106,13 @@ function file_download_headers($uri) {
   // module_invoke_all() uses array_merge_recursive() which merges header
   // values into a new array. To avoid that and allow modules to override
   // headers instead, use array_merge() to merge the returned arrays.
-  $headers = array();
+  $headers = [];
   foreach (module_implements('file_download') as $module) {
     $function = $module . '_file_download';
     $result = $function($uri);
     if ($result == -1) {
       // Throw away the headers received so far.
-      $headers = array();
+      $headers = [];
       break;
     }
     if (isset($result) && is_array($result)) {
@@ -2179,7 +2180,8 @@ function file_download_access($uri) {
  *   An associative array (keyed on the chosen key) of objects with 'uri',
  *   'filename', and 'name' members corresponding to the matching files.
  */
-function file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
+function file_scan_directory($dir, $mask, $options = [], $depth = 0) {
+  $bootstrap = new Bootstrap;
   // Default nomask option.
   $nomask = '/(\.\.?|CVS)$/';
 
@@ -2190,9 +2192,9 @@ function file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
   // node_modules and bower_components. Ignoring irrelevant directories is a
   // performance boost.
   if (!isset($options['nomask'])) {
-    $ignore_directories = variable_get(
+    $ignore_directories = $bootstrap->variable_get(
       'file_scan_ignore_directories',
-      array()
+      []
     );
 
     foreach ($ignore_directories as $index => $ignore_directory) {
@@ -2214,20 +2216,18 @@ function file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
   );
 
   $options['key'] = in_array($options['key'], array('uri', 'filename', 'name')) ? $options['key'] : 'uri';
-  $files = array();
+  $files = [];
   if (is_dir($dir) && $handle = opendir($dir)) {
     while (FALSE !== ($filename = readdir($handle))) {
       if (!preg_match($options['nomask'], $filename) && $filename[0] != '.') {
         $uri = "$dir/$filename";
-        $uri = file_stream_wrapper_uri_normalize($uri);
+        $uri = $this->file_stream_wrapper_uri_normalize($uri);
         if (is_dir($uri) && $options['recurse']) {
           // Give priority to files in this folder by merging them in after any subdirectory files.
-          $files = array_merge(file_scan_directory($uri, $mask, $options, $depth + 1), $files);
+          $files = array_merge($this->file_scan_directory($uri, $mask, $options, $depth + 1), $files);
         }
         elseif ($depth >= $options['min_depth'] && preg_match($mask, $filename)) {
-          // Always use this match over anything already set in $files with the
-          // same $$options['key'].
-          $file = new stdClass();
+          $file = new \stdClass();
           $file->uri = $uri;
           $file->filename = $filename;
           $file->name = pathinfo($filename, PATHINFO_FILENAME);
@@ -2328,10 +2328,10 @@ function file_get_mimetype($uri, $mapping = NULL) {
 function drupal_chmod($uri, $mode = NULL) {
   if (!isset($mode)) {
     if (is_dir($uri)) {
-      $mode = variable_get('file_chmod_directory', 0775);
+      $mode = $bootstrap->variable_get('file_chmod_directory', 0775);
     }
     else {
-      $mode = variable_get('file_chmod_file', 0664);
+      $mode = $bootstrap->variable_get('file_chmod_file', 0664);
     }
   }
 
@@ -2506,7 +2506,7 @@ function drupal_basename($uri, $suffix = NULL) {
  */
 function drupal_mkdir($uri, $mode = NULL, $recursive = FALSE, $context = NULL) {
   if (!isset($mode)) {
-    $mode = variable_get('file_chmod_directory', 0775);
+    $mode = $bootstrap->variable_get('file_chmod_directory', 0775);
   }
 
   if (!isset($context)) {
@@ -2592,10 +2592,10 @@ function drupal_tempnam($directory, $prefix) {
  * Gets the path of system-appropriate temporary directory.
  */
 function file_directory_temp() {
-  $temporary_directory = variable_get('file_temporary_path', NULL);
+  $temporary_directory = $bootstrap->variable_get('file_temporary_path', NULL);
 
   if (empty($temporary_directory)) {
-    $directories = array();
+    $directories = [];
 
     // Has PHP been set with an upload_tmp_dir?
     if (ini_get('upload_tmp_dir')) {
@@ -2626,7 +2626,7 @@ function file_directory_temp() {
 
     if (empty($temporary_directory)) {
       // If no directory has been found default to 'files/tmp'.
-      $temporary_directory = variable_get('file_public_path', conf_path() . '/files') . '/tmp';
+      $temporary_directory = $bootstrap->variable_get('file_public_path', conf_path() . '/files') . '/tmp';
 
       // Windows accepts paths with either slash (/) or backslash (\), but will
       // not accept a path which contains both a slash and a backslash. Since
@@ -2663,3 +2663,4 @@ function file_get_content_headers($file) {
 /**
  * @} End of "defgroup file".
  */
+}

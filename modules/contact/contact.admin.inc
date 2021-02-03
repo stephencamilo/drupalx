@@ -15,7 +15,7 @@ function contact_category_list() {
     t('Selected'),
     array('data' => t('Operations'), 'colspan' => 2),
   );
-  $rows = array();
+  $rows = [];
 
   // Get all the contact categories from the database.
   $categories = db_select('contact', 'c')
@@ -70,7 +70,7 @@ function contact_category_list() {
  * @see contact_category_edit_form_submit()
  * @ingroup forms
  */
-function contact_category_edit_form($form, &$form_state, array $category = array()) {
+function contact_category_edit_form($form, &$form_state, array $category = []) {
   // If this is a new category, add the default values.
   $category += array(
     'category' => '',

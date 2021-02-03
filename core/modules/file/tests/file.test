@@ -60,11 +60,11 @@ class FileFieldTestCase extends DrupalWebTestCase {
    * @param $widget_settings
    *   A list of widget settings that will be added to the widget defaults.
    */
-  function createFileField($name, $type_name, $field_settings = array(), $instance_settings = array(), $widget_settings = array()) {
+  function createFileField($name, $type_name, $field_settings = [], $instance_settings = [], $widget_settings = []) {
     $field = array(
       'field_name' => $name,
       'type' => 'file',
-      'settings' => array(),
+      'settings' => [],
       'cardinality' => !empty($field_settings['cardinality']) ? $field_settings['cardinality'] : 1,
     );
     $field['settings'] = array_merge($field['settings'], $field_settings);
@@ -89,17 +89,17 @@ class FileFieldTestCase extends DrupalWebTestCase {
    * @param $widget_settings
    *   A list of widget settings that will be added to the widget defaults.
    */
-  function attachFileField($name, $entity_type, $bundle, $instance_settings = array(), $widget_settings = array()) {
+  function attachFileField($name, $entity_type, $bundle, $instance_settings = [], $widget_settings = []) {
     $instance = array(
       'field_name' => $name,
       'label' => $name,
       'entity_type' => $entity_type,
       'bundle' => $bundle,
       'required' => !empty($instance_settings['required']),
-      'settings' => array(),
+      'settings' => [],
       'widget' => array(
         'type' => 'file_generic',
-        'settings' => array(),
+        'settings' => [],
       ),
     );
     $instance['settings'] = array_merge($instance['settings'], $instance_settings);
@@ -110,7 +110,7 @@ class FileFieldTestCase extends DrupalWebTestCase {
   /**
    * Updates an existing file field with new settings.
    */
-  function updateFileField($name, $type_name, $instance_settings = array(), $widget_settings = array()) {
+  function updateFileField($name, $type_name, $instance_settings = [], $widget_settings = []) {
     $instance = field_info_instance('node', $name, $type_name);
     $instance['settings'] = array_merge($instance['settings'], $instance_settings);
     $instance['widget']['settings'] = array_merge($instance['widget']['settings'], $widget_settings);
@@ -121,7 +121,7 @@ class FileFieldTestCase extends DrupalWebTestCase {
   /**
    * Uploads a file to a node.
    */
-  function uploadNodeFile($file, $field_name, $nid_or_type, $new_revision = TRUE, $extras = array()) {
+  function uploadNodeFile($file, $field_name, $nid_or_type, $new_revision = TRUE, $extras = []) {
     $langcode = LANGUAGE_NONE;
     $edit = array(
       "title" => $this->randomName(),
@@ -159,7 +159,7 @@ class FileFieldTestCase extends DrupalWebTestCase {
       'revision' => (string) (int) $new_revision,
     );
 
-    $this->drupalPost('node/' . $nid . '/edit', array(), t('Remove'));
+    $this->drupalPost('node/' . $nid . '/edit', [], t('Remove'));
     $this->drupalPost(NULL, $edit, t('Save'));
   }
 
@@ -172,7 +172,7 @@ class FileFieldTestCase extends DrupalWebTestCase {
       'revision' => (string) (int) $new_revision,
     );
 
-    $this->drupalPost('node/' . $nid . '/edit', array(), t('Remove'));
+    $this->drupalPost('node/' . $nid . '/edit', [], t('Remove'));
     $this->drupalPost(NULL, $edit, t('Save'));
   }
 
@@ -293,10 +293,10 @@ class FileTaxonomyTermTestCase extends DrupalWebTestCase {
       'entity_type' => 'taxonomy_term',
       'bundle' => 'tags',
       'required' => FALSE,
-      'settings' => array(),
+      'settings' => [],
       'widget' => array(
         'type' => 'file_generic',
-        'settings' => array(),
+        'settings' => [],
       ),
     );
     field_create_instance($instance);
@@ -359,7 +359,7 @@ class FileTaxonomyTermTestCase extends DrupalWebTestCase {
     $file_input_name = $field_name . '[' . LANGUAGE_NONE . '][0][fid]';
     $this->assertFieldByXpath('//input[@type="hidden" and @name="' . $file_input_name . '"]', $fid, 'File is attached on edit form.');
     // Load term while resetting the cache.
-    $terms = entity_load('taxonomy_term', array($tid), array(), TRUE);
+    $terms = entity_load('taxonomy_term', array($tid), [], TRUE);
     $term = $terms[$tid];
     $this->assertTrue(!empty($term->{$field_name}[LANGUAGE_NONE]), 'Term has attached files.');
     $this->assertEqual($term->{$field_name}[LANGUAGE_NONE][0]['fid'], $fid, 'Same File ID is attached to the term.');
@@ -398,7 +398,7 @@ class FileManagedFileElementTestCase extends FileFieldTestCase {
         $input_base_name = $tree ? 'nested_file' : 'file';
 
         // Submit without a file.
-        $this->drupalPost($path, array(), t('Save'));
+        $this->drupalPost($path, [], t('Save'));
         $this->assertRaw(t('The file id is %fid.', array('%fid' => 0)), 'Submitted without a file.');
 
         // Submit with a file, but with an invalid form token. Ensure the file
@@ -422,7 +422,7 @@ class FileManagedFileElementTestCase extends FileFieldTestCase {
         $this->assertRaw(t('The file id is %fid.', array('%fid' => $last_fid)), 'Submit handler has correct file info.');
 
         // Submit no new input, but with a default file.
-        $this->drupalPost($path . '/' . $last_fid, array(), t('Save'));
+        $this->drupalPost($path . '/' . $last_fid, [], t('Save'));
         $this->assertRaw(t('The file id is %fid.', array('%fid' => $last_fid)), 'Empty submission did not change an existing file.');
 
         // Now, test the Upload and Remove buttons, with and without Ajax.
@@ -439,18 +439,18 @@ class FileManagedFileElementTestCase extends FileFieldTestCase {
           }
           $last_fid = $this->getLastFileId();
           $this->assertTrue($last_fid > $last_fid_prior, 'New file got uploaded.');
-          $this->drupalPost(NULL, array(), t('Save'));
+          $this->drupalPost(NULL, [], t('Save'));
           $this->assertRaw(t('The file id is %fid.', array('%fid' => $last_fid)), 'Submit handler has correct file info.');
 
           // Remove, then Submit.
           $this->drupalGet($path . '/' . $last_fid);
           if ($ajax) {
-            $this->drupalPostAJAX(NULL, array(), $input_base_name . '_remove_button');
+            $this->drupalPostAJAX(NULL, [], $input_base_name . '_remove_button');
           }
           else {
-            $this->drupalPost(NULL, array(), t('Remove'));
+            $this->drupalPost(NULL, [], t('Remove'));
           }
-          $this->drupalPost(NULL, array(), t('Save'));
+          $this->drupalPost(NULL, [], t('Save'));
           $this->assertRaw(t('The file id is %fid.', array('%fid' => 0)), 'Submission after file removal was successful.');
 
           // Upload, then Remove, then Submit.
@@ -458,13 +458,13 @@ class FileManagedFileElementTestCase extends FileFieldTestCase {
           $edit = array('files[' . $input_base_name . ']' => drupal_realpath($test_file->uri));
           if ($ajax) {
             $this->drupalPostAJAX(NULL, $edit, $input_base_name . '_upload_button');
-            $this->drupalPostAJAX(NULL, array(), $input_base_name . '_remove_button');
+            $this->drupalPostAJAX(NULL, [], $input_base_name . '_remove_button');
           }
           else {
             $this->drupalPost(NULL, $edit, t('Upload'));
-            $this->drupalPost(NULL, array(), t('Remove'));
+            $this->drupalPost(NULL, [], t('Remove'));
           }
-          $this->drupalPost(NULL, array(), t('Save'));
+          $this->drupalPost(NULL, [], t('Save'));
           $this->assertRaw(t('The file id is %fid.', array('%fid' => 0)), 'Submission after file upload and removal was successful.');
         }
       }
@@ -531,11 +531,11 @@ class FileFieldWidgetTestCase extends FileFieldTestCase {
       // "Click" the remove button (emulating either a nojs or js submission).
       switch ($type) {
         case 'nojs':
-          $this->drupalPost(NULL, array(), t('Remove'));
+          $this->drupalPost(NULL, [], t('Remove'));
           break;
         case 'js':
           $button = $this->xpath('//input[@type="submit" and @value="' . t('Remove') . '"]');
-          $this->drupalPostAJAX(NULL, array(), array((string) $button[0]['name'] => (string) $button[0]['value']));
+          $this->drupalPostAJAX(NULL, [], array((string) $button[0]['name'] => (string) $button[0]['value']));
           break;
       }
 
@@ -544,7 +544,7 @@ class FileFieldWidgetTestCase extends FileFieldTestCase {
       $this->assertFieldByXpath('//input[@type="submit"]', t('Upload'), 'After clicking the "Remove" button, the "Upload" button is displayed.');
 
       // Save the node and ensure it does not have the file.
-      $this->drupalPost(NULL, array(), t('Save'));
+      $this->drupalPost(NULL, [], t('Save'));
       $node = node_load($nid, NULL, TRUE);
       $this->assertTrue(empty($node->{$field_name}[LANGUAGE_NONE][0]['fid']), 'File was successfully removed from the node.');
     }
@@ -798,12 +798,12 @@ class FileFieldWidgetTestCase extends FileFieldTestCase {
                   $button['value'] = 'DUMMY';
                 }
               }
-              $this->drupalPost(NULL, array(), t('Remove'));
+              $this->drupalPost(NULL, [], t('Remove'));
               break;
             case 'js':
               // drupalPostAJAX() lets us target the button precisely, so we don't
               // require the workaround used above for nojs.
-              $this->drupalPostAJAX(NULL, array(), array($button_name => t('Remove')));
+              $this->drupalPostAJAX(NULL, [], array($button_name => t('Remove')));
               break;
           }
           $num_expected_remove_buttons--;
@@ -827,7 +827,7 @@ class FileFieldWidgetTestCase extends FileFieldTestCase {
 
       // Save the node and ensure it does not have any files.
       $this->drupalPost(NULL, array('title' => $this->randomName()), t('Save'));
-      $matches = array();
+      $matches = [];
       preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
       $nid = $matches[1];
       $node = node_load($nid, NULL, TRUE);
@@ -896,7 +896,7 @@ class FileFieldWidgetTestCase extends FileFieldTestCase {
     $this->drupalPost('admin/structure/types/manage/article/comment/fields', $edit, t('Save'));
     $edit = array('field[settings][uri_scheme]' => 'private');
     $this->drupalPost(NULL, $edit, t('Save field settings'));
-    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->drupalPost(NULL, [], t('Save settings'));
 
     // Create node.
     $text_file = $this->getTestFile('text');
@@ -1022,7 +1022,7 @@ class FileFieldRevisionTestCase extends FileFieldTestCase {
     $this->assertFileIsPermanent($node_file_r3, 'New revision file is permanent.');
 
     // Revert to the first revision and check that the original file is active.
-    $this->drupalPost('node/' . $nid . '/revisions/' . $node_vid_r1 . '/revert', array(), t('Revert'));
+    $this->drupalPost('node/' . $nid . '/revisions/' . $node_vid_r1 . '/revert', [], t('Revert'));
     $node = node_load($nid, NULL, TRUE);
     $node_file_r4 = (object) $node->{$field_name}[LANGUAGE_NONE][0];
     $node_vid_r4 = $node->vid;
@@ -1031,7 +1031,7 @@ class FileFieldRevisionTestCase extends FileFieldTestCase {
 
     // Delete the second revision and check that the file is kept (since it is
     // still being used by the third revision).
-    $this->drupalPost('node/' . $nid . '/revisions/' . $node_vid_r2 . '/delete', array(), t('Delete'));
+    $this->drupalPost('node/' . $nid . '/revisions/' . $node_vid_r2 . '/delete', [], t('Delete'));
     $this->assertFileExists($node_file_r3, 'Second file is still available after deleting second revision, since it is being used by the third revision.');
     $this->assertFileEntryExists($node_file_r3, 'Second file entry is still available after deleting second revision, since it is being used by the third revision.');
     $this->assertFileIsPermanent($node_file_r3, 'Second file entry is still permanent after deleting second revision, since it is being used by the third revision.');
@@ -1044,7 +1044,7 @@ class FileFieldRevisionTestCase extends FileFieldTestCase {
     $this->drupalGet('user/' . $user->uid . '/edit');
 
     // Delete the third revision and check that the file is not deleted yet.
-    $this->drupalPost('node/' . $nid . '/revisions/' . $node_vid_r3 . '/delete', array(), t('Delete'));
+    $this->drupalPost('node/' . $nid . '/revisions/' . $node_vid_r3 . '/delete', [], t('Delete'));
     $this->assertFileExists($node_file_r3, 'Second file is still available after deleting third revision, since it is being used by the user.');
     $this->assertFileEntryExists($node_file_r3, 'Second file entry is still available after deleting third revision, since it is being used by the user.');
     $this->assertFileIsPermanent($node_file_r3, 'Second file entry is still permanent after deleting third revision, since it is being used by the user.');
@@ -1059,7 +1059,7 @@ class FileFieldRevisionTestCase extends FileFieldTestCase {
     $this->assertFileEntryNotExists($node_file_r3, 'Second file entry is now deleted after deleting third revision, since it is no longer being used by any other nodes.');
 
     // Delete the entire node and check that the original file is deleted.
-    $this->drupalPost('node/' . $nid . '/delete', array(), t('Delete'));
+    $this->drupalPost('node/' . $nid . '/delete', [], t('Delete'));
     $this->assertFileNotExists($node_file_r1, 'Original file is deleted after deleting the entire node with two revisions remaining.');
     $this->assertFileEntryNotExists($node_file_r1, 'Original file entry is deleted after deleting the entire node with two revisions remaining.');
   }
@@ -1091,7 +1091,7 @@ class FileFieldDisplayTestCase extends FileFieldTestCase {
     $instance_settings = array(
       'description_field' => '1',
     );
-    $widget_settings = array();
+    $widget_settings = [];
     $this->createFileField($field_name, $type_name, $field_settings, $instance_settings, $widget_settings);
     $field = field_info_field($field_name);
     $instance = field_info_instance('node', $field_name, $type_name);
@@ -1153,7 +1153,7 @@ class FileFieldDisplayTestCase extends FileFieldTestCase {
     $instance_settings = array(
       'description_field' => '1',
     );
-    $widget_settings = array();
+    $widget_settings = [];
     $this->createFileField($field_name, $type_name, $field_settings, $instance_settings, $widget_settings);
     $field = field_info_field($field_name);
     $instance = field_info_instance('node', $field_name, $type_name);
@@ -1190,7 +1190,7 @@ class FileFieldValidateTestCase extends FileFieldTestCase {
   function testRequired() {
     $type_name = 'article';
     $field_name = strtolower($this->randomName());
-    $this->createFileField($field_name, $type_name, array(), array('required' => '1'));
+    $this->createFileField($field_name, $type_name, [], array('required' => '1'));
     $field = field_info_field($field_name);
     $instance = field_info_instance('node', $field_name, $type_name);
 
@@ -1238,7 +1238,7 @@ class FileFieldValidateTestCase extends FileFieldTestCase {
   function testFileMaxSize() {
     $type_name = 'article';
     $field_name = strtolower($this->randomName());
-    $this->createFileField($field_name, $type_name, array(), array('required' => '1'));
+    $this->createFileField($field_name, $type_name, [], array('required' => '1'));
     $field = field_info_field($field_name);
     $instance = field_info_instance('node', $field_name, $type_name);
 
@@ -1452,7 +1452,7 @@ class FileTokenReplaceTestCase extends FileFieldTestCase {
     $file = file_load($node->{$field_name}[LANGUAGE_NONE][0]['fid']);
 
     // Generate and test sanitized tokens.
-    $tests = array();
+    $tests = [];
     $tests['[file:fid]'] = $file->fid;
     $tests['[file:name]'] = check_plain($file->filename);
     $tests['[file:path]'] = check_plain($file->uri);
@@ -1541,7 +1541,7 @@ class FilePrivateTestCase extends FileFieldTestCase {
 
     // Attempt to reuse the existing file when creating a new node, and confirm
     // that access is still denied.
-    $edit = array();
+    $edit = [];
     $edit['title'] = $this->randomName(8);
     $edit[$field_name . '[' . LANGUAGE_NONE . '][0][fid]'] = $node_file->fid;
     $this->drupalPost('node/add/page', $edit, t('Save'));
@@ -1563,7 +1563,7 @@ class FilePrivateTestCase extends FileFieldTestCase {
     $this->drupalGet('node/add/' . $type_name);
     $edit = array('files[' . $field_name . '_' . LANGUAGE_NONE . '_0]' => drupal_realpath($test_file->uri));
     $this->drupalPost(NULL, $edit, t('Upload'));
-    $files = file_load_multiple(array(), array('uid' => 0));
+    $files = file_load_multiple([], array('uid' => 0));
     $this->assertEqual(1, count($files), 'Loaded one anonymous file.');
     $file = end($files);
     $this->assertNotEqual($file->status, FILE_STATUS_PERMANENT, 'File is temporary.');
@@ -1574,7 +1574,7 @@ class FilePrivateTestCase extends FileFieldTestCase {
     $this->assertResponse(200, 'Confirmed that the anonymous uploader has access to the temporary file.');
     // Close the prior connection and remove the session cookie.
     $this->curlClose();
-    $this->cookies = array();
+    $this->cookies = [];
     $this->drupalGet($file_url);
     $this->assertResponse(403, 'Confirmed that another anonymous user cannot access the temporary file.');
 
@@ -1582,7 +1582,7 @@ class FilePrivateTestCase extends FileFieldTestCase {
     // published node and confirm that all anonymous users may view it.
     $test_file = $this->getTestFile('text');
     $this->drupalGet('node/add/' . $type_name);
-    $edit = array();
+    $edit = [];
     $edit['title'] = $this->randomName();
     $edit['files[' . $field_name . '_' . LANGUAGE_NONE . '_0]'] = drupal_realpath($test_file->uri);
     $this->drupalPost(NULL, $edit, t('Save'));
@@ -1596,7 +1596,7 @@ class FilePrivateTestCase extends FileFieldTestCase {
     $this->assertResponse(200, 'Confirmed that the anonymous uploader has access to the permanent file that is referenced by a published node.');
     // Close the prior connection and remove the session cookie.
     $this->curlClose();
-    $this->cookies = array();
+    $this->cookies = [];
     $this->drupalGet($file_url);
     $this->assertResponse(200, 'Confirmed that another anonymous user also has access to the permanent file that is referenced by a published node.');
 
@@ -1606,7 +1606,7 @@ class FilePrivateTestCase extends FileFieldTestCase {
     // unpublished node.
     $test_file = $this->getTestFile('text');
     $this->drupalGet('node/add/' . $type_name);
-    $edit = array();
+    $edit = [];
     $edit['title'] = $this->randomName();
     $edit['files[' . $field_name . '_' . LANGUAGE_NONE . '_0]'] = drupal_realpath($test_file->uri);
     $this->drupalPost(NULL, $edit, t('Save'));
@@ -1622,7 +1622,7 @@ class FilePrivateTestCase extends FileFieldTestCase {
     $this->assertResponse(403, 'Confirmed that the anonymous uploader cannot access the permanent file when it is referenced by an unpublished node.');
     // Close the prior connection and remove the session cookie.
     $this->curlClose();
-    $this->cookies = array();
+    $this->cookies = [];
     $this->drupalGet($file_url);
     $this->assertResponse(403, 'Confirmed that another anonymous user cannot access the permanent file when it is referenced by an unpublished node.');
   }
@@ -1745,7 +1745,7 @@ class FileFieldAnonymousSubmission extends FileFieldTestCase {
     $this->assertResponse(200);
     $t_args = array('@type' => $bundle_label, '%title' => $node_title);
     $this->assertText(strip_tags(t('@type %title has been created.', $t_args)), 'The node was created.');
-    $matches = array();
+    $matches = [];
     if (preg_match('@node/(\d+)$@', $this->getUrl(), $matches)) {
       $nid = end($matches);
       $this->assertNotEqual($nid, 0, 'The node ID was extracted from the URL.');
@@ -1780,7 +1780,7 @@ class FileFieldAnonymousSubmission extends FileFieldTestCase {
     $this->assertResponse(200);
     $t_args = array('@type' => $bundle_label, '%title' => $node_title);
     $this->assertText(strip_tags(t('@type %title has been created.', $t_args)), 'The node was created.');
-    $matches = array();
+    $matches = [];
     if (preg_match('@node/(\d+)$@', $this->getUrl(), $matches)) {
       $nid = end($matches);
       $this->assertNotEqual($nid, 0, 'The node ID was extracted from the URL.');
@@ -1848,7 +1848,7 @@ class FileFieldAnonymousSubmission extends FileFieldTestCase {
     // Confirm the final submission actually worked.
     $t_args = array('@type' => $bundle_label, '%title' => $node_title);
     $this->assertText(strip_tags(t('@type %title has been created.', $t_args)), 'The node was created.');
-    $matches = array();
+    $matches = [];
     if (preg_match('@node/(\d+)$@', $this->getUrl(), $matches)) {
       $nid = end($matches);
       $this->assertNotEqual($nid, 0, 'The node ID was extracted from the URL.');

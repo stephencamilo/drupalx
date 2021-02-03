@@ -178,12 +178,12 @@ function field_schema() {
 function _update_7000_field_create_field(&$field) {
   // Merge in default values.`
   $field += array(
-    'entity_types' => array(),
+    'entity_types' => [],
     'cardinality' => 1,
     'translatable' => FALSE,
     'locked' => FALSE,
-    'settings' => array(),
-    'indexes' => array(),
+    'settings' => [],
+    'indexes' => [],
     'deleted' => 0,
     'active' => 1,
   );
@@ -191,7 +191,7 @@ function _update_7000_field_create_field(&$field) {
   // Set storage.
   $field['storage'] = array(
     'type' => 'field_sql_storage',
-    'settings' => array(),
+    'settings' => [],
     'module' => 'field_sql_storage',
     'active' => 1,
   );
@@ -200,7 +200,7 @@ function _update_7000_field_create_field(&$field) {
   // is not guaranteed to be loaded at this point.
   module_load_install($field['module']);
   $schema = (array) module_invoke($field['module'], 'field_schema', $field);
-  $schema += array('columns' => array(), 'indexes' => array());
+  $schema += array('columns' => [], 'indexes' => []);
   // 'columns' are hardcoded in the field type.
   $field['columns'] = $schema['columns'];
   // 'indexes' can be both hardcoded in the field type, and specified in the
@@ -326,8 +326,8 @@ function _update_7000_field_delete_instance($field_name, $entity_type, $bundle) 
  *
  * @ingroup update_api
  */
-function _update_7000_field_read_fields(array $conditions = array(), $key = 'id') {
-  $fields = array();
+function _update_7000_field_read_fields(array $conditions = [], $key = 'id') {
+  $fields = [];
   $query = db_select('field_config', 'fc', array('fetch' => PDO::FETCH_ASSOC))
     ->fields('fc');
   foreach ($conditions as $column => $value) {
@@ -417,7 +417,7 @@ function field_update_7001() {
 
     module_load_install($field['module']);
     $schema = (array) module_invoke($field['module'], 'field_schema', $field);
-    $schema += array('indexes' => array());
+    $schema += array('indexes' => []);
     // 'indexes' can be both hardcoded in the field type, and specified in the
     // incoming $field definition.
     $field['indexes'] += $schema['indexes'];
@@ -449,7 +449,7 @@ function field_update_7001() {
  * Split the all-inclusive field_bundle_settings variable per bundle.
  */
 function field_update_7002() {
-  $settings = variable_get('field_bundle_settings', array());
+  $settings = $bootstrap->variable_get('field_bundle_settings', []);
   if ($settings) {
     foreach ($settings as $entity_type => $entity_type_settings) {
       foreach ($entity_type_settings as $bundle => $bundle_settings) {
@@ -473,7 +473,7 @@ function field_update_7003() {
 function field_update_7004() {
   // Assign the permission to anyone that already has a trusted core permission
   // that would have previously let them administer fields on an entity type.
-  $rids = array();
+  $rids = [];
   $permissions = array(
     'administer site configuration',
     'administer content types',

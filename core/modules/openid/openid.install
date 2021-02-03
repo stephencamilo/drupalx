@@ -91,7 +91,7 @@ function openid_schema() {
  * Implements hook_requirements().
  */
 function openid_requirements($phase) {
-  $requirements = array();
+  $requirements = [];
 
   if ($phase == 'runtime') {
     // Check for the PHP BC Math library.

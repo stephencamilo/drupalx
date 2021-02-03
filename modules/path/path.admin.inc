@@ -18,7 +18,7 @@ function path_admin_overview($keys = NULL) {
   $alias_exists = (bool) db_query_range('SELECT 1 FROM {url_alias} WHERE language <> :language', 0, 1, array(':language' => LANGUAGE_NONE))->fetchField();
   $multilanguage = (module_exists('locale') || $alias_exists);
 
-  $header = array();
+  $header = [];
   $header[] = array('data' => t('Alias'), 'field' => 'alias', 'sort' => 'asc');
   $header[] = array('data' => t('System'), 'field' => 'source');
   if ($multilanguage) {
@@ -37,17 +37,17 @@ function path_admin_overview($keys = NULL) {
     ->limit(50)
     ->execute();
 
-  $rows = array();
+  $rows = [];
   $destination = drupal_get_destination();
   foreach ($result as $data) {
-    $row = array();
+    $row = [];
     $row['data']['alias'] = l($data->alias, $data->source);
     $row['data']['source'] = l($data->source, $data->source, array('alias' => TRUE));
     if ($multilanguage) {
       $row['data']['language'] = module_invoke('locale', 'language_name', $data->language);
     }
 
-    $operations = array();
+    $operations = [];
     $operations['edit'] = array(
       'title' => t('edit'),
       'href' => "admin/config/search/path/edit/$data->pid",
@@ -97,7 +97,7 @@ function path_admin_overview($keys = NULL) {
  *
  * @see path_menu()
  */
-function path_admin_edit($path = array()) {
+function path_admin_edit($path = []) {
   if ($path) {
     drupal_set_title($path['alias']);
     $output = drupal_get_form('path_admin_form', $path);
@@ -175,7 +175,7 @@ function path_admin_form($form, &$form_state, $path = array('source' => '', 'ali
  * @see path_admin_form_submit()
  */
 function path_admin_form_delete_submit($form, &$form_state) {
-  $destination = array();
+  $destination = [];
   if (isset($_GET['destination'])) {
     $destination = drupal_get_destination();
     unset($_GET['destination']);
@@ -246,7 +246,7 @@ function path_admin_delete_confirm($form, &$form_state, $path) {
       'admin/config/search/path'
     );
   }
-  return array();
+  return [];
 }
 
 /**

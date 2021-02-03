@@ -75,7 +75,7 @@ function filter_admin_overview_submit($form, &$form_state) {
 function theme_filter_admin_overview($variables) {
   $form = $variables['form'];
 
-  $rows = array();
+  $rows = [];
   foreach (element_children($form['formats']) as $id) {
     $form['formats'][$id]['weight']['#attributes']['class'] = array('text-format-order-weight');
     $rows[] = array(
@@ -190,7 +190,7 @@ function filter_admin_format_form($form, &$form_state, $format) {
     // If editing an existing text format, pre-select its current permissions.
     $form['roles']['#default_value'] = array_keys(filter_get_roles_by_format($format));
   }
-  elseif ($admin_role = variable_get('user_admin_role', 0)) {
+  elseif ($admin_role = $bootstrap->variable_get('user_admin_role', 0)) {
     // If adding a new text format and the site has an administrative role,
     // pre-select that role so as to grant administrators access to the new
     // text format permission by default.
@@ -200,7 +200,7 @@ function filter_admin_format_form($form, &$form_state, $format) {
   // Retrieve available filters and load all configured filters for existing
   // text formats.
   $filter_info = filter_get_filters();
-  $filters = !empty($format->format) ? filter_list_format($format->format) : array();
+  $filters = !empty($format->format) ? filter_list_format($format->format) : [];
 
   // Prepare filters for form sections.
   foreach ($filter_info as $name => $filter) {
@@ -212,7 +212,7 @@ function filter_admin_format_form($form, &$form_state, $format) {
       $filters[$name]->name = $name;
       $filters[$name]->status = 0;
       $filters[$name]->weight = $filter['weight'];
-      $filters[$name]->settings = array();
+      $filters[$name]->settings = [];
     }
   }
   $form['#filters'] = $filters;
@@ -270,7 +270,7 @@ function filter_admin_format_form($form, &$form_state, $format) {
       $function = $filter['settings callback'];
       // Pass along stored filter settings and default settings, but also the
       // format object and all filters to allow for complex implementations.
-      $defaults = (isset($filter['default settings']) ? $filter['default settings'] : array());
+      $defaults = (isset($filter['default settings']) ? $filter['default settings'] : []);
       $settings_form = $function($form, $form_state, $filters[$name], $format, $defaults, $filters);
       if (!empty($settings_form)) {
         $form['filters']['settings'][$name] = array(
@@ -304,7 +304,7 @@ function theme_filter_admin_format_filter_order($variables) {
   $element = $variables['element'];
 
   // Filter order (tabledrag).
-  $rows = array();
+  $rows = [];
   foreach (element_children($element, TRUE) as $name) {
     $element[$name]['weight']['#attributes']['class'][] = 'filter-order-weight';
     $rows[] = array(

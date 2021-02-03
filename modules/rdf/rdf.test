@@ -34,7 +34,7 @@ class RdfMappingHookTestCase extends DrupalWebTestCase {
     $this->assertIdentical($mapping['uid'], array('predicates' => array('sioc:has_creator', 'dc:creator'), 'type' => 'rel'), 'Mapping for uid is sioc:has_creator and dc:creator, and type is rel.');
 
     $mapping = rdf_mapping_load('test_entity', 'test_bundle_no_mapping');
-    $this->assertEqual($mapping, array(), 'Empty array returned when an entity type, bundle pair has no mapping.');
+    $this->assertEqual($mapping, [], 'Empty array returned when an entity type, bundle pair has no mapping.');
   }
 }
 
@@ -190,7 +190,7 @@ class RdfRdfaMarkupTestCase extends DrupalWebTestCase {
     // Edits the node to add tags.
     $tag1 = $this->randomName(8);
     $tag2 = $this->randomName(8);
-    $edit = array();
+    $edit = [];
     $edit['field_tags[' . LANGUAGE_NONE . ']'] = "$tag1, $tag2";
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     // Ensures the RDFa markup for the relationship between the node and its
@@ -495,7 +495,7 @@ class RdfCommentAttributesTestCase extends CommentHelperCase {
     // Posts comment #2 as anonymous user.
     $comment2_subject = $this->randomName();
     $comment2_body = $this->randomName();
-    $anonymous_user = array();
+    $anonymous_user = [];
     $anonymous_user['name'] = $this->randomName();
     $anonymous_user['mail'] = 'tester@simpletest.org';
     $anonymous_user['homepage'] = 'http://example.org/';
@@ -559,7 +559,7 @@ class RdfCommentAttributesTestCase extends CommentHelperCase {
    * @param $account
    *   An array containing information about an anonymous user.
    */
-  function _testBasicCommentRdfaMarkup($comment, $account = array()) {
+  function _testBasicCommentRdfaMarkup($comment, $account = []) {
     $comment_container = $this->xpath('//div[contains(@class, "comment") and contains(@typeof, "sioct:Comment")]');
     $this->assertTrue(!empty($comment_container), "Comment RDF type for comment found.");
     $comment_title = $this->xpath('//div[contains(@class, "comment") and contains(@typeof, "sioct:Comment")]//h3[@property="dc:title"]');

@@ -34,7 +34,7 @@ function statistics_node_tracker() {
       ->orderByHeader($header);
 
     $result = $query->execute();
-    $rows = array();
+    $rows = [];
     foreach ($result as $log) {
       $rows[] = array(
         array('data' => format_date($log->timestamp, 'short'), 'class' => array('nowrap')),
@@ -79,7 +79,7 @@ function statistics_user_tracker() {
       ->orderByHeader($header);
 
     $result = $query->execute();
-    $rows = array();
+    $rows = [];
     foreach ($result as $log) {
       $rows[] = array(
         array('data' => format_date($log->timestamp, 'short'), 'class' => array('nowrap')),

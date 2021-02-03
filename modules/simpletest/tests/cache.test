@@ -133,7 +133,7 @@ class CacheSavingCase extends CacheTestCase {
   /**
    * Test the saving and restoring of an array.
    */
-  function testArray() {
+  function test[] {
     $this->checkVariable(array('drupal1', 'drupal2' => 'drupal3', 'drupal4' => array('drupal5', 'drupal6')));
   }
 
@@ -285,7 +285,7 @@ class CacheClearCase extends CacheTestCase {
   /**
    * Test clearing using an array.
    */
-  function testClearArray() {
+  function testClear[] {
     // Create three cache entries.
     cache_set('test_cid_clear1', $this->default_value, $this->default_bin);
     cache_set('test_cid_clear2', $this->default_value, $this->default_bin);
@@ -371,7 +371,7 @@ class CacheClearCase extends CacheTestCase {
     // Set a minimum/maximum cache lifetime.
     $this->setupLifetime(300);
     // Login as a newly-created user.
-    $account = $this->drupalCreateUser(array());
+    $account = $this->drupalCreateUser([]);
     $this->drupalLogin($account);
 
     // Set two cache objects in different bins.

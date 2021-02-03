@@ -381,7 +381,7 @@ function taxonomy_update_7004() {
   // Use an inline version of Drupal 6 taxonomy_get_vocabularies() here since
   // we can no longer rely on $vocabulary->nodes from the API function.
   $result = db_query('SELECT v.*, n.type FROM {taxonomy_vocabulary} v LEFT JOIN {taxonomy_vocabulary_node_type} n ON v.vid = n.vid ORDER BY v.weight, v.name');
-  $vocabularies = array();
+  $vocabularies = [];
   foreach ($result as $record) {
     // If no node types are associated with a vocabulary, the LEFT JOIN will
     // return a NULL value for type.
@@ -391,7 +391,7 @@ function taxonomy_update_7004() {
       $record->nodes = $node_types[$record->vid];
     }
     elseif (!isset($record->nodes)) {
-      $record->nodes = array();
+      $record->nodes = [];
     }
     $vocabularies[$record->vid] = $record;
   }
@@ -421,10 +421,10 @@ function taxonomy_update_7004() {
         'field_name' => $field_name,
         'bundle' => $bundle,
         'entity_type' => 'node',
-        'settings' => array(),
+        'settings' => [],
         'description' => $vocabulary->help,
         'required' => $vocabulary->required,
-        'widget' => array(),
+        'widget' => [],
         'display' => array(
           'default' => array(
             'type' => 'taxonomy_term_reference_link',
@@ -450,7 +450,7 @@ function taxonomy_update_7004() {
         $instance['widget'] = array(
           'type' => 'options_select',
           'module' => 'options',
-          'settings' => array(),
+          'settings' => [],
         );
       }
       _update_7000_field_create_instance($field, $instance);
@@ -463,7 +463,7 @@ function taxonomy_update_7004() {
   // taxonomyextra field to store all the extra stuff.
 
   // Allowed values for this extra vocabs field is every vocabulary.
-  $allowed_values = array();
+  $allowed_values = [];
   foreach (_update_7002_taxonomy_get_vocabularies() as $vocabulary) {
     $allowed_values[] = array(
       'vocabulary' => $vocabulary->machine_name,
@@ -490,13 +490,13 @@ function taxonomy_update_7004() {
       'field_name' => $field_name,
       'entity_type' => 'node',
       'bundle' => $bundle->type,
-      'settings' => array(),
+      'settings' => [],
       'description' => 'Debris left over after upgrade from Drupal 6',
       'required' => FALSE,
       'widget' => array(
         'type' => 'taxonomy_autocomplete',
         'module' => 'taxonomy',
-        'settings' => array(),
+        'settings' => [],
       ),
       'display' => array(
         'default' => array(
@@ -580,7 +580,7 @@ function taxonomy_update_7005(&$sandbox) {
     // Use an inline version of Drupal 6 taxonomy_get_vocabularies() here since
     // we can no longer rely on $vocabulary->nodes from the API function.
     $result = db_query('SELECT v.vid, v.machine_name, n.type FROM {taxonomy_vocabulary} v INNER JOIN {taxonomy_vocabulary_node_type} n ON v.vid = n.vid');
-    $vocabularies = array();
+    $vocabularies = [];
     foreach ($result as $record) {
 
       // If no node types are associated with a vocabulary, the LEFT JOIN will
@@ -710,7 +710,7 @@ function taxonomy_update_7005(&$sandbox) {
       $deltas = $sandbox['cursor']['deltas'];
     }
     else {
-      $deltas = array();
+      $deltas = [];
     }
     foreach ($result as $record) {
       $sandbox['count'] += 1;

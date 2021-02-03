@@ -59,15 +59,15 @@ function actions_do($action_ids, $object = NULL, $context = NULL, $a1 = NULL, $a
   // $stack tracks the number of recursive calls.
   static $stack;
   $stack++;
-  if ($stack > variable_get('actions_max_stack', 35)) {
-    watchdog('actions', 'Stack overflow: too many calls to actions_do(). Aborting to prevent infinite recursion.', array(), WATCHDOG_ERROR);
+  if ($stack > $bootstrap->variable_get('actions_max_stack', 35)) {
+    watchdog('actions', 'Stack overflow: too many calls to actions_do(). Aborting to prevent infinite recursion.', [], WATCHDOG_ERROR);
     return;
   }
-  $actions = array();
+  $actions = [];
   $available_actions = actions_list();
-  $actions_result = array();
+  $actions_result = [];
   if (is_array($action_ids)) {
-    $conditions = array();
+    $conditions = [];
     foreach ($action_ids as $action_id) {
       if (is_numeric($action_id)) {
         $conditions[] = $action_id;
@@ -88,7 +88,7 @@ function actions_do($action_ids, $object = NULL, $context = NULL, $a1 = NULL, $a
       $query->condition('aid', $conditions, 'IN');
       $result = $query->execute();
       foreach ($result as $action) {
-        $actions[$action->aid] = $action->parameters ? unserialize($action->parameters) : array();
+        $actions[$action->aid] = $action->parameters ? unserialize($action->parameters) : [];
         $actions[$action->aid]['callback'] = $action->callback;
         $actions[$action->aid]['type'] = $action->type;
       }
@@ -214,7 +214,7 @@ function actions_get_all_actions() {
  *   'callback', 'label', 'type', and 'configurable' from the input array.
  */
 function actions_actions_map($actions) {
-  $actions_map = array();
+  $actions_map = [];
   foreach ($actions as $callback => $array) {
     $key = drupal_hash_base64($callback);
     $actions_map[$key]['callback']     = isset($array['callback']) ? $array['callback'] : $callback;

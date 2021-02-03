@@ -28,7 +28,7 @@
  */
 function hook_menu_insert($menu) {
   // For example, we track available menus in a variable.
-  $my_menus = variable_get('my_module_menus', array());
+  $my_menus = $bootstrap->variable_get('my_module_menus', []);
   $my_menus[$menu['menu_name']] = $menu['menu_name'];
   variable_set('my_module_menus', $my_menus);
 }
@@ -53,7 +53,7 @@ function hook_menu_insert($menu) {
  */
 function hook_menu_update($menu) {
   // For example, we track available menus in a variable.
-  $my_menus = variable_get('my_module_menus', array());
+  $my_menus = $bootstrap->variable_get('my_module_menus', []);
   $my_menus[$menu['menu_name']] = $menu['menu_name'];
   variable_set('my_module_menus', $my_menus);
 }
@@ -77,7 +77,7 @@ function hook_menu_update($menu) {
  */
 function hook_menu_delete($menu) {
   // Delete the record from our variable.
-  $my_menus = variable_get('my_module_menus', array());
+  $my_menus = $bootstrap->variable_get('my_module_menus', []);
   unset($my_menus[$menu['menu_name']]);
   variable_set('my_module_menus', $my_menus);
 }

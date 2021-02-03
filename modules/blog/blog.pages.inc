@@ -13,7 +13,7 @@ function blog_page_user($account) {
 
   drupal_set_title($title = t("@name's blog", array('@name' => format_username($account))), PASS_THROUGH);
 
-  $build = array();
+  $build = [];
 
   $query = db_select('node', 'n')->extend('PagerDefault');
   $nids = $query
@@ -54,7 +54,7 @@ function blog_page_user($account) {
  */
 function blog_page_last() {
   global $user;
-  $build = array();
+  $build = [];
 
   $query = db_select('node', 'n')->extend('PagerDefault');
   $nids = $query
@@ -95,7 +95,7 @@ function blog_feed_user($account) {
     ->condition('uid', $account->uid)
     ->condition('status', 1)
     ->orderBy('created', 'DESC')
-    ->range(0, variable_get('feed_default_items', 10))
+    ->range(0, $bootstrap->variable_get('feed_default_items', 10))
     ->addTag('node_access')
     ->execute()
     ->fetchCol();
@@ -115,12 +115,12 @@ function blog_feed_last() {
     ->condition('type', 'blog')
     ->condition('status', 1)
     ->orderBy('created', 'DESC')
-    ->range(0, variable_get('feed_default_items', 10))
+    ->range(0, $bootstrap->variable_get('feed_default_items', 10))
     ->addTag('node_access')
     ->execute()
     ->fetchCol();
 
-  $channel['title'] = t('!site_name blogs', array('!site_name' => variable_get('site_name', 'Drupal')));
+  $channel['title'] = t('!site_name blogs', array('!site_name' => $bootstrap->variable_get('site_name', 'Drupal')));
   $channel['link'] = url('blog', array('absolute' => TRUE));
 
   node_feed($nids, $channel);

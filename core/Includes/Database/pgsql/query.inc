@@ -24,7 +24,7 @@ class InsertQuery_pgsql extends InsertQuery {
     $table_information = $this->connection->schema()->queryTableInformation($this->table);
 
     $max_placeholder = 0;
-    $blobs = array();
+    $blobs = [];
     $blob_count = 0;
     foreach ($this->insertValues as $insert_values) {
       foreach ($this->insertFields as $idx => $field) {
@@ -90,14 +90,14 @@ class InsertQuery_pgsql extends InsertQuery {
     }
     // Only use the returned last_insert_id if it is not already set.
     if (!empty($last_insert_id)) {
-      $this->connection->query($stmt, array(), $options);
+      $this->connection->query($stmt, [], $options);
     }
     else {
-      $last_insert_id = $this->connection->query($stmt, array(), $options);
+      $last_insert_id = $this->connection->query($stmt, [], $options);
     }
 
     // Re-initialize the values array so that we can re-use this query.
-    $this->insertValues = array();
+    $this->insertValues = [];
 
     return $last_insert_id;
   }
@@ -119,10 +119,10 @@ class InsertQuery_pgsql extends InsertQuery {
     $query = $comments . 'INSERT INTO {' . $this->table . '} (' . implode(', ', $insert_fields) . ') VALUES ';
 
     $max_placeholder = 0;
-    $values = array();
+    $values = [];
       if (count($this->insertValues)) {
       foreach ($this->insertValues as $insert_values) {
-        $placeholders = array();
+        $placeholders = [];
 
         // Default fields aren't really placeholders, but this is the most convenient
         // way to handle them.
@@ -151,7 +151,7 @@ class InsertQuery_pgsql extends InsertQuery {
 class UpdateQuery_pgsql extends UpdateQuery {
   public function execute() {
     $max_placeholder = 0;
-    $blobs = array();
+    $blobs = [];
     $blob_count = 0;
 
     // Because we filter $fields the same way here and in __toString(), the
@@ -164,7 +164,7 @@ class UpdateQuery_pgsql extends UpdateQuery {
     // Expressions take priority over literal fields, so we process those first
     // and remove any literal fields that conflict.
     $fields = $this->fields;
-    $expression_fields = array();
+    $expression_fields = [];
     foreach ($this->expressionFields as $field => $data) {
       if (!empty($data['arguments'])) {
         foreach ($data['arguments'] as $placeholder => $argument) {

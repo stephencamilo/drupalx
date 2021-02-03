@@ -156,12 +156,12 @@ function hook_block_info_alter(&$blocks, $theme, $code_blocks) {
  */
 function hook_block_configure($delta = '') {
   // This example comes from node.module.
-  $form = array();
+  $form = [];
   if ($delta == 'recent') {
     $form['node_recent_block_count'] = array(
       '#type' => 'select',
       '#title' => t('Number of recent content items to display'),
-      '#default_value' => variable_get('node_recent_block_count', 10),
+      '#default_value' => $bootstrap->variable_get('node_recent_block_count', 10),
       '#options' => drupal_map_assoc(array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30)),
     );
   }
@@ -185,7 +185,7 @@ function hook_block_configure($delta = '') {
  * @see hook_block_configure()
  * @see hook_block_info()
  */
-function hook_block_save($delta = '', $edit = array()) {
+function hook_block_save($delta = '', $edit = []) {
   // This example comes from node.module.
   if ($delta == 'recent') {
     variable_set('node_recent_block_count', $edit['node_recent_block_count']);
@@ -216,7 +216,7 @@ function hook_block_save($delta = '', $edit = array()) {
  */
 function hook_block_view($delta = '') {
   // This example is adapted from node.module.
-  $block = array();
+  $block = [];
 
   switch ($delta) {
     case 'syndicate':
@@ -337,7 +337,7 @@ function hook_block_list_alter(&$blocks) {
   // blocks.
 
   $result = db_query('SELECT module, delta, language FROM {my_table}');
-  $block_languages = array();
+  $block_languages = [];
   foreach ($result as $record) {
     $block_languages[$record->module][$record->delta][$record->language] = TRUE;
   }

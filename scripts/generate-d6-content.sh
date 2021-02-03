@@ -53,7 +53,7 @@ for ($i = 0; $i < 6; $i++) {
 
 // Create vocabularies and terms
 
-$terms = array();
+$terms = [];
 
 // All possible combinations of these vocabulary properties.
 $hierarchy = array(0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2);
@@ -63,28 +63,28 @@ $required  = array(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1);
 $voc_id = 0;
 $term_id = 0;
 for ($i = 0; $i < 24; $i++) {
-  $vocabulary = array();
+  $vocabulary = [];
   ++$voc_id;
   $vocabulary['name'] = "vocabulary $voc_id (i=$i)";
   $vocabulary['description'] = "description of ". $vocabulary['name'];
   $vocabulary['help'] = "help for ". $vocabulary['name'];
-  $vocabulary['nodes'] = $i > 11 ? array('page' => TRUE) : array();
+  $vocabulary['nodes'] = $i > 11 ? array('page' => TRUE) : [];
   $vocabulary['multiple'] = $multiple[$i % 12];
   $vocabulary['required'] = $required[$i % 12];
   $vocabulary['relations'] = 1;
   $vocabulary['hierarchy'] = $hierarchy[$i % 12];
   $vocabulary['weight'] = $i;
   taxonomy_save_vocabulary($vocabulary);
-  $parents = array();
+  $parents = [];
   // Vocabularies without hierarchy get one term, single parent vocabularies get
   // one parent and one child term. Multiple parent vocabularies get three
   // terms: t0, t1, t2 where t0 is a parent of both t1 and t2.
   for ($j = 0; $j < $vocabulary['hierarchy'] + 1; $j++) {
-    $term = array();
+    $term = [];
     $term['vid'] = $vocabulary['vid'];
     // For multiple parent vocabularies, omit the t0-t1 relation, otherwise
     // every parent in the vocabulary is a parent.
-    $term['parent'] = $vocabulary['hierarchy'] == 2 && i == 1 ? array() : $parents;
+    $term['parent'] = $vocabulary['hierarchy'] == 2 && i == 1 ? [] : $parents;
     ++$term_id;
     $term['name'] = "term $term_id of vocabulary $voc_id (j=$j)";
     $term['description'] = 'description of ' . $term['name'];
@@ -112,7 +112,7 @@ for ($i = 0; $i < 24; $i++) {
   if ($type->has_body) {
     $node->body = str_repeat("node body ($node->type) - $i", 100);
     $node->teaser = node_teaser($node->body);
-    $node->filter = variable_get('filter_default_format', 1);
+    $node->filter = $bootstrap->variable_get('filter_default_format', 1);
     $node->format = FILTER_FORMAT_DEFAULT;
   }
   $node->status = intval($i / 4) % 2;
@@ -158,7 +158,7 @@ for ($i = 0; $i < 12; $i++) {
   if ($type->has_body) {
     $node->body = str_repeat("node body ($node->type) - $i", 100);
     $node->teaser = node_teaser($node->body);
-    $node->filter = variable_get('filter_default_format', 1);
+    $node->filter = $bootstrap->variable_get('filter_default_format', 1);
     $node->format = FILTER_FORMAT_DEFAULT;
   }
   $node->status = intval($i / 2) % 2;
@@ -179,7 +179,7 @@ for ($i = 0; $i < 12; $i++) {
   // Add some votes
   for ($v = 0; $v < ($i % 4) + 5; $v++) {
     $c = $v % $nbchoices;
-    $form_state = array();
+    $form_state = [];
     $form_state['values']['choice'] = $c;
     $form_state['values']['op'] = t('Vote');
     drupal_execute('poll_view_voting', $form_state, $node);
@@ -195,7 +195,7 @@ $node->sticky = 0;
 $node->title = "node title 24";
 $node->body = str_repeat("node body ($node->type) - 37", 100);
 $node->teaser = node_teaser($node->body);
-$node->filter = variable_get('filter_default_format', 1);
+$node->filter = $bootstrap->variable_get('filter_default_format', 1);
 $node->format = FILTER_FORMAT_DEFAULT;
 $node->status = 1;
 $node->language = '';

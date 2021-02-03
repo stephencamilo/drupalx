@@ -98,10 +98,10 @@ function drupal_load_updates() {
 function drupal_get_schema_versions($module) {
   $updates = &drupal_static(__FUNCTION__, NULL);
   if (!isset($updates[$module])) {
-    $updates = array();
+    $updates = [];
 
     foreach (module_list() as $loaded_module) {
-      $updates[$loaded_module] = array();
+      $updates[$loaded_module] = [];
     }
 
     // Prepare regular expression to match all possible defined hook_update_N().
@@ -144,14 +144,14 @@ function drupal_get_schema_versions($module) {
  *   module is not installed.
  */
 function drupal_get_installed_schema_version($module, $reset = FALSE, $array = FALSE) {
-  static $versions = array();
+  static $versions = [];
 
   if ($reset) {
-    $versions = array();
+    $versions = [];
   }
 
   if (!$versions) {
-    $versions = array();
+    $versions = [];
     $result = db_query("SELECT name, schema_version FROM {system} WHERE type = :type", array(':type' => 'module'));
     foreach ($result as $row) {
       $versions[$row->name] = $row->schema_version;
@@ -251,7 +251,7 @@ function drupal_detect_database_types() {
  *  An array of database installer objects compiled into PHP.
  */
 function drupal_get_database_types() {
-  $databases = array();
+  $databases = [];
 
   // We define a driver as a directory in /includes/database that in turn
   // contains a database.inc file. That allows us to drop in additional drivers
@@ -300,7 +300,7 @@ abstract class DatabaseTasks {
   protected $tasks = array(
     array(
       'function'    => 'checkEngineVersion',
-      'arguments'   => array(),
+      'arguments'   => [],
     ),
     array(
       'arguments'   => array(
@@ -345,7 +345,7 @@ abstract class DatabaseTasks {
    *
    * @var array
    */
-  protected $results = array();
+  protected $results = [];
 
   /**
    * Ensure the PDO driver is supported by the version of PHP in use.
@@ -558,7 +558,7 @@ abstract class DatabaseTasks {
    *   An array of driver configuration errors, keyed by form element name.
    */
   public function validateDatabaseSettings($database) {
-    $errors = array();
+    $errors = [];
 
     // Verify the table prefix.
     if (!empty($database['prefix']) && is_string($database['prefix']) && !preg_match('/^[A-Za-z0-9_.]+$/', $database['prefix'])) {
@@ -587,13 +587,13 @@ class DatabaseTaskException extends Exception {
  * @param $settings
  *   An array of settings that need to be updated.
  */
-function drupal_rewrite_settings($settings = array(), $prefix = '') {
+function drupal_rewrite_settings($settings = [], $prefix = '') {
   $default_settings = 'sites/default/default.settings.php';
   drupal_static_reset('conf_path');
   $settings_file = conf_path(FALSE) . '/' . $prefix . 'settings.php';
 
   // Build list of setting names and insert the values into the global namespace.
-  $keys = array();
+  $keys = [];
   foreach ($settings as $setting => $data) {
     $GLOBALS[$setting] = $data['value'];
     $keys[] = $setting;
@@ -690,7 +690,7 @@ function drupal_verify_profile($install_state) {
   $info = $install_state['profile_info'];
 
   // Get a list of modules that exist in Drupal's assorted subdirectories.
-  $present_modules = array();
+  $present_modules = [];
   foreach (drupal_system_listing('/^' . DRUPAL_PHP_FUNCTION_PATTERN . '\.module$/', 'modules', 'name', 0) as $present_module) {
     $present_modules[] = $present_module->name;
   }
@@ -702,10 +702,10 @@ function drupal_verify_profile($install_state) {
   // Verify that all of the profile's required modules are present.
   $missing_modules = array_diff($info['dependencies'], $present_modules);
 
-  $requirements = array();
+  $requirements = [];
 
   if (count($missing_modules)) {
-    $modules = array();
+    $modules = [];
     foreach ($missing_modules as $module) {
       $modules[] = '<span class="admin-missing">' . drupal_ucfirst($module) . '</span>';
     }
@@ -771,7 +771,7 @@ function drupal_install_system() {
  * @see module_disable()
  * @see module_enable()
  */
-function drupal_uninstall_modules($module_list = array(), $uninstall_dependents = TRUE) {
+function drupal_uninstall_modules($module_list = [], $uninstall_dependents = TRUE) {
   if ($uninstall_dependents) {
     // Get all module data so we can find dependents and sort.
     $module_data = system_rebuild_module_data();
@@ -1065,7 +1065,7 @@ function install_goto($path) {
  *
  * @see drupal_requirements_url()
  */
-function drupal_current_script_url($query = array()) {
+function drupal_current_script_url($query = []) {
   $uri = $_SERVER['SCRIPT_NAME'];
   $query = array_merge(drupal_get_query_parameters(), $query);
   if (!empty($query)) {
@@ -1093,7 +1093,7 @@ function drupal_current_script_url($query = array()) {
  * @see drupal_current_script_url()
  */
 function drupal_requirements_url($severity) {
-  $query = array();
+  $query = [];
   // If there are no errors, only warnings, append 'continue=1' to the URL so
   // the user can bypass this screen on the next page load.
   if ($severity == REQUIREMENT_WARNING) {
@@ -1116,7 +1116,7 @@ function drupal_requirements_url($severity) {
  * @see get_t()
  * @ingroup sanitization
  */
-function st($string, array $args = array(), array $options = array()) {
+function st($string, array $args = [], array $options = []) {
   static $locale_strings = NULL;
   global $install_state;
 
@@ -1125,7 +1125,7 @@ function st($string, array $args = array(), array $options = array()) {
   }
 
   if (!isset($locale_strings)) {
-    $locale_strings = array();
+    $locale_strings = [];
     if (isset($install_state['parameters']['profile']) && isset($install_state['parameters']['locale'])) {
       // If the given locale was selected, there should be at least one .po file
       // with its name ending in {$install_state['parameters']['locale']}.po
@@ -1181,7 +1181,7 @@ function drupal_check_profile($profile) {
   $info = install_profile_info($profile);
 
   // Collect requirement testing results.
-  $requirements = array();
+  $requirements = [];
   foreach ($info['dependencies'] as $module) {
     module_load_install($module);
     $function = $module . '_requirements';
@@ -1286,12 +1286,12 @@ function drupal_check_module($module) {
  *   The info array.
  */
 function install_profile_info($profile, $locale = 'en') {
-  $cache = &drupal_static(__FUNCTION__, array());
+  $cache = &drupal_static(__FUNCTION__, []);
 
   if (!isset($cache[$profile])) {
     // Set defaults for module info.
     $defaults = array(
-      'dependencies' => array(),
+      'dependencies' => [],
       'description' => '',
       'distribution_name' => 'Drupal',
       'version' => NULL,
@@ -1302,7 +1302,7 @@ function install_profile_info($profile, $locale = 'en') {
     $info['dependencies'] = array_unique(array_merge(
       drupal_required_modules(),
       $info['dependencies'],
-      ($locale != 'en' && !empty($locale) ? array('locale') : array()))
+      ($locale != 'en' && !empty($locale) ? array('locale') : []))
     );
 
     // drupal_required_modules() includes the current profile as a dependency.

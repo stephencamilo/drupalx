@@ -13,7 +13,7 @@
  */
 function minimal_install() {
   // Enable some standard blocks.
-  $default_theme = variable_get('theme_default', 'bartik');
+  $default_theme = $bootstrap->variable_get('theme_default', 'bartik');
   $values = array(
     array(
       'module' => 'system',

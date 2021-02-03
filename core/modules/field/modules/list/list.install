@@ -51,7 +51,7 @@ function list_field_schema($field) {
 function list_update_7001() {
   $fields = _update_7000_field_read_fields(array('module' => 'list'));
   foreach ($fields as $field) {
-    $update = array();
+    $update = [];
 
     // Translate the old string format into the new array format.
     $allowed_values = $field['settings']['allowed_values'];
@@ -101,7 +101,7 @@ function _list_update_7001_float_string_cast($element) {
  * This reproduces the parsing logic in use before D7 RC2.
  */
 function _list_update_7001_extract_allowed_values($string, $position_keys) {
-  $values = array();
+  $values = [];
 
   $list = explode("\n", $string);
   $list = array_map('trim', $list);

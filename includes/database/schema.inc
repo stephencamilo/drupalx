@@ -373,7 +373,7 @@ abstract class DatabaseSchema implements QueryPlaceholderInterface {
     $individually_prefixed_tables = $this->connection->getUnprefixedTablesMap();
     $default_prefix = $this->connection->tablePrefix();
     $default_prefix_length = strlen($default_prefix);
-    $tables = array();
+    $tables = [];
     // Normally, we would heartily discourage the use of string
     // concatenation for conditionals like this however, we
     // couldn't use db_select() here because it would prefix
@@ -502,7 +502,7 @@ abstract class DatabaseSchema implements QueryPlaceholderInterface {
    * @throws DatabaseSchemaObjectExistsException
    *   If the specified table already has a field by that name.
    */
-  abstract public function addField($table, $field, $spec, $keys_new = array());
+  abstract public function addField($table, $field, $spec, $keys_new = []);
 
   /**
    * Drop a field.
@@ -713,7 +713,7 @@ abstract class DatabaseSchema implements QueryPlaceholderInterface {
    * @throws DatabaseSchemaObjectExistsException
    *   If the specified destination field already exists.
    */
-  abstract public function changeField($table, $field, $field_new, $spec, $keys_new = array());
+  abstract public function changeField($table, $field, $field_new, $spec, $keys_new = []);
 
   /**
    * Create a new table from a Drupal table definition.
@@ -749,7 +749,7 @@ abstract class DatabaseSchema implements QueryPlaceholderInterface {
    *   An array of field names.
    */
   public function fieldNames($fields) {
-    $return = array();
+    $return = [];
     foreach ($fields as $field) {
       if (is_array($field)) {
         $return[] = $field[0];

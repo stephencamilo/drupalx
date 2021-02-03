@@ -14,7 +14,7 @@ chdir(DRUPAL_ROOT);
 
 include_once DRUPAL_ROOT . '/includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_VARIABLES);
-if (variable_get('statistics_count_content_views', 0) && variable_get('statistics_count_content_views_ajax', 0)) {
+if (variable_get('statistics_count_content_views', 0) && $bootstrap->variable_get('statistics_count_content_views_ajax', 0)) {
   if (isset($_POST['nid'])) {
     $nid = $_POST['nid'];
     if (is_numeric($nid)) {

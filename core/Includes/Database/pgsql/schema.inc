@@ -21,7 +21,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
    * @see DatabaseConnection_pgsql->queryTableInformation()
    * @var array
    */
-  protected $tableInformation = array();
+  protected $tableInformation = [];
 
   /**
    * Fetch the list of blobs and sequences used on a table.
@@ -47,8 +47,8 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
       // Split the key into schema and table for querying.
       list($schema, $table_name) = explode('.', $key);
       $table_information = (object) array(
-        'blob_fields' => array(),
-        'sequences' => array(),
+        'blob_fields' => [],
+        'sequences' => [],
       );
       // Don't use {} around information_schema.columns table.
       $result = $this->connection->query("SELECT column_name, data_type, column_default FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table AND (data_type = 'bytea' OR (numeric_precision IS NOT NULL AND column_default LIKE :default))", array(
@@ -94,7 +94,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
     $table_name = $prefixInfo['table'];
 
     $field_information = (object) array(
-        'checks' => array(),
+        'checks' => [],
     );
     $checks = $this->connection->query("SELECT conname FROM pg_class cl INNER JOIN pg_constraint co ON co.conrelid = cl.oid INNER JOIN pg_attribute attr ON attr.attrelid = cl.oid AND attr.attnum = ANY (co.conkey) INNER JOIN pg_namespace ns ON cl.relnamespace = ns.oid WHERE co.contype = 'c' AND ns.nspname = :schema AND cl.relname = :table AND attr.attname = :column", array(
       ':schema' => $schema,
@@ -117,12 +117,12 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
    *   An array of SQL statements to create the table.
    */
   protected function createTableSql($name, $table) {
-    $sql_fields = array();
+    $sql_fields = [];
     foreach ($table['fields'] as $field_name => $field) {
       $sql_fields[] = $this->createFieldSql($field_name, $this->processField($field));
     }
 
-    $sql_keys = array();
+    $sql_keys = [];
     if (isset($table['primary key']) && is_array($table['primary key'])) {
       $sql_keys[] = 'PRIMARY KEY (' . implode(', ', $table['primary key']) . ')';
     }
@@ -300,7 +300,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
   }
 
   protected function _createKeySql($fields) {
-    $return = array();
+    $return = [];
     foreach ($fields as $field) {
       if (is_array($field)) {
         $return[] = 'substr(' . $field[0] . ', 1, ' . $field[1] . ')';
@@ -349,7 +349,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
     return TRUE;
   }
 
-  public function addField($table, $field, $spec, $new_keys = array()) {
+  public function addField($table, $field, $spec, $new_keys = []) {
     if (!$this->tableExists($table)) {
       throw new DatabaseSchemaObjectDoesNotExistException(t("Cannot add field @table.@field: table doesn't exist.", array('@field' => $field, '@table' => $table)));
     }
@@ -493,7 +493,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
     return TRUE;
   }
 
-  public function changeField($table, $field, $field_new, $spec, $new_keys = array()) {
+  public function changeField($table, $field, $field_new, $spec, $new_keys = []) {
     if (!$this->fieldExists($table, $field)) {
       throw new DatabaseSchemaObjectDoesNotExistException(t("Cannot change the definition of field @table.@name: field doesn't exist.", array('@table' => $table, '@name' => $field)));
     }

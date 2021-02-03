@@ -294,7 +294,7 @@ function field_help($path, $arg) {
 
       // Make a list of all widget and field modules currently enabled, in
       // order by displayed module name (module names are not translated).
-      $items = array();
+      $items = [];
       $info = system_get_info('module');
       $modules = array_merge(module_implements('field_info'), module_implements('field_widget_info'));
       $modules = array_unique($modules);
@@ -353,7 +353,7 @@ function field_cron() {
   field_sync_field_status();
 
   // Do a pass of purging on deleted Field API data, if any exists.
-  $limit = variable_get('field_purge_batch_size', 10);
+  $limit = $bootstrap->variable_get('field_purge_batch_size', 10);
   field_purge_batch($limit);
 }
 
@@ -481,7 +481,7 @@ function field_associate_fields($module) {
  *   The field language to fill-in with the default value.
  */
 function field_get_default_value($entity_type, $entity, $field, $instance, $langcode = NULL) {
-  $items = array();
+  $items = [];
   if (!empty($instance['default_value_function'])) {
     $function = $instance['default_value_function'];
     if (function_exists($function)) {
@@ -590,14 +590,14 @@ function field_bundle_settings($entity_type, $bundle, $settings = NULL) {
     field_info_cache_clear();
   }
   else {
-    $settings = variable_get('field_bundle_settings_' . $entity_type . '__' . $bundle, array());
+    $settings = $bootstrap->variable_get('field_bundle_settings_' . $entity_type . '__' . $bundle, []);
     $settings += array(
-      'view_modes' => array(),
-      'extra_fields' => array(),
+      'view_modes' => [],
+      'extra_fields' => [],
     );
     $settings['extra_fields'] += array(
-      'form' => array(),
-      'display' => array(),
+      'form' => [],
+      'display' => [],
     );
 
     return $settings;
@@ -619,7 +619,7 @@ function field_bundle_settings($entity_type, $bundle, $settings = NULL) {
  *     (FALSE). Defaults to FALSE.
  */
 function field_view_mode_settings($entity_type, $bundle) {
-  $cache = &drupal_static(__FUNCTION__, array());
+  $cache = &drupal_static(__FUNCTION__, []);
 
   if (!isset($cache[$entity_type][$bundle])) {
     $bundle_settings = field_bundle_settings($entity_type, $bundle);
@@ -692,7 +692,7 @@ function field_extra_fields_get_display($entity_type, $bundle, $view_mode) {
   $actual_mode = (!empty($view_mode_settings[$view_mode]['custom_settings'])) ? $view_mode : 'default';
   $extra_fields = field_info_extra_fields($entity_type, $bundle, 'display');
 
-  $displays = array();
+  $displays = [];
   foreach ($extra_fields as $name => $value) {
     $displays[$name] = $extra_fields[$name]['display'][$actual_mode];
   }
@@ -793,8 +793,8 @@ function _field_filter_xss_display_allowed_tags() {
  * @return
  *   A renderable array for the field value.
  */
-function field_view_value($entity_type, $entity, $field_name, $item, $display = array(), $langcode = NULL) {
-  $output = array();
+function field_view_value($entity_type, $entity, $field_name, $item, $display = [], $langcode = NULL) {
+  $output = [];
 
   if ($field = field_info_field($field_name)) {
     // Determine the langcode that will be used by language fallback.
@@ -807,7 +807,7 @@ function field_view_value($entity_type, $entity, $field_name, $item, $display = 
     $elements = field_view_field($entity_type, $clone, $field_name, $display, $langcode);
 
     // Extract the part of the render array we need.
-    $output = isset($elements[0]) ? $elements[0] : array();
+    $output = isset($elements[0]) ? $elements[0] : [];
     if (isset($elements['#access'])) {
       $output['#access'] = $elements['#access'];
     }
@@ -871,8 +871,8 @@ function field_view_value($entity_type, $entity, $field_name, $item, $display = 
  *
  * @see field_view_value()
  */
-function field_view_field($entity_type, $entity, $field_name, $display = array(), $langcode = NULL) {
-  $output = array();
+function field_view_field($entity_type, $entity, $field_name, $display = [], $langcode = NULL) {
+  $output = [];
 
   if ($field = field_info_field($field_name)) {
     if (is_array($display)) {
@@ -1056,7 +1056,7 @@ function template_preprocess_field(&$variables, $hook) {
   // (deltas) should always be a subset of the keys in #items, and looping on
   // those keys is faster than calling element_children() or looping on all keys
   // within $element, since that requires traversal of all element properties.
-  $variables['items'] = array();
+  $variables['items'] = [];
   foreach ($element['#items'] as $delta => $item) {
     if (!empty($element[$delta])) {
       $variables['items'][$delta] = $element[$delta];

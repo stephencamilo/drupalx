@@ -62,7 +62,7 @@ function drupal_theme_access($theme) {
  * @see drupal_theme_access()
  */
 function _drupal_theme_access($theme) {
-  $admin_theme = variable_get('admin_theme');
+  $admin_theme = $bootstrap->variable_get('admin_theme');
   return !empty($theme->status) || ($admin_theme && $theme->name == $admin_theme);
 }
 
@@ -82,7 +82,7 @@ function drupal_theme_initialize() {
 
   // Only select the user selected theme if it is available in the
   // list of themes that can be accessed.
-  $theme = !empty($user->theme) && drupal_theme_access($user->theme) ? $user->theme : variable_get('theme_default', 'bartik');
+  $theme = !empty($user->theme) && drupal_theme_access($user->theme) ? $user->theme : $bootstrap->variable_get('theme_default', 'bartik');
 
   // Allow modules to override the theme. Validation has already been performed
   // inside menu_get_custom_theme(), so we do not need to check it again here.
@@ -93,7 +93,7 @@ function drupal_theme_initialize() {
   $theme_key = $theme;
 
   // Find all our ancestor themes and put them in an array.
-  $base_theme = array();
+  $base_theme = [];
   $ancestor = $theme;
   while ($ancestor && isset($themes[$ancestor]->base_theme)) {
     $ancestor = $themes[$ancestor]->base_theme;
@@ -140,7 +140,7 @@ function drupal_theme_initialize() {
  * @param $registry_callback
  *   The callback to invoke to set the theme registry.
  */
-function _drupal_theme_initialize($theme, $base_theme = array(), $registry_callback = '_theme_load_registry') {
+function _drupal_theme_initialize($theme, $base_theme = [], $registry_callback = '_theme_load_registry') {
   global $theme_info, $base_theme_info, $theme_engine, $theme_path;
   $theme_info = $theme;
   $base_theme_info = $base_theme;
@@ -150,7 +150,7 @@ function _drupal_theme_initialize($theme, $base_theme = array(), $registry_callb
   // Prepare stylesheets from this theme as well as all ancestor themes.
   // We work it this way so that we can have child themes override parent
   // theme stylesheets easily.
-  $final_stylesheets = array();
+  $final_stylesheets = [];
 
   // Grab stylesheets from base theme
   foreach ($base_theme as $base) {
@@ -180,7 +180,7 @@ function _drupal_theme_initialize($theme, $base_theme = array(), $registry_callb
   }
 
   // Do basically the same as the above for scripts
-  $final_scripts = array();
+  $final_scripts = [];
 
   // Grab scripts from base theme
   foreach ($base_theme as $base) {
@@ -266,7 +266,7 @@ function theme_get_registry($complete = TRUE) {
   // static variables have been reset.
   if (!is_array($theme_registry)) {
     drupal_theme_initialize();
-    $theme_registry = array();
+    $theme_registry = [];
   }
 
   $key = (int) $complete;
@@ -290,7 +290,7 @@ function theme_get_registry($complete = TRUE) {
  * @param $arguments
  *   The arguments to pass to the function.
  */
-function _theme_registry_callback($callback = NULL, array $arguments = array()) {
+function _theme_registry_callback($callback = NULL, array $arguments = []) {
   static $stored;
   if (isset($callback)) {
     $stored = array($callback, $arguments);
@@ -405,7 +405,7 @@ function drupal_theme_rebuild() {
  * @see list_themes()
  */
 function _theme_process_registry(&$cache, $name, $type, $theme, $path) {
-  $result = array();
+  $result = [];
 
   // Processor functions work in two distinct phases with the process
   // functions always being executed after the preprocess functions.
@@ -477,8 +477,8 @@ function _theme_process_registry(&$cache, $name, $type, $theme, $path) {
       foreach ($variable_process_phases as $phase_key => $phase) {
         // Check for existing variable processors. Ensure arrayness.
         if (!isset($info[$phase_key]) || !is_array($info[$phase_key])) {
-          $info[$phase_key] = array();
-          $prefixes = array();
+          $info[$phase_key] = [];
+          $prefixes = [];
           if ($type == 'module') {
             // Default variable processor prefix.
             $prefixes[] = 'template';
@@ -537,7 +537,7 @@ function _theme_process_registry(&$cache, $name, $type, $theme, $path) {
       if (empty($result[$hook])) {
         foreach ($variable_process_phases as $phase_key => $phase) {
           if (!isset($info[$phase_key])) {
-            $cache[$hook][$phase_key] = array();
+            $cache[$hook][$phase_key] = [];
           }
           // Only use non-hook-specific variable processors for theming hooks
           // implemented as templates. See theme().
@@ -568,7 +568,7 @@ function _theme_process_registry(&$cache, $name, $type, $theme, $path) {
  *   The name of the theme engine.
  */
 function _theme_build_registry($theme, $base_theme, $theme_engine) {
-  $cache = array();
+  $cache = [];
   // First, process the theme hooks advertised by modules. This will
   // serve as the basic registry. Since the list of enabled modules is the same
   // regardless of the theme used, this is cached in its own entry to save
@@ -665,16 +665,17 @@ function _theme_build_registry($theme, $base_theme, $theme_engine) {
 */
 function list_themes($refresh = FALSE) {
   $bootstrap = new Bootstrap;
-  $list = &$bootstrap->drupal_static(__FUNCTION__, array());
+  $modules_system = new \Core\Modules\System\ModuleSystem;
+  $list = &$bootstrap->drupal_static(__FUNCTION__, []);
 
   if ($refresh) {
-    $list = array();
+    $list = [];
     system_list_reset();
   }
 
   if (empty($list)) {
-    $list = array();
-    $themes = array();
+    $list = [];
+    $themes = [];
     // Extract from the database only when it is available.
     // Also check that the site is not in the middle of an install or update.
     if (!defined('MAINTENANCE_MODE')) {
@@ -683,12 +684,12 @@ function list_themes($refresh = FALSE) {
       }
       catch (Exception $e) {
         // If the database is not available, rebuild the theme data.
-        $themes = _system_rebuild_theme_data();
+        $themes = $modules_system->_system_rebuild_theme_data();
       }
     }
     else {
       // Scan the installation when the database should not be read.
-      $themes = _system_rebuild_theme_data();
+      $themes = $modules_system->_system_rebuild_theme_data();
     }
 
     foreach ($themes as $theme) {
@@ -733,7 +734,7 @@ function list_themes($refresh = FALSE) {
  *   Returns an array of all of the theme's ancestors; the first element's value
  *   will be NULL if an error occurred.
  */
-function drupal_find_base_themes($themes, $key, $used_keys = array()) {
+function drupal_find_base_themes($themes, $key, $used_keys = []) {
   $base_key = $themes[$key]->info['base theme'];
   // Does the base theme exist?
   if (!isset($themes[$base_key])) {
@@ -902,7 +903,7 @@ function drupal_find_base_themes($themes, $key, $used_keys = array()) {
  * @see template_preprocess()
  * @see template_process()
  */
-function theme($hook, $variables = array()) {
+function theme($hook, $variables = []) {
   // If called before all modules are loaded, we do not necessarily have a full
   // theme registry to work with, and therefore cannot process the theme
   // request properly. See also _theme_load_registry().
@@ -963,7 +964,7 @@ function theme($hook, $variables = array()) {
   // the arguments expected by the theme function.
   if (isset($variables['#theme']) || isset($variables['#theme_wrappers'])) {
     $element = $variables;
-    $variables = array();
+    $variables = [];
     if (isset($info['variables'])) {
       foreach (array_keys($info['variables']) as $name) {
         if (isset($element["#$name"])) {
@@ -981,7 +982,7 @@ function theme($hook, $variables = array()) {
     $variables += $info['variables'];
   }
   elseif (!empty($info['render element'])) {
-    $variables += array($info['render element'] => array());
+    $variables += array($info['render element'] => []);
   }
 
   $variables['theme_hook_original'] = $theme_hook_original;
@@ -1008,7 +1009,7 @@ function theme($hook, $variables = array()) {
     }
   }
   if (isset($info['preprocess functions']) || isset($info['process functions'])) {
-    $variables['theme_hook_suggestions'] = array();
+    $variables['theme_hook_suggestions'] = [];
     foreach (array('preprocess functions', 'process functions') as $phase) {
       if (!empty($info[$phase])) {
         foreach ($info[$phase] as $processor_function) {
@@ -1032,7 +1033,7 @@ function theme($hook, $variables = array()) {
     // - The 'theme_hook_suggestions' variable is checked in FILO order, so the
     //   last suggestion added to the array takes precedence over suggestions
     //   added earlier.
-    $suggestions = array();
+    $suggestions = [];
     if (!empty($variables['theme_hook_suggestions'])) {
       $suggestions = $variables['theme_hook_suggestions'];
     }
@@ -1084,7 +1085,7 @@ function theme($hook, $variables = array()) {
     // completely intuitive, is reasonably safe, and allows us to save on the
     // overhead of adding some new variable to track that.
     if (!isset($variables['directory'])) {
-      $default_template_variables = array();
+      $default_template_variables = [];
       template_preprocess($default_template_variables, $hook);
       $variables += $default_template_variables;
     }
@@ -1139,7 +1140,7 @@ function path_to_theme() {
  *   The functions found, suitable for returning from hook_theme;
  */
 function drupal_find_theme_functions($cache, $prefixes) {
-  $implementations = array();
+  $implementations = [];
   $functions = get_defined_functions();
   $theme_functions = preg_grep('/^(' . implode(')|(', $prefixes) . ')_/', $functions['user']);
 
@@ -1196,12 +1197,12 @@ function drupal_find_theme_functions($cache, $prefixes) {
  *   The path to search.
  */
 function drupal_find_theme_templates($cache, $extension, $path) {
-  $implementations = array();
+  $implementations = [];
 
   // Collect paths to all sub-themes grouped by base themes. These will be
   // used for filtering. This allows base themes to have sub-themes in its
   // folder hierarchy without affecting the base themes template discovery.
-  $theme_paths = array();
+  $theme_paths = [];
   foreach (list_themes() as $theme_info) {
     if (!empty($theme_info->base_theme)) {
       $theme_paths[$theme_info->base_theme][$theme_info->name] = dirname($theme_info->filename);
@@ -1215,7 +1216,7 @@ function drupal_find_theme_templates($cache, $extension, $path) {
     }
   }
   global $theme;
-  $subtheme_paths = isset($theme_paths[$theme]) ? $theme_paths[$theme] : array();
+  $subtheme_paths = isset($theme_paths[$theme]) ? $theme_paths[$theme] : [];
 
   // Escape the periods in the extension.
   $regex = '/' . str_replace('.', '\.', $extension) . '$/';
@@ -1301,7 +1302,7 @@ function drupal_find_theme_templates($cache, $extension, $path) {
  *   The value of the requested setting, NULL if the setting does not exist.
  */
 function theme_get_setting($setting_name, $theme = NULL) {
-  $cache = &drupal_static(__FUNCTION__, array());
+  $cache = &drupal_static(__FUNCTION__, []);
 
   // If no key is given, use the current theme if we can determine it.
   if (!isset($theme)) {
@@ -1348,11 +1349,11 @@ function theme_get_setting($setting_name, $theme = NULL) {
     }
 
     // Get the saved global settings from the database.
-    $cache[$theme] = array_merge($cache[$theme], variable_get('theme_settings', array()));
+    $cache[$theme] = array_merge($cache[$theme], $bootstrap->variable_get('theme_settings', []));
 
     if ($theme) {
       // Get the saved theme-specific settings from the database.
-      $cache[$theme] = array_merge($cache[$theme], variable_get('theme_' . $theme . '_settings', array()));
+      $cache[$theme] = array_merge($cache[$theme], $bootstrap->variable_get('theme_' . $theme . '_settings', []));
 
       // If the theme does not support a particular feature, override the global
       // setting and set the value to NULL.
@@ -1912,7 +1913,7 @@ function theme_table(array $variables) {
   // Format the table columns:
   if (!empty($colgroups)) {
     foreach ($colgroups as $number => $colgroup) {
-      $attributes = array();
+      $attributes = [];
 
       // Check if we're dealing with a simple or complex column
       if (isset($colgroup['data'])) {
@@ -1985,11 +1986,11 @@ function theme_table(array $variables) {
     $output .= (!empty($rows) ? " </tr></thead>\n" : "</tr>\n");
   }
   else {
-    $ts = array();
+    $ts = [];
   }
 
   // Format the table and footer rows.
-  $sections = array();
+  $sections = [];
 
   if (!empty($rows)) {
     $sections['tbody'] = $rows;
@@ -2021,7 +2022,7 @@ function theme_table(array $variables) {
       }
       else {
         $cells = $row;
-        $attributes = array();
+        $attributes = [];
         $no_striping = $default_no_striping;
       }
 
@@ -2123,8 +2124,8 @@ function theme_item_list($variables) {
     $num_items = count($items);
     $i = 0;
     foreach ($items as $item) {
-      $attributes = array();
-      $children = array();
+      $attributes = [];
+      $children = [];
       $data = '';
       $i++;
       if (is_array($item)) {
@@ -2367,7 +2368,7 @@ function _theme_table_cell($cell, $header = FALSE) {
  */
 function template_preprocess(&$variables, $hook) {
   global $user;
-  static $count = array();
+  static $count = [];
 
   // Track run count for each hook to provide zebra striping. See
   // "template_preprocess_block()" which provides the same feature specific to
@@ -2407,11 +2408,11 @@ function _template_preprocess_default_variables() {
 
   // Variables that don't depend on a database connection.
   $variables = array(
-    'attributes_array' => array(),
-    'title_attributes_array' => array(),
-    'content_attributes_array' => array(),
-    'title_prefix' => array(),
-    'title_suffix' => array(),
+    'attributes_array' => [],
+    'title_attributes_array' => [],
+    'content_attributes_array' => [],
+    'title_prefix' => [],
+    'title_suffix' => [],
     'user' => $user,
     'db_is_active' => !defined('MAINTENANCE_MODE'),
     'is_admin' => FALSE,
@@ -2573,7 +2574,7 @@ function template_preprocess_page(&$variables) {
 
   foreach (system_region_list($GLOBALS['theme'], REGIONS_ALL, FALSE) as $region_key) {
     if (!isset($variables['page'][$region_key])) {
-      $variables['page'][$region_key] = array();
+      $variables['page'][$region_key] = [];
     }
     if ($region_content = drupal_get_region_content($region_key)) {
       $variables['page'][$region_key][]['#markup'] = $region_content;
@@ -2595,8 +2596,8 @@ function template_preprocess_page(&$variables) {
   $variables['language']          = $GLOBALS['language'];
   $variables['language']->dir     = $GLOBALS['language']->direction ? 'rtl' : 'ltr';
   $variables['logo']              = theme_get_setting('logo');
-  $variables['main_menu']         = theme_get_setting('toggle_main_menu') ? menu_main_menu() : array();
-  $variables['secondary_menu']    = theme_get_setting('toggle_secondary_menu') ? menu_secondary_menu() : array();
+  $variables['main_menu']         = theme_get_setting('toggle_main_menu') ? menu_main_menu() : [];
+  $variables['secondary_menu']    = theme_get_setting('toggle_secondary_menu') ? menu_secondary_menu() : [];
   $variables['action_links']      = menu_local_actions();
   $variables['site_name']         = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'Drupal')) : '');
   $variables['site_slogan']       = (theme_get_setting('toggle_slogan') ? filter_xss_admin(variable_get('site_slogan', '')) : '');
@@ -2699,7 +2700,7 @@ function theme_get_suggestions($args, $base, $delimiter = '__') {
   // page__node__1           page-node-1
   // page__node__edit        page-node-edit
 
-  $suggestions = array();
+  $suggestions = [];
   $prefix = $base;
   foreach ($args as $arg) {
     // Remove slashes or null per SA-CORE-2009-003 and change - (hyphen) to _
@@ -2780,13 +2781,13 @@ function template_preprocess_maintenance_page(&$variables) {
   if (drupal_get_title()) {
     $head_title = array(
       'title' => strip_tags(drupal_get_title()),
-      'name' => variable_get('site_name', 'Drupal'),
+      'name' => $bootstrap->variable_get('site_name', 'Drupal'),
     );
   }
   else {
-    $head_title = array('name' => variable_get('site_name', 'Drupal'));
+    $head_title = array('name' => $bootstrap->variable_get('site_name', 'Drupal'));
     if (variable_get('site_slogan', '')) {
-      $head_title['slogan'] = variable_get('site_slogan', '');
+      $head_title['slogan'] = $bootstrap->variable_get('site_slogan', '');
     }
   }
 
@@ -2804,10 +2805,10 @@ function template_preprocess_maintenance_page(&$variables) {
   $variables['language']->dir     = $language->direction ? 'rtl' : 'ltr';
   $variables['logo']              = theme_get_setting('logo');
   $variables['messages']          = $variables['show_messages'] ? theme('status_messages') : '';
-  $variables['main_menu']         = array();
-  $variables['secondary_menu']    = array();
-  $variables['site_name']         = (theme_get_setting('toggle_name') ? variable_get('site_name', 'Drupal') : '');
-  $variables['site_slogan']       = (theme_get_setting('toggle_slogan') ? variable_get('site_slogan', '') : '');
+  $variables['main_menu']         = [];
+  $variables['secondary_menu']    = [];
+  $variables['site_name']         = (theme_get_setting('toggle_name') ? $bootstrap->variable_get('site_name', 'Drupal') : '');
+  $variables['site_slogan']       = (theme_get_setting('toggle_slogan') ? $bootstrap->variable_get('site_slogan', '') : '');
   $variables['tabs']              = '';
   $variables['title']             = drupal_get_title();
 
@@ -2903,7 +2904,7 @@ function template_preprocess_username(&$variables) {
   $variables['name'] = check_plain($name);
 
   $variables['profile_access'] = user_access('access user profiles');
-  $variables['link_attributes'] = array();
+  $variables['link_attributes'] = [];
   // Populate link path and attributes if appropriate.
   if ($variables['uid'] && $variables['profile_access']) {
     // We are linking to a local user.

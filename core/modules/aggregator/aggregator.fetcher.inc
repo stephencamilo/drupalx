@@ -22,7 +22,7 @@ function aggregator_aggregator_fetch($feed) {
   $feed->source_string = FALSE;
 
   // Generate conditional GET headers.
-  $headers = array();
+  $headers = [];
   if ($feed->etag) {
     $headers['If-None-Match'] = $feed->etag;
   }
@@ -47,7 +47,7 @@ function aggregator_aggregator_fetch($feed) {
         $result->data = '';
       }
       if (!isset($result->headers)) {
-        $result->headers = array();
+        $result->headers = [];
       }
       $feed->source_string = $result->data;
       $feed->http_headers = $result->headers;

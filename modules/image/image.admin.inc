@@ -9,13 +9,13 @@
  * Menu callback; Listing of all current image styles.
  */
 function image_style_list() {
-  $page = array();
+  $page = [];
 
   $styles = image_styles();
   $page['image_style_list'] = array(
     '#markup' => theme('image_style_list', array('styles' => $styles)),
     '#attached' => array(
-      'css' => array(drupal_get_path('module', 'image') . '/image.admin.css' => array()),
+      'css' => array(drupal_get_path('module', 'image') . '/image.admin.css' => []),
     ),
   );
 
@@ -46,7 +46,7 @@ function image_style_form($form, &$form_state, $style) {
 
   $form_state['image_style'] = $style;
   $form['#tree'] = TRUE;
-  $form['#attached']['css'][drupal_get_path('module', 'image') . '/image.admin.css'] = array();
+  $form['#attached']['css'][drupal_get_path('module', 'image') . '/image.admin.css'] = [];
 
   // Show the thumbnail preview.
   $form['preview'] = array(
@@ -120,7 +120,7 @@ function image_style_form($form, &$form_state, $style) {
   }
 
   // Build the new image effect addition form and add it to the effect list.
-  $new_effect_options = array();
+  $new_effect_options = [];
   foreach (image_effect_definitions() as $effect => $definition) {
     $new_effect_options[$effect] = check_plain($definition['label']);
   }
@@ -154,7 +154,7 @@ function image_style_form($form, &$form_state, $style) {
   $form['actions']['override'] = array(
     '#type' => 'submit',
     '#value' => t('Override defaults'),
-    '#validate' => array(),
+    '#validate' => [],
     '#submit' => array('image_style_form_override_submit'),
     '#access' => !$editable,
   );
@@ -406,7 +406,7 @@ function image_effect_form($form, &$form_state, $style, $effect) {
   }
 
   $form['#tree'] = TRUE;
-  $form['#attached']['css'][drupal_get_path('module', 'image') . '/image.admin.css'] = array();
+  $form['#attached']['css'][drupal_get_path('module', 'image') . '/image.admin.css'] = [];
   if (function_exists($effect['form callback'])) {
     $form['data'] = call_user_func($effect['form callback'], $effect['data']);
   }
@@ -665,9 +665,9 @@ function theme_image_style_list($variables) {
   $styles = $variables['styles'];
 
   $header = array(t('Style name'), t('Settings'), array('data' => t('Operations'), 'colspan' => 3));
-  $rows = array();
+  $rows = [];
   foreach ($styles as $style) {
-    $row = array();
+    $row = [];
     $row[] = l($style['label'], 'admin/config/media/image-styles/edit/' . $style['name']);
     $link_attributes = array(
       'attributes' => array(
@@ -714,10 +714,10 @@ function theme_image_style_list($variables) {
 function theme_image_style_effects($variables) {
   $form = $variables['form'];
 
-  $rows = array();
+  $rows = [];
 
   foreach (element_children($form) as $key) {
-    $row = array();
+    $row = [];
     $form[$key]['weight']['#attributes']['class'] = array('image-effect-order-weight');
     if (is_numeric($key)) {
       $summary = drupal_render($form[$key]['summary']);
@@ -737,7 +737,7 @@ function theme_image_style_effects($variables) {
       $rows[] = array(
         'data' => $row,
         // Use a strict (===) comparison since $key can be 0.
-        'class' => !empty($form[$key]['weight']['#access']) || $key === 'new' ? array('draggable') : array(),
+        'class' => !empty($form[$key]['weight']['#access']) || $key === 'new' ? array('draggable') : [],
       );
     }
   }
@@ -772,7 +772,7 @@ function theme_image_style_effects($variables) {
 function theme_image_style_preview($variables) {
   $style = $variables['style'];
 
-  $sample_image = variable_get('image_style_preview_image', drupal_get_path('module', 'image') . '/sample.png');
+  $sample_image = $bootstrap->variable_get('image_style_preview_image', drupal_get_path('module', 'image') . '/sample.png');
   $sample_width = 160;
   $sample_height = 160;
 
@@ -849,19 +849,19 @@ function theme_image_style_preview($variables) {
 function theme_image_anchor($variables) {
   $element = $variables['element'];
 
-  $rows = array();
-  $row = array();
+  $rows = [];
+  $row = [];
   foreach (element_children($element) as $n => $key) {
     $element[$key]['#attributes']['title'] = $element[$key]['#title'];
     unset($element[$key]['#title']);
     $row[] = drupal_render($element[$key]);
     if ($n % 3 == 3 - 1) {
       $rows[] = $row;
-      $row = array();
+      $row = [];
     }
   }
 
-  return theme('table', array('header' => array(), 'rows' => $rows, 'attributes' => array('class' => array('image-anchor'))));
+  return theme('table', array('header' => [], 'rows' => $rows, 'attributes' => array('class' => array('image-anchor'))));
 }
 
 /**

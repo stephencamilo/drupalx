@@ -71,7 +71,7 @@ class TaxonomyVocabularyFunctionalTest extends TaxonomyWebTestCase {
 
     // Create a new vocabulary.
     $this->clickLink(t('Add vocabulary'));
-    $edit = array();
+    $edit = [];
     $machine_name = drupal_strtolower($this->randomName());
     $edit['name'] = $this->randomName();
     $edit['description'] = $this->randomName();
@@ -83,7 +83,7 @@ class TaxonomyVocabularyFunctionalTest extends TaxonomyWebTestCase {
     $this->drupalGet('admin/structure/taxonomy');
     $this->assertText($edit['name'], 'Vocabulary found in the vocabulary overview listing.');
     $this->clickLink(t('edit vocabulary'));
-    $edit = array();
+    $edit = [];
     $edit['name'] = $this->randomName();
     $this->drupalPost(NULL, $edit, t('Save'));
     $this->drupalGet('admin/structure/taxonomy');
@@ -100,13 +100,13 @@ class TaxonomyVocabularyFunctionalTest extends TaxonomyWebTestCase {
     $this->assertText(t('The machine-readable name must contain only lowercase letters, numbers, and underscores.'));
 
     // Ensure that vocabulary titles are escaped properly.
-    $edit = array();
+    $edit = [];
     $edit['name'] = 'Don\'t Panic';
     $edit['description'] = $this->randomName();
     $edit['machine_name'] = 'don_t_panic';
     $this->drupalPost('admin/structure/taxonomy/add', $edit, t('Save'));
 
-    $site_name = variable_get('site_name', 'Drupal');
+    $site_name = $bootstrap->variable_get('site_name', 'Drupal');
     $this->drupalGet('admin/structure/taxonomy/don_t_panic');
     $this->assertTitle(t('Don\'t Panic | @site-name', array('@site-name' => $site_name)));
     $this->assertNoTitle(t('Don&#039;t Panic | @site-name', array('@site-name' => $site_name)));
@@ -122,7 +122,7 @@ class TaxonomyVocabularyFunctionalTest extends TaxonomyWebTestCase {
     }
     // Get all vocabularies and change their weights.
     $vocabularies = taxonomy_get_vocabularies();
-    $edit = array();
+    $edit = [];
     foreach ($vocabularies as $key => $vocabulary) {
       $vocabulary->weight = -$vocabulary->weight;
       $vocabularies[$key]->weight = $vocabulary->weight;
@@ -177,7 +177,7 @@ class TaxonomyVocabularyFunctionalTest extends TaxonomyWebTestCase {
     $this->assertTrue($vocabulary, 'Vocabulary found in database.');
 
     // Delete the vocabulary.
-    $edit = array();
+    $edit = [];
     $this->drupalPost('admin/structure/taxonomy/' . $vocabulary->machine_name . '/edit', $edit, t('Delete'));
     $this->assertRaw(t('Are you sure you want to delete the vocabulary %name?', array('%name' => $vocabulary->name)), '[confirm deletion] Asks for confirmation.');
     $this->assertText(t('Deleting a vocabulary will delete all the terms in it. This action cannot be undone.'), '[confirm deletion] Inform that all terms will be deleted.');
@@ -246,7 +246,7 @@ class TaxonomyVocabularyTestCase extends TaxonomyWebTestCase {
 
     // Create a new vocabulary and add a few terms to it.
     $vocabulary = $this->createVocabulary();
-    $terms = array();
+    $terms = [];
     for ($i = 0; $i < 5; $i++) {
       $terms[$i] = $this->createTerm($vocabulary);
     }
@@ -332,7 +332,7 @@ class TaxonomyVocabularyTestCase extends TaxonomyWebTestCase {
     $this->assertEqual(array_shift($vocabularies)->vid, $vocabulary1->vid, 'Vocabulary loaded successfully by ID.');
 
     // Fetch vocabulary 1 by name.
-    $vocabulary = current(taxonomy_vocabulary_load_multiple(array(), array('name' => $vocabulary1->name)));
+    $vocabulary = current(taxonomy_vocabulary_load_multiple([], array('name' => $vocabulary1->name)));
     $this->assertEqual($vocabulary->vid, $vocabulary1->vid, 'Vocabulary loaded successfully by name.');
 
     // Fetch vocabulary 1 by name and ID.
@@ -418,7 +418,7 @@ class TaxonomyTermFunctionTestCase extends TaxonomyWebTestCase {
     $valid_term = $this->createTerm($vocabulary);
     // Delete a valid term.
     taxonomy_term_delete($valid_term->tid);
-    $terms = taxonomy_term_load_multiple(array(), array('vid' => $vocabulary->vid));
+    $terms = taxonomy_term_load_multiple([], array('vid' => $vocabulary->vid));
     $this->assertTrue(empty($terms), 'Vocabulary is empty after deletion.');
 
     // Delete an invalid term. Should not throw any notices.
@@ -431,7 +431,7 @@ class TaxonomyTermFunctionTestCase extends TaxonomyWebTestCase {
   function testTaxonomyVocabularyTree() {
     // Create a new vocabulary with 6 terms.
     $vocabulary = $this->createVocabulary();
-    $term = array();
+    $term = [];
     for ($i = 0; $i < 6; $i++) {
       $term[$i] = $this->createTerm($vocabulary);
     }
@@ -505,7 +505,7 @@ class TaxonomyLegacyTestCase extends TaxonomyWebTestCase {
   function testTaxonomyLegacyNode() {
     // Posts an article with a taxonomy term and a date prior to 1970.
     $langcode = LANGUAGE_NONE;
-    $edit = array();
+    $edit = [];
     $edit['title'] = $this->randomName();
     $edit['date'] = '1969-01-01 00:00:00 -0500';
     $edit["body[$langcode][0][value]"] = $this->randomName();
@@ -581,7 +581,7 @@ class TaxonomyTermTestCase extends TaxonomyWebTestCase {
     $this->assertEqual(0, $vocabulary->hierarchy, 'Vocabulary is flat.');
 
     // Edit $term2, setting $term1 as parent.
-    $edit = array();
+    $edit = [];
     $edit['parent[]'] = array($term1->tid);
     $this->drupalPost('taxonomy/term/' . $term2->tid . '/edit', $edit, t('Save'));
 
@@ -616,7 +616,7 @@ class TaxonomyTermTestCase extends TaxonomyWebTestCase {
     $term2 = $this->createTerm($this->vocabulary);
 
     // Post an article.
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName();
     $edit["body[$langcode][0][value]"] = $this->randomName();
@@ -657,7 +657,7 @@ class TaxonomyTermTestCase extends TaxonomyWebTestCase {
       'term3' => $this->randomName(),
     );
 
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName();
     $edit["body[$langcode][0][value]"] = $this->randomName();
@@ -684,7 +684,7 @@ class TaxonomyTermTestCase extends TaxonomyWebTestCase {
     }
 
     // Get the created terms.
-    $term_objects = array();
+    $term_objects = [];
     foreach ($terms as $key => $term) {
       $term_objects[$key] = taxonomy_get_term_by_name($term);
       $term_objects[$key] = reset($term_objects[$key]);
@@ -698,7 +698,7 @@ class TaxonomyTermTestCase extends TaxonomyWebTestCase {
     }
 
     // Delete term 1.
-    $this->drupalPost('taxonomy/term/' . $term_objects['term1']->tid . '/edit', array(), t('Delete'));
+    $this->drupalPost('taxonomy/term/' . $term_objects['term1']->tid . '/edit', [], t('Delete'));
     $this->drupalPost(NULL, NULL, t('Delete'));
     $term_names = array($term_objects['term2']->name, $term_objects['term3']->name);
 
@@ -853,7 +853,7 @@ class TaxonomyTermTestCase extends TaxonomyWebTestCase {
     $this->drupalGet('taxonomy/term/' . $term->tid . '/edit/' . $this->randomName());
 
     // Delete the term.
-    $this->drupalPost('taxonomy/term/' . $term->tid . '/edit', array(), t('Delete'));
+    $this->drupalPost('taxonomy/term/' . $term->tid . '/edit', [], t('Delete'));
     $this->drupalPost(NULL, NULL, t('Delete'));
 
     // Assert that the term no longer exists.
@@ -906,9 +906,9 @@ class TaxonomyTermTestCase extends TaxonomyWebTestCase {
     $this->assertEqual($terms[1]->parents, array($term2->tid), 'Term 3 was made a child of term 2.');
     $this->assertEqual($terms[2]->tid, $term1->tid, 'Term 1 was moved below term 2.');
 
-    $this->drupalPost('admin/structure/taxonomy/' . $this->vocabulary->machine_name, array(), t('Reset to alphabetical'));
+    $this->drupalPost('admin/structure/taxonomy/' . $this->vocabulary->machine_name, [], t('Reset to alphabetical'));
     // Submit confirmation form.
-    $this->drupalPost(NULL, array(), t('Reset to alphabetical'));
+    $this->drupalPost(NULL, [], t('Reset to alphabetical'));
 
     drupal_static_reset('taxonomy_get_tree');
     drupal_static_reset('taxonomy_get_treeparent');
@@ -1084,7 +1084,7 @@ class TaxonomyRSSTestCase extends TaxonomyWebTestCase {
     $this->drupalPost(NULL, $edit, t('Save'));
 
     // Post an article.
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName();
     $edit[$this->instance['field_name'] . '[' . $langcode . '][]'] = $term1->tid;
@@ -1197,7 +1197,7 @@ class TaxonomyTermIndexTestCase extends TaxonomyWebTestCase {
     $term_2 = $this->createTerm($this->vocabulary);
 
     // Post an article.
-    $edit = array();
+    $edit = [];
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $this->randomName();
     $edit["body[$langcode][0][value]"] = $this->randomName();
@@ -1382,7 +1382,7 @@ class TaxonomyLoadMultipleTestCase extends TaxonomyWebTestCase {
 
     // Create a single term and load it by name.
     $term = $this->createTerm($vocabulary);
-    $loaded_terms = taxonomy_term_load_multiple(array(), array('name' => $term->name));
+    $loaded_terms = taxonomy_term_load_multiple([], array('name' => $term->name));
     $this->assertEqual(count($loaded_terms), 1, 'One term was loaded.');
     $loaded_term = reset($loaded_terms);
     $this->assertEqual($term->tid, $loaded_term->tid, 'Term loaded by name successfully.');
@@ -1796,19 +1796,19 @@ class TaxonomyTokenReplaceTestCase extends TaxonomyWebTestCase {
     $term2 = $this->createTerm($this->vocabulary);
 
     // Edit $term2, setting $term1 as parent.
-    $edit = array();
+    $edit = [];
     $edit['name'] = '<blink>Blinking Text</blink>';
     $edit['parent[]'] = array($term1->tid);
     $this->drupalPost('taxonomy/term/' . $term2->tid . '/edit', $edit, t('Save'));
 
     // Create node with term2.
-    $edit = array();
+    $edit = [];
     $node = $this->drupalCreateNode(array('type' => 'article'));
     $edit[$this->instance['field_name'] . '[' . $this->langcode . '][]'] = $term2->tid;
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
 
     // Generate and test sanitized tokens for term1.
-    $tests = array();
+    $tests = [];
     $tests['[term:tid]'] = $term1->tid;
     $tests['[term:name]'] = check_plain($term1->name);
     $tests['[term:description]'] = check_markup($term1->description, $term1->format);
@@ -1823,7 +1823,7 @@ class TaxonomyTokenReplaceTestCase extends TaxonomyWebTestCase {
     }
 
     // Generate and test sanitized tokens for term2.
-    $tests = array();
+    $tests = [];
     $tests['[term:tid]'] = $term2->tid;
     $tests['[term:name]'] = check_plain($term2->name);
     $tests['[term:description]'] = check_markup($term2->description, $term2->format);
@@ -1854,7 +1854,7 @@ class TaxonomyTokenReplaceTestCase extends TaxonomyWebTestCase {
     }
 
     // Generate and test sanitized tokens.
-    $tests = array();
+    $tests = [];
     $tests['[vocabulary:vid]'] = $this->vocabulary->vid;
     $tests['[vocabulary:name]'] = check_plain($this->vocabulary->name);
     $tests['[vocabulary:description]'] = filter_xss($this->vocabulary->description);
@@ -1953,7 +1953,7 @@ class TaxonomyEFQTestCase extends TaxonomyWebTestCase {
    * Tests that a basic taxonomy EntityFieldQuery works.
    */
   function testTaxonomyEFQ() {
-    $terms = array();
+    $terms = [];
     for ($i = 0; $i < 5; $i++) {
       $term = $this->createTerm($this->vocabulary);
       $terms[$term->tid] = $term;
@@ -1967,7 +1967,7 @@ class TaxonomyEFQTestCase extends TaxonomyWebTestCase {
 
     // Create a second vocabulary and five more terms.
     $vocabulary2 = $this->createVocabulary();
-    $terms2 = array();
+    $terms2 = [];
     for ($i = 0; $i < 5; $i++) {
       $term = $this->createTerm($vocabulary2);
       $terms2[$term->tid] = $term;
@@ -2006,7 +2006,7 @@ class TaxonomyQueryAlterTestCase extends TaxonomyWebTestCase {
   public function testTaxonomyQueryAlter() {
     // Create a new vocabulary and add a few terms to it.
     $vocabulary = $this->createVocabulary();
-    $terms = array();
+    $terms = [];
     for ($i = 0; $i < 5; $i++) {
       $terms[$i] = $this->createTerm($vocabulary);
     }
@@ -2087,9 +2087,9 @@ class TaxonomyQueryAlterTestCase extends TaxonomyWebTestCase {
    *   A string describing the invoked function which generated the query.
    */
   protected function assertQueryTagTestResult($expected_invocations, $method) {
-    $this->assertIdentical($expected_invocations, variable_get('taxonomy_test_query_alter'), 'hook_query_alter() invoked when executing ' . $method);
-    $this->assertIdentical($expected_invocations, variable_get('taxonomy_test_query_term_access_alter'), 'Deprecated hook_query_term_access_alter() invoked when executing ' . $method);
-    $this->assertIdentical($expected_invocations, variable_get('taxonomy_test_query_taxonomy_term_access_alter'), 'Preferred hook_query_taxonomy_term_access_alter() invoked when executing ' . $method);
+    $this->assertIdentical($expected_invocations, $bootstrap->variable_get('taxonomy_test_query_alter'), 'hook_query_alter() invoked when executing ' . $method);
+    $this->assertIdentical($expected_invocations, $bootstrap->variable_get('taxonomy_test_query_term_access_alter'), 'Deprecated hook_query_term_access_alter() invoked when executing ' . $method);
+    $this->assertIdentical($expected_invocations, $bootstrap->variable_get('taxonomy_test_query_taxonomy_term_access_alter'), 'Preferred hook_query_taxonomy_term_access_alter() invoked when executing ' . $method);
   }
 
 }

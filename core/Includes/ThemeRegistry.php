@@ -29,7 +29,7 @@ class ThemeRegistry Extends DrupalCacheArray {
     $this->bin = $bin;
     $this->persistable = module_load_all(NULL) && $_SERVER['REQUEST_METHOD'] == 'GET';
 
-    $data = array();
+    $data = [];
     if ($this->persistable && $cached = cache_get($this->cid, $this->bin)) {
       $data = $cached->data;
     }

@@ -52,11 +52,11 @@ if ($args['clean']) {
 
 // Load SimpleTest files.
 $groups = simpletest_test_get_all();
-$all_tests = array();
+$all_tests = [];
 foreach ($groups as $group => $tests) {
   $all_tests = array_merge($all_tests, array_keys($tests));
 }
-$test_list = array();
+$test_list = [];
 
 if ($args['list']) {
   // Display all available tests.
@@ -199,7 +199,7 @@ function simpletest_script_parse_args() {
     'directory' => '',
     'color' => FALSE,
     'verbose' => FALSE,
-    'test_names' => array(),
+    'test_names' => [],
     // Used internally.
     'test-id' => 0,
     'execute-test' => '',
@@ -223,7 +223,7 @@ function simpletest_script_parse_args() {
           $args[$matches[1]] = array_shift($_SERVER['argv']);
         }
         // Clear extraneous values.
-        $args['test_names'] = array();
+        $args['test_names'] = [];
         $count++;
       }
       else {
@@ -324,7 +324,7 @@ function simpletest_script_execute_batch($test_id, $test_classes) {
   $total_status = SIMPLETEST_SCRIPT_EXIT_SUCCESS;
 
   // Multi-process execution.
-  $children = array();
+  $children = [];
   while (!empty($test_classes) || !empty($children)) {
     while (count($children) < $args['concurrency']) {
       if (empty($test_classes)) {
@@ -334,7 +334,7 @@ function simpletest_script_execute_batch($test_id, $test_classes) {
       // Fork a child process.
       $test_class = array_shift($test_classes);
       $command = simpletest_script_command($test_id, $test_class);
-      $process = proc_open($command, array(), $pipes, NULL, NULL, array('bypass_shell' => TRUE));
+      $process = proc_open($command, [], $pipes, NULL, NULL, array('bypass_shell' => TRUE));
 
       if (!is_resource($process)) {
         echo "Unable to fork test process. Aborting.\n";
@@ -437,21 +437,21 @@ function simpletest_script_command($test_id, $test_class) {
 function simpletest_script_get_test_list() {
   global $args, $all_tests, $groups;
 
-  $test_list = array();
+  $test_list = [];
   if ($args['all']) {
     $test_list = $all_tests;
   }
   else {
     if ($args['class']) {
       // Check for valid class names.
-      $test_list = array();
+      $test_list = [];
       foreach ($args['test_names'] as $test_class) {
         if (class_exists($test_class)) {
           $test_list[] = $test_class;
         }
         else {
           $groups = simpletest_test_get_all();
-          $all_classes = array();
+          $all_classes = [];
           foreach ($groups as $group) {
             $all_classes = array_merge($all_classes, array_keys($group));
           }
@@ -462,7 +462,7 @@ function simpletest_script_get_test_list() {
       }
     }
     elseif ($args['file']) {
-      $files = array();
+      $files = [];
       foreach ($args['test_names'] as $file) {
         $files[drupal_realpath($file)] = 1;
       }
@@ -486,7 +486,7 @@ function simpletest_script_get_test_list() {
       // Ignore anything from third party vendors, and ignore template files used in tests.
       // And any api.php files.
       $ignore = array('nomask' => '/vendor|\.tpl\.php|\.api\.php/');
-      $files = array();
+      $files = [];
       if ($args['directory'][0] === '/') {
         $directory = $args['directory'];
       }
@@ -592,7 +592,7 @@ function simpletest_script_reporter_write_xml_results() {
   $results = db_query("SELECT * FROM {simpletest} WHERE test_id = :test_id ORDER BY test_class, message_id", array(':test_id' => $test_id));
 
   $test_class = '';
-  $xml_files = array();
+  $xml_files = [];
 
   foreach ($results as $result) {
     if (isset($results_map[$result->status])) {
@@ -778,7 +778,7 @@ function simpletest_script_color_code($status) {
  *   its characters.
  */
 function simpletest_script_print_alternatives($string, $array, $degree = 4) {
-  $alternatives = array();
+  $alternatives = [];
   foreach ($array as $item) {
     $lev = levenshtein($string, $item);
     if ($lev <= strlen($item) / $degree || FALSE !== strpos($string, $item)) {
