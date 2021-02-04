@@ -5,126 +5,155 @@
  * Builds placeholder replacement tokens for user-related data.
  */
 
+use Drupal\Core\Datetime\Entity\DateFormat;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\user\Entity\User;
+
 /**
  * Implements hook_token_info().
  */
 function user_token_info() {
-  $types['user'] = array(
+  $types['user'] = [
     'name' => t('Users'),
     'description' => t('Tokens related to individual user accounts.'),
     'needs-data' => 'user',
-  );
-  $types['current-user'] = array(
+  ];
+  $types['current-user'] = [
     'name' => t('Current user'),
     'description' => t('Tokens related to the currently logged in user.'),
     'type' => 'user',
-  );
+  ];
 
-  $user['uid'] = array(
+  $user['uid'] = [
     'name' => t('User ID'),
     'description' => t("The unique ID of the user account."),
-  );
-  $user['name'] = array(
-    'name' => t("Name"),
+  ];
+  $user['name'] = [
+    'name' => t("Deprecated: User Name"),
+    'description' => t("Deprecated: Use account-name or display-name instead."),
+  ];
+  $user['account-name'] = [
+    'name' => t("Account Name"),
     'description' => t("The login name of the user account."),
-  );
-  $user['mail'] = array(
+  ];
+  $user['display-name'] = [
+    'name' => t("Display Name"),
+    'description' => t("The display name of the user account."),
+  ];
+  $user['mail'] = [
     'name' => t("Email"),
     'description' => t("The email address of the user account."),
-  );
-  $user['url'] = array(
+  ];
+  $user['url'] = [
     'name' => t("URL"),
     'description' => t("The URL of the account profile page."),
-  );
-  $user['edit-url'] = array(
+  ];
+  $user['edit-url'] = [
     'name' => t("Edit URL"),
     'description' => t("The URL of the account edit page."),
-  );
+  ];
 
-  $user['last-login'] = array(
+  $user['last-login'] = [
     'name' => t("Last login"),
     'description' => t("The date the user last logged in to the site."),
     'type' => 'date',
-  );
-  $user['created'] = array(
+  ];
+  $user['created'] = [
     'name' => t("Created"),
     'description' => t("The date the user account was created."),
     'type' => 'date',
-  );
+  ];
 
-  return array(
+  return [
     'types' => $types,
-    'tokens' => array('user' => $user),
-  );
+    'tokens' => ['user' => $user],
+  ];
 }
 
 /**
  * Implements hook_tokens().
  */
-function user_tokens($type, $tokens, array $data = [], array $options = []) {
-  $url_options = array('absolute' => TRUE);
-  if (isset($options['language'])) {
-    $url_options['language'] = $options['language'];
-    $language_code = $options['language']->language;
+function user_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
+
+  $token_service = \Drupal::token();
+  $url_options = ['absolute' => TRUE];
+  if (isset($options['langcode'])) {
+    $url_options['language'] = \Drupal::languageManager()->getLanguage($options['langcode']);
+    $langcode = $options['langcode'];
   }
   else {
-    $language_code = NULL;
+    $langcode = NULL;
   }
-  $sanitize = !empty($options['sanitize']);
-
   $replacements = [];
 
   if ($type == 'user' && !empty($data['user'])) {
+    /** @var \Drupal\user\UserInterface $account */
     $account = $data['user'];
     foreach ($tokens as $name => $original) {
       switch ($name) {
         // Basic user account information.
         case 'uid':
           // In the case of hook user_presave uid is not set yet.
-          $replacements[$original] = !empty($account->uid) ? $account->uid : t('not yet assigned');
+          $replacements[$original] = $account->id() ?: t('not yet assigned');
+          break;
+
+        case 'display-name':
+          $replacements[$original] = $account->getDisplayName();
+          if ($account->isAnonymous()) {
+            $bubbleable_metadata->addCacheableDependency(\Drupal::config('user.settings'));
+          }
           break;
 
         case 'name':
-          $name = format_username($account);
-          $replacements[$original] = $sanitize ? check_plain($name) : $name;
+        case 'account-name':
+          $display_name = $account->getAccountName();
+          $replacements[$original] = $display_name;
+          if ($account->isAnonymous()) {
+            $bubbleable_metadata->addCacheableDependency(\Drupal::config('user.settings'));
+          }
           break;
 
         case 'mail':
-          $replacements[$original] = $sanitize ? check_plain($account->mail) : $account->mail;
+          $replacements[$original] = $account->getEmail();
           break;
 
         case 'url':
-          $replacements[$original] = !empty($account->uid) ? url("user/$account->uid", $url_options) : t('not yet assigned');
+          $replacements[$original] = $account->id() ? $account->toUrl('canonical', $url_options)->toString() : t('not yet assigned');
           break;
 
         case 'edit-url':
-          $replacements[$original] = !empty($account->uid) ? url("user/$account->uid/edit", $url_options) : t('not yet assigned');
+          $replacements[$original] = $account->id() ? $account->toUrl('edit-form', $url_options)->toString() : t('not yet assigned');
           break;
 
         // These tokens are default variations on the chained tokens handled below.
         case 'last-login':
-          $replacements[$original] = !empty($account->login) ? format_date($account->login, 'medium', '', NULL, $language_code) : t('never');
+          $date_format = DateFormat::load('medium');
+          $bubbleable_metadata->addCacheableDependency($date_format);
+          $replacements[$original] = $account->getLastLoginTime() ? \Drupal::service('date.formatter')->format($account->getLastLoginTime(), 'medium', '', NULL, $langcode) : t('never');
           break;
 
         case 'created':
+          $date_format = DateFormat::load('medium');
+          $bubbleable_metadata->addCacheableDependency($date_format);
           // In the case of user_presave the created date may not yet be set.
-          $replacements[$original] = !empty($account->created) ? format_date($account->created, 'medium', '', NULL, $language_code) : t('not yet created');
+          $replacements[$original] = $account->getCreatedTime() ? \Drupal::service('date.formatter')->format($account->getCreatedTime(), 'medium', '', NULL, $langcode) : t('not yet created');
           break;
       }
     }
 
-    if ($login_tokens = token_find_with_prefix($tokens, 'last-login')) {
-      $replacements += token_generate('date', $login_tokens, array('date' => $account->login), $options);
+    if ($login_tokens = $token_service->findWithPrefix($tokens, 'last-login')) {
+      $replacements += $token_service->generate('date', $login_tokens, ['date' => $account->getLastLoginTime()], $options, $bubbleable_metadata);
     }
 
-    if ($registered_tokens = token_find_with_prefix($tokens, 'created')) {
-      $replacements += token_generate('date', $registered_tokens, array('date' => $account->created), $options);
+    if ($registered_tokens = $token_service->findWithPrefix($tokens, 'created')) {
+      $replacements += $token_service->generate('date', $registered_tokens, ['date' => $account->getCreatedTime()], $options, $bubbleable_metadata);
     }
   }
 
   if ($type == 'current-user') {
-    $account = user_load($GLOBALS['user']->uid);
-    $replacements += token_generate('user', $tokens, array('user' => $account), $options);
+    $account = User::load(\Drupal::currentUser()->id());
+    $bubbleable_metadata->addCacheContexts(['user']);
+    $replacements += $token_service->generate('user', $tokens, ['user' => $account], $options, $bubbleable_metadata);
   }
 
   return $replacements;

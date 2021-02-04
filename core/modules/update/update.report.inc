@@ -5,323 +5,363 @@
  * Code required only when rendering the available updates report.
  */
 
-/**
- * Page callback: Generates a page about the update status of projects.
- *
- * @see update_menu()
- */
-function update_status() {
-  if ($available = update_get_available(TRUE)) {
-    module_load_include('inc', 'update', 'update.compare');
-    $data = update_calculate_project_data($available);
-    return theme('update_report', array('data' => $data));
-  }
-  else {
-    return theme('update_report', array('data' => _update_no_data()));
-  }
-}
+use Drupal\Core\Template\Attribute;
+use Drupal\Core\Url;
+use Drupal\update\UpdateFetcherInterface;
+use Drupal\update\UpdateManagerInterface;
 
 /**
- * Returns HTML for the project status report.
+ * Prepares variables for project status report templates.
+ *
+ * Default template: update-report.html.twig.
  *
  * @param array $variables
  *   An associative array containing:
  *   - data: An array of data about each project's status.
- *
- * @ingroup themeable
  */
-function theme_update_report($variables) {
-  $data = $variables['data'];
+function template_preprocess_update_report(&$variables) {
+  $data = isset($variables['data']) && is_array($variables['data']) ? $variables['data'] : [];
 
-  $last = $bootstrap->variable_get('update_last_check', 0);
-  $output = theme('update_last_check', array('last' => $last));
+  $last = \Drupal::state()->get('update.last_check', 0);
 
-  if (!is_array($data)) {
-    $output .= '<p>' . $data . '</p>';
-    return $output;
+  $variables['last_checked'] = [
+    '#theme' => 'update_last_check',
+    '#last' => $last,
+    // Attach the library to a variable that gets printed always.
+    '#attached' => [
+      'library' => [
+        'update/drupal.update.admin',
+      ],
+    ],
+  ];
+
+  // For no project update data, populate no data message.
+  if (empty($data)) {
+    $variables['no_updates_message'] = _update_no_data();
   }
 
-  $header = [];
   $rows = [];
 
-  $notification_level = $bootstrap->variable_get('update_notification_threshold', 'all');
-
-  // Create an array of status values keyed by module or theme name, since
-  // we'll need this while generating the report if we have to cross reference
-  // anything (e.g. subthemes which have base themes missing an update).
   foreach ($data as $project) {
-    foreach ($project['includes'] as $key => $name) {
-      $status[$key] = $project['status'];
-    }
-  }
+    $project_status = [
+      '#theme' => 'update_project_status',
+      '#project' => $project,
+    ];
 
-  foreach ($data as $project) {
-    switch ($project['status']) {
-      case UPDATE_CURRENT:
-        $class = 'ok';
-        $icon = theme('image', array('path' => 'misc/watchdog-ok.png', 'width' => 18, 'height' => 18, 'alt' => t('ok'), 'title' => t('ok')));
-        break;
-      case UPDATE_UNKNOWN:
-      case UPDATE_FETCH_PENDING:
-      case UPDATE_NOT_FETCHED:
-        $class = 'unknown';
-        $icon = theme('image', array('path' => 'misc/watchdog-warning.png', 'width' => 18, 'height' => 18, 'alt' => t('warning'), 'title' => t('warning')));
-        break;
-      case UPDATE_NOT_SECURE:
-      case UPDATE_REVOKED:
-      case UPDATE_NOT_SUPPORTED:
-        $class = 'error';
-        $icon = theme('image', array('path' => 'misc/watchdog-error.png', 'width' => 18, 'height' => 18, 'alt' => t('error'), 'title' => t('error')));
-        break;
-      case UPDATE_NOT_CHECKED:
-      case UPDATE_NOT_CURRENT:
-      default:
-        $class = 'warning';
-        $icon = theme('image', array('path' => 'misc/watchdog-warning.png', 'width' => 18, 'height' => 18, 'alt' => t('warning'), 'title' => t('warning')));
-        break;
-    }
-
-    $row = '<div class="version-status">';
-    $status_label = theme('update_status_label', array('status' => $project['status']));
-    $row .= !empty($status_label) ? $status_label : check_plain($project['reason']);
-    $row .= '<span class="icon">' . $icon . '</span>';
-    $row .= "</div>\n";
-
-    $row .= '<div class="project">';
-    if (isset($project['title'])) {
-      if (isset($project['link'])) {
-        $row .= l($project['title'], $project['link']);
-      }
-      else {
-        $row .= check_plain($project['title']);
-      }
-    }
-    else {
-      $row .= check_plain($project['name']);
-    }
-    $row .= ' ' . check_plain($project['existing_version']);
-    if ($project['install_type'] == 'dev' && !empty($project['datestamp'])) {
-      $row .= ' <span class="version-date">(' . format_date($project['datestamp'], 'custom', 'Y-M-d') . ')</span>';
-    }
-    $row .= "</div>\n";
-
-    $versions_inner = '';
-    $security_class = [];
-    $version_class = [];
-    if (isset($project['recommended'])) {
-      if ($project['status'] != UPDATE_CURRENT || $project['existing_version'] !== $project['recommended']) {
-
-        // First, figure out what to recommend.
-        // If there's only 1 security update and it has the same version we're
-        // recommending, give it the same CSS class as if it was recommended,
-        // but don't print out a separate "Recommended" line for this project.
-        if (!empty($project['security updates']) && count($project['security updates']) == 1 && $project['security updates'][0]['version'] === $project['recommended']) {
-          $security_class[] = 'version-recommended';
-          $security_class[] = 'version-recommended-strong';
-        }
-        else {
-          $version_class[] = 'version-recommended';
-          // Apply an extra class if we're displaying both a recommended
-          // version and anything else for an extra visual hint.
-          if ($project['recommended'] !== $project['latest_version']
-              || !empty($project['also'])
-              || ($project['install_type'] == 'dev'
-                && isset($project['dev_version'])
-                && $project['latest_version'] !== $project['dev_version']
-                && $project['recommended'] !== $project['dev_version'])
-              || (isset($project['security updates'][0])
-                && $project['recommended'] !== $project['security updates'][0])
-              ) {
-            $version_class[] = 'version-recommended-strong';
-          }
-          $versions_inner .= theme('update_version', array('version' => $project['releases'][$project['recommended']], 'tag' => t('Recommended version:'), 'class' => $version_class));
-        }
-
-        // Now, print any security updates.
-        if (!empty($project['security updates'])) {
-          $security_class[] = 'version-security';
-          foreach ($project['security updates'] as $security_update) {
-            $versions_inner .= theme('update_version', array('version' => $security_update, 'tag' => t('Security update:'), 'class' => $security_class));
-          }
-        }
-      }
-
-      if ($project['recommended'] !== $project['latest_version']) {
-        $versions_inner .= theme('update_version', array('version' => $project['releases'][$project['latest_version']], 'tag' => t('Latest version:'), 'class' => array('version-latest')));
-      }
-      if ($project['install_type'] == 'dev'
-          && $project['status'] != UPDATE_CURRENT
-          && isset($project['dev_version'])
-          && $project['recommended'] !== $project['dev_version']) {
-        $versions_inner .= theme('update_version', array('version' => $project['releases'][$project['dev_version']], 'tag' => t('Development version:'), 'class' => array('version-latest')));
-      }
-    }
-
-    if (isset($project['also'])) {
-      foreach ($project['also'] as $also) {
-        $versions_inner .= theme('update_version', array('version' => $project['releases'][$also], 'tag' => t('Also available:'), 'class' => array('version-also-available')));
-      }
-    }
-
-    if (!empty($versions_inner)) {
-      $row .= "<div class=\"versions\">\n" . $versions_inner . "</div>\n";
-    }
-    $row .= "<div class=\"info\">\n";
-    if (!empty($project['extra'])) {
-      $row .= '<div class="extra">' . "\n";
-      foreach ($project['extra'] as $key => $value) {
-        $row .= '<div class="' . implode(' ', $value['class']) . '">';
-        $row .= check_plain($value['label']) . ': ';
-        $row .= drupal_placeholder($value['data']);
-        $row .= "</div>\n";
-      }
-      $row .= "</div>\n";  // extra div.
-    }
-
-    $row .= '<div class="includes">';
-    sort($project['includes']);
-    if (!empty($project['disabled'])) {
-      sort($project['disabled']);
-      // Make sure we start with a clean slate for each project in the report.
-      $includes_items = [];
-      $row .= t('Includes:');
-      $includes_items[] = t('Enabled: %includes', array('%includes' => implode(', ', $project['includes'])));
-      $includes_items[] = t('Disabled: %disabled', array('%disabled' => implode(', ', $project['disabled'])));
-      $row .= theme('item_list', array('items' => $includes_items));
-    }
-    else {
-      $row .= t('Includes: %includes', array('%includes' => implode(', ', $project['includes'])));
-    }
-    $row .= "</div>\n";
-
-    if (!empty($project['base_themes'])) {
-      $row .= '<div class="basethemes">';
-      asort($project['base_themes']);
-      $base_themes = [];
-      foreach ($project['base_themes'] as $base_key => $base_theme) {
-        switch ($status[$base_key]) {
-          case UPDATE_NOT_SECURE:
-          case UPDATE_REVOKED:
-          case UPDATE_NOT_SUPPORTED:
-            $base_themes[] = t('%base_theme (!base_label)', array('%base_theme' => $base_theme, '!base_label' => theme('update_status_label', array('status' => $status[$base_key]))));
-            break;
-
-          default:
-            $base_themes[] = drupal_placeholder($base_theme);
-        }
-      }
-      $row .= t('Depends on: !basethemes', array('!basethemes' => implode(', ', $base_themes)));
-      $row .= "</div>\n";
-    }
-
-    if (!empty($project['sub_themes'])) {
-      $row .= '<div class="subthemes">';
-      sort($project['sub_themes']);
-      $row .= t('Required by: %subthemes', array('%subthemes' => implode(', ', $project['sub_themes'])));
-      $row .= "</div>\n";
-    }
-
-    $row .= "</div>\n"; // info div.
-
+    // Build project rows.
     if (!isset($rows[$project['project_type']])) {
-      $rows[$project['project_type']] = [];
+      $rows[$project['project_type']] = [
+        '#type' => 'table',
+        '#attributes' => ['class' => ['update']],
+      ];
     }
-    $row_key = isset($project['title']) ? drupal_strtolower($project['title']) : drupal_strtolower($project['name']);
-    $rows[$project['project_type']][$row_key] = array(
-      'class' => array($class),
-      'data' => array($row),
-    );
+    $row_key = !empty($project['title']) ? mb_strtolower($project['title']) : mb_strtolower($project['name']);
+
+    // Add the project status row and details.
+    $rows[$project['project_type']][$row_key]['status'] = $project_status;
+
+    // Add project status class attribute to the table row.
+    switch ($project['status']) {
+      case UpdateManagerInterface::CURRENT:
+        $rows[$project['project_type']][$row_key]['#attributes'] = ['class' => ['color-success']];
+        break;
+
+      case UpdateFetcherInterface::UNKNOWN:
+      case UpdateFetcherInterface::FETCH_PENDING:
+      case UpdateFetcherInterface::NOT_FETCHED:
+      case UpdateManagerInterface::NOT_SECURE:
+      case UpdateManagerInterface::REVOKED:
+      case UpdateManagerInterface::NOT_SUPPORTED:
+        $rows[$project['project_type']][$row_key]['#attributes'] = ['class' => ['color-error']];
+        break;
+
+      case UpdateFetcherInterface::NOT_CHECKED:
+      case UpdateManagerInterface::NOT_CURRENT:
+      default:
+        $rows[$project['project_type']][$row_key]['#attributes'] = ['class' => ['color-warning']];
+        break;
+    }
   }
 
-  $project_types = array(
+  $project_types = [
     'core' => t('Drupal core'),
     'module' => t('Modules'),
     'theme' => t('Themes'),
-    'module-disabled' => t('Disabled modules'),
-    'theme-disabled' => t('Disabled themes'),
-  );
+    'module-disabled' => t('Uninstalled modules'),
+    'theme-disabled' => t('Uninstalled themes'),
+  ];
+
+  $variables['project_types'] = [];
   foreach ($project_types as $type_name => $type_label) {
     if (!empty($rows[$type_name])) {
       ksort($rows[$type_name]);
-      $output .= "\n<h3>" . $type_label . "</h3>\n";
-      $output .= theme('table', array('header' => $header, 'rows' => $rows[$type_name], 'attributes' => array('class' => array('update'))));
+      $variables['project_types'][] = [
+        'label' => $type_label,
+        'table' => $rows[$type_name],
+      ];
     }
   }
-  drupal_add_css(drupal_get_path('module', 'update') . '/update.css');
-  return $output;
 }
 
 /**
- * Returns HTML for a label to display for a project's update status.
+ * Prepares variables for update version templates.
+ *
+ * Default template: update-version.html.twig.
  *
  * @param array $variables
  *   An associative array containing:
- *   - status: The integer code for a project's current update status.
- *
- * @see update_calculate_project_data()
- * @ingroup themeable
+ *   - version: An array of information about the release version.
  */
-function theme_update_status_label($variables) {
-  switch ($variables['status']) {
-    case UPDATE_NOT_SECURE:
-      return '<span class="security-error">' . t('Security update required!') . '</span>';
-
-    case UPDATE_REVOKED:
-      return '<span class="revoked">' . t('Revoked!') . '</span>';
-
-    case UPDATE_NOT_SUPPORTED:
-      return '<span class="not-supported">' . t('Not supported!') . '</span>';
-
-    case UPDATE_NOT_CURRENT:
-      return '<span class="not-current">' . t('Update available') . '</span>';
-
-    case UPDATE_CURRENT:
-      return '<span class="current">' . t('Up to date') . '</span>';
-
-  }
-}
-
-/**
- * Returns HTML for the version display of a project.
- *
- * @param array $variables
- *   An associative array containing:
- *   - version: An array of data about the latest released version, containing:
- *     - version: The version number.
- *     - release_link: The URL for the release notes.
- *     - date: The date of the release.
- *     - download_link: The URL for the downloadable file.
- *   - tag: The title of the project.
- *   - class: A string containing extra classes for the wrapping table.
- *
- * @ingroup themeable
- */
-function theme_update_version($variables) {
+function template_preprocess_update_version(array &$variables) {
   $version = $variables['version'];
-  $tag = $variables['tag'];
-  $class = implode(' ', $variables['class']);
+  if (empty($version['core_compatibility_message'])) {
+    return;
+  }
+  $core_compatible = !empty($version['core_compatible']);
+  $variables['core_compatibility_details'] = [
+    '#type' => 'details',
+    '#title' => $core_compatible ? t('Compatible') : t('Not compatible'),
+    '#open' => !$core_compatible,
+    'message' => [
+      '#markup' => $version['core_compatibility_message'],
+    ],
+    '#attributes' => [
+      'class' => [
+        $core_compatible ? 'compatible' : 'not-compatible',
+      ],
+    ],
+  ];
+}
 
-  $output = '';
-  $output .= '<table class="version ' . $class . '">';
-  $output .= '<tr>';
-  $output .= '<td class="version-title">' . $tag . "</td>\n";
-  $output .= '<td class="version-details">';
-  $output .= l($version['version'], $version['release_link']);
-  $output .= ' <span class="version-date">(' . format_date($version['date'], 'custom', 'Y-M-d') . ')</span>';
-  $output .= "</td>\n";
-  $output .= '<td class="version-links">';
-  $links = [];
-  $links['update-download'] = array(
-    'title' => t('Download'),
-    'href' => $version['download_link'],
-  );
-  $links['update-release-notes'] = array(
-    'title' => t('Release notes'),
-    'href' => $version['release_link'],
-  );
-  $output .= theme('links__update_version', array('links' => $links));
-  $output .= '</td>';
-  $output .= '</tr>';
-  $output .= "</table>\n";
-  return $output;
+/**
+ * Prepares variables for update project status templates.
+ *
+ * Default template: update-project-status.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - project: An array of information about the project.
+ */
+function template_preprocess_update_project_status(&$variables) {
+  // Storing by reference because we are sorting the project values.
+  $project = &$variables['project'];
+
+  // Set the project title and URL.
+  $variables['title'] = (isset($project['title'])) ? $project['title'] : $project['name'];
+  $variables['url'] = (isset($project['link'])) ? Url::fromUri($project['link'])->toString() : NULL;
+
+  $variables['install_type'] = $project['install_type'];
+  if ($project['install_type'] == 'dev' && !empty($project['datestamp'])) {
+    $variables['datestamp'] = \Drupal::service('date.formatter')->format($project['datestamp'], 'custom', 'Y-M-d');
+  }
+
+  $variables['existing_version'] = $project['existing_version'];
+
+  $versions_inner = [];
+  $security_class = [];
+  $version_class = [];
+  if (isset($project['recommended'])) {
+    if ($project['status'] != UpdateManagerInterface::CURRENT || $project['existing_version'] !== $project['recommended']) {
+
+      // First, figure out what to recommend.
+      // If there's only 1 security update and it has the same version we're
+      // recommending, give it the same CSS class as if it was recommended,
+      // but don't print out a separate "Recommended" line for this project.
+      if (!empty($project['security updates'])
+        && count($project['security updates']) == 1
+        && $project['security updates'][0]['version'] === $project['recommended']
+      ) {
+        $security_class[] = 'project-update__version--recommended';
+        $security_class[] = 'project-update__version---strong';
+      }
+      else {
+        $version_class[] = 'project-update__version--recommended';
+        // Apply an extra class if we're displaying both a recommended
+        // version and anything else for an extra visual hint.
+        if ($project['recommended'] !== $project['latest_version']
+          || !empty($project['also'])
+          || ($project['install_type'] == 'dev'
+            && isset($project['dev_version'])
+            && $project['latest_version'] !== $project['dev_version']
+            && $project['recommended'] !== $project['dev_version'])
+          || (isset($project['security updates'][0])
+            && $project['recommended'] !== $project['security updates'][0])
+        ) {
+          $version_class[] = 'project-update__version--recommended-strong';
+        }
+        $versions_inner[] = [
+          '#theme' => 'update_version',
+          '#version' => $project['releases'][$project['recommended']],
+          '#title' => t('Recommended version:'),
+          '#attributes' => ['class' => $version_class],
+        ];
+      }
+
+      // Now, print any security updates.
+      if (!empty($project['security updates'])) {
+        $security_class[] = 'version-security';
+        foreach ($project['security updates'] as $security_update) {
+          $versions_inner[] = [
+            '#theme' => 'update_version',
+            '#version' => $security_update,
+            '#title' => t('Security update:'),
+            '#attributes' => ['class' => $security_class],
+          ];
+        }
+      }
+    }
+
+    if ($project['recommended'] !== $project['latest_version']) {
+      $versions_inner[] = [
+        '#theme' => 'update_version',
+        '#version' => $project['releases'][$project['latest_version']],
+        '#title' => t('Latest version:'),
+        '#attributes' => ['class' => ['version-latest']],
+      ];
+    }
+    if ($project['install_type'] == 'dev'
+      && $project['status'] != UpdateManagerInterface::CURRENT
+      && isset($project['dev_version'])
+      && $project['recommended'] !== $project['dev_version']) {
+      $versions_inner[] = [
+        '#theme' => 'update_version',
+        '#version' => $project['releases'][$project['dev_version']],
+        '#title' => t('Development version:'),
+        '#attributes' => ['class' => ['version-latest']],
+      ];
+    }
+  }
+
+  if (isset($project['also'])) {
+    foreach ($project['also'] as $also) {
+      $versions_inner[] = [
+        '#theme' => 'update_version',
+        '#version' => $project['releases'][$also],
+        '#title' => t('Also available:'),
+        '#attributes' => ['class' => ['version-also-available']],
+      ];
+    }
+  }
+
+  if (!empty($versions_inner)) {
+    $variables['versions'] = $versions_inner;
+  }
+
+  if (!empty($project['disabled'])) {
+    sort($project['disabled']);
+    $variables['disabled'] = $project['disabled'];
+  }
+
+  sort($project['includes']);
+  $variables['includes'] = $project['includes'];
+
+  $variables['extras'] = [];
+  if (!empty($project['extra'])) {
+    foreach ($project['extra'] as $value) {
+      $extra_item = [];
+      $extra_item['attributes'] = new Attribute();
+      $extra_item['label'] = $value['label'];
+      $extra_item['data'] = [
+        '#prefix' => '<em>',
+        '#markup' => $value['data'],
+        '#suffix' => '</em>',
+      ];
+      $variables['extras'][] = $extra_item;
+    }
+  }
+
+  // Set the project status details.
+  $status_label = NULL;
+  switch ($project['status']) {
+    case UpdateManagerInterface::NOT_SECURE:
+      $status_label = t('Security update required!');
+      break;
+
+    case UpdateManagerInterface::REVOKED:
+      $status_label = t('Revoked!');
+      break;
+
+    case UpdateManagerInterface::NOT_SUPPORTED:
+      $status_label = t('Not supported!');
+      break;
+
+    case UpdateManagerInterface::NOT_CURRENT:
+      $status_label = t('Update available');
+      break;
+
+    case UpdateManagerInterface::CURRENT:
+      $status_label = t('Up to date');
+      break;
+  }
+  $variables['status']['label'] = $status_label;
+  $variables['status']['attributes'] = new Attribute();
+  $variables['status']['reason'] = (isset($project['reason'])) ? $project['reason'] : NULL;
+
+  switch ($project['status']) {
+    case UpdateManagerInterface::CURRENT:
+      $uri = 'core/misc/icons/73b355/check.svg';
+      $text = t('Ok');
+      break;
+
+    case UpdateFetcherInterface::UNKNOWN:
+    case UpdateFetcherInterface::FETCH_PENDING:
+    case UpdateFetcherInterface::NOT_FETCHED:
+      $uri = 'core/misc/icons/e29700/warning.svg';
+      $text = t('Warning');
+      break;
+
+    case UpdateManagerInterface::NOT_SECURE:
+    case UpdateManagerInterface::REVOKED:
+    case UpdateManagerInterface::NOT_SUPPORTED:
+      $uri = 'core/misc/icons/e32700/error.svg';
+      $text = t('Error');
+      break;
+
+    case UpdateFetcherInterface::NOT_CHECKED:
+    case UpdateManagerInterface::NOT_CURRENT:
+    default:
+      $uri = 'core/misc/icons/e29700/warning.svg';
+      $text = t('Warning');
+      break;
+  }
+
+  $variables['status']['icon'] = [
+    '#theme' => 'image',
+    '#width' => 18,
+    '#height' => 18,
+    '#uri' => $uri,
+    '#alt' => $text,
+    '#title' => $text,
+  ];
+}
+
+/**
+ * Prepares variables for update fetch error message templates.
+ *
+ * Default template: update-fetch-error-message.html.twig.
+ *
+ * @param array $variables
+ *   An associative array of template variables.
+ */
+function template_preprocess_update_fetch_error_message(&$variables): void {
+  $variables['error_message'] = [
+    'message' => [
+      '#markup' => t('Failed to fetch available update data:'),
+    ],
+    'items' => [
+      '#theme' => 'item_list',
+      '#items' => [
+        'documentation_link' => t('See <a href="@url">PHP OpenSSL requirements</a> in the Drupal.org handbook for possible reasons this could happen and what you can do to resolve them.', ['@url' => 'https://www.drupal.org/node/3170647']),
+      ],
+    ],
+  ];
+  if (\Drupal::moduleHandler()->moduleExists('dblog') && \Drupal::currentUser()->hasPermission('access site reports')) {
+    $options = ['query' => ['type' => ['update']]];
+    $dblog_url = Url::fromRoute('dblog.overview', [], $options);
+    $variables['error_message']['items']['#items']['dblog'] = t('Check <a href="@url">your local system logs</a> for additional error messages.', ['@url' => $dblog_url->toString()]);
+  }
+  else {
+    $variables['error_message']['items']['#items']['logs'] = t('Check your local system logs for additional error messages.');
+  }
+
 }

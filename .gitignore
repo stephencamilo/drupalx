@@ -7,3 +7,12 @@ sites/*/private
 
 vendor
 /nbproject/private/
+.settings
+.vscode
+.buildpath
+.editorconfig
+.project
+default
+example.gitignore
+web.config
+nbproject
