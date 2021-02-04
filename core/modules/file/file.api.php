@@ -6,55 +6,78 @@
  */
 
 /**
- * Control download access to files.
- *
- * The hook is typically implemented to limit access based on the entity the
- * file is referenced, e.g., only users with access to a node should be allowed
- * to download files attached to that node.
- *
- * @param array $file_item
- *   The array of information about the file to check access for.
- * @param $entity_type
- *   The type of $entity; for example, 'node' or 'user'.
- * @param $entity
- *   The $entity to which $file is referenced.
- *
- * @return
- *   TRUE is access should be allowed by this entity or FALSE if denied. Note
- *   that denial may be overridden by another entity controller, making this
- *   grant permissive rather than restrictive.
- *
- * @see hook_field_access().
+ * @addtogroup hooks
+ * @{
  */
-function hook_file_download_access($file_item, $entity_type, $entity) {
-  if ($entity_type == 'node') {
-    return node_access('view', $entity);
+
+/**
+ * Check that files meet a given criteria.
+ *
+ * This hook lets modules perform additional validation on files. They're able
+ * to report a failure by returning one or more error messages.
+ *
+ * @param \Drupal\file\FileInterface $file
+ *   The file entity being validated.
+ *
+ * @return array
+ *   An array of error messages. If there are no problems with the file return
+ *   an empty array.
+ *
+ * @see file_validate()
+ */
+function hook_file_validate(Drupal\file\FileInterface $file) {
+  $errors = [];
+
+  if (!$file->getFilename()) {
+    $errors[] = t("The file's name is empty. Please give a name to the file.");
+  }
+  if (strlen($file->getFilename()) > 255) {
+    $errors[] = t("The file's name exceeds the 255 characters limit. Please rename the file and try again.");
+  }
+
+  return $errors;
+}
+
+/**
+ * Respond to a file that has been copied.
+ *
+ * @param \Drupal\file\FileInterface $file
+ *   The newly copied file entity.
+ * @param \Drupal\file\FileInterface $source
+ *   The original file before the copy.
+ *
+ * @see file_copy()
+ */
+function hook_file_copy(Drupal\file\FileInterface $file, Drupal\file\FileInterface $source) {
+  // Make sure that the file name starts with the owner's user name.
+  if (strpos($file->getFilename(), $file->getOwner()->name) !== 0) {
+    $file->setFilename($file->getOwner()->name . '_' . $file->getFilename());
+    $file->save();
+
+    \Drupal::logger('file')->notice('Copied file %source has been renamed to %destination', ['%source' => $source->filename, '%destination' => $file->getFilename()]);
   }
 }
 
 /**
- * Alter the access rules applied to a file download.
+ * Respond to a file that has been moved.
  *
- * Entities that implement file management set the access rules for their
- * individual files. Module may use this hook to create custom access rules
- * for file downloads.
+ * @param \Drupal\file\FileInterface $file
+ *   The updated file entity after the move.
+ * @param \Drupal\file\FileInterface $source
+ *   The original file entity before the move.
  *
- * @see hook_file_download_access().
- *
- * @param $grants
- *   An array of grants gathered by hook_file_download_access(). The array is
- *   keyed by the module that defines the entity type's access control; the
- *   values are Boolean grant responses for each module.
- * @param array $file_item
- *   The array of information about the file to alter access for.
- * @param $entity_type
- *   The type of $entity; for example, 'node' or 'user'.
- * @param $entity
- *   The $entity to which $file is referenced.
+ * @see file_move()
  */
-function hook_file_download_access_alter(&$grants, $file_item, $entity_type, $entity) {
-  // For our example module, we always enforce the rules set by node module.
-  if (isset($grants['node'])) {
-    $grants = array('node' => $grants['node']);
+function hook_file_move(Drupal\file\FileInterface $file, Drupal\file\FileInterface $source) {
+  // Make sure that the file name starts with the owner's user name.
+  if (strpos($file->getFilename(), $file->getOwner()->name) !== 0) {
+    $file->setFilename($file->getOwner()->name . '_' . $file->getFilename());
+    $file->save();
+
+    \Drupal::logger('file')->notice('Moved file %source has been renamed to %destination', ['%source' => $source->filename, '%destination' => $file->getFilename()]);
   }
 }
+
+/**
+ * @} End of "addtogroup hooks".
+ */

@@ -5,263 +5,10 @@
  * Code required only when comparing available updates to existing data.
  */
 
-/**
- * Fetches an array of installed and enabled projects.
- *
- * This is only responsible for generating an array of projects (taking into
- * account projects that include more than one module or theme). Other
- * information like the specific version and install type (official release,
- * dev snapshot, etc) is handled later in update_process_project_info() since
- * that logic is only required when preparing the status report, not for
- * fetching the available release data.
- *
- * This array is fairly expensive to construct, since it involves a lot of disk
- * I/O, so we cache the results into the {cache_update} table using the
- * 'update_project_projects' cache ID. However, since this is not the data about
- * available updates fetched from the network, it is acceptable to invalidate it
- * somewhat quickly. If we keep this data for very long, site administrators are
- * more likely to see incorrect results if they upgrade to a newer version of a
- * module or theme but do not visit certain pages that automatically clear this
- * cache.
- *
- * @return
- *   An associative array of currently enabled projects keyed by the
- *   machine-readable project short name. Each project contains:
- *   - name: The machine-readable project short name.
- *   - info: An array with values from the main .info file for this project.
- *     - name: The human-readable name of the project.
- *     - package: The package that the project is grouped under.
- *     - version: The version of the project.
- *     - project: The Drupal.org project name.
- *     - datestamp: The date stamp of the project's main .info file.
- *     - _info_file_ctime: The maximum file change time for all of the .info
- *       files included in this project.
- *   - datestamp: The date stamp when the project was released, if known.
- *   - includes: An associative array containing all projects included with this
- *     project, keyed by the machine-readable short name with the human-readable
- *     name as value.
- *   - project_type: The type of project. Allowed values are 'module' and
- *     'theme'.
- *   - project_status: This indicates if the project is enabled and will always
- *     be TRUE, as the function only returns enabled projects.
- *   - sub_themes: If the project is a theme it contains an associative array of
- *     all sub-themes.
- *   - base_themes: If the project is a theme it contains an associative array
- *     of all base-themes.
- *
- * @see update_process_project_info()
- * @see update_calculate_project_data()
- * @see update_project_cache()
- */
-function update_get_projects() {
-  $projects = &drupal_static(__FUNCTION__, []);
-  if (empty($projects)) {
-    // Retrieve the projects from cache, if present.
-    $projects = update_project_cache('update_project_projects');
-    if (empty($projects)) {
-      // Still empty, so we have to rebuild the cache.
-      $module_data = system_rebuild_module_data();
-      $theme_data = system_rebuild_theme_data();
-      _update_process_info_list($projects, $module_data, 'module', TRUE);
-      _update_process_info_list($projects, $theme_data, 'theme', TRUE);
-      if (variable_get('update_check_disabled', FALSE)) {
-        _update_process_info_list($projects, $module_data, 'module', FALSE);
-        _update_process_info_list($projects, $theme_data, 'theme', FALSE);
-      }
-      // Allow other modules to alter projects before fetching and comparing.
-      drupal_alter('update_projects', $projects);
-      // Cache the site's project data for at most 1 hour.
-      _update_cache_set('update_project_projects', $projects, REQUEST_TIME + 3600);
-    }
-  }
-  return $projects;
-}
-
-/**
- * Populates an array of project data.
- *
- * This iterates over a list of the installed modules or themes and groups them
- * by project and status. A few parts of this function assume that enabled
- * modules and themes are always processed first, and if disabled modules or
- * themes are being processed (there is a setting to control if disabled code
- * should be included or not in the 'Available updates' report), those are only
- * processed after $projects has been populated with information about the
- * enabled code. Modules and themes set as hidden are always ignored. This
- * function also records the latest change time on the .info files for each
- * module or theme, which is important data which is used when deciding if the
- * cached available update data should be invalidated.
- *
- * @param $projects
- *   Reference to the array of project data of what's installed on this site.
- * @param $list
- *   Array of data to process to add the relevant info to the $projects array.
- * @param $project_type
- *   The kind of data in the list. Can be 'module' or 'theme'.
- * @param $status
- *   Boolean that controls what status (enabled or disabled) to process out of
- *   the $list and add to the $projects array.
- *
- * @see update_get_projects()
- */
-function _update_process_info_list(&$projects, $list, $project_type, $status) {
-  $admin_theme = $bootstrap->variable_get('admin_theme', 'seven');
-  foreach ($list as $file) {
-    // The admin theme is a special case. It should always be considered enabled
-    // for the purposes of update checking.
-    if ($file->name === $admin_theme) {
-      $file->status = TRUE;
-    }
-    // A disabled base theme of an enabled sub-theme still has all of its code
-    // run by the sub-theme, so we include it in our "enabled" projects list.
-    if ($status && !$file->status && !empty($file->sub_themes)) {
-      foreach ($file->sub_themes as $key => $name) {
-        // Build a list of enabled sub-themes.
-        if ($list[$key]->status) {
-          $file->enabled_sub_themes[$key] = $name;
-        }
-      }
-      // If there are no enabled subthemes, we should ignore this base theme
-      // for the enabled case. If the site is trying to display disabled
-      // themes, we'll catch it then.
-      if (empty($file->enabled_sub_themes)) {
-        continue;
-      }
-    }
-    // Otherwise, just add projects of the proper status to our list.
-    elseif ($file->status != $status) {
-      continue;
-    }
-
-    // Skip if the .info file is broken.
-    if (empty($file->info)) {
-      continue;
-    }
-
-    // Skip if it's a hidden module or theme.
-    if (!empty($file->info['hidden'])) {
-      continue;
-    }
-
-    // If the .info doesn't define the 'project', try to figure it out.
-    if (!isset($file->info['project'])) {
-      $file->info['project'] = update_get_project_name($file);
-    }
-
-    // If we still don't know the 'project', give up.
-    if (empty($file->info['project'])) {
-      continue;
-    }
-
-    // If we don't already know it, grab the change time on the .info file
-    // itself. Note: we need to use the ctime, not the mtime (modification
-    // time) since many (all?) tar implementations will go out of their way to
-    // set the mtime on the files it creates to the timestamps recorded in the
-    // tarball. We want to see the last time the file was changed on disk,
-    // which is left alone by tar and correctly set to the time the .info file
-    // was unpacked.
-    if (!isset($file->info['_info_file_ctime'])) {
-      $info_filename = dirname($file->uri) . '/' . $file->name . '.info';
-      $file->info['_info_file_ctime'] = filectime($info_filename);
-    }
-
-    if (!isset($file->info['datestamp'])) {
-      $file->info['datestamp'] = 0;
-    }
-
-    $project_name = $file->info['project'];
-
-    // Figure out what project type we're going to use to display this module
-    // or theme. If the project name is 'drupal', we don't want it to show up
-    // under the usual "Modules" section, we put it at a special "Drupal Core"
-    // section at the top of the report.
-    if ($project_name == 'drupal') {
-      $project_display_type = 'core';
-    }
-    else {
-      $project_display_type = $project_type;
-    }
-    if (empty($status) && empty($file->enabled_sub_themes)) {
-      // If we're processing disabled modules or themes, append a suffix.
-      // However, we don't do this to a a base theme with enabled
-      // subthemes, since we treat that case as if it is enabled.
-      $project_display_type .= '-disabled';
-    }
-    // Add a list of sub-themes that "depend on" the project and a list of base
-    // themes that are "required by" the project.
-    if ($project_name == 'drupal') {
-      // Drupal core is always required, so this extra info would be noise.
-      $sub_themes = [];
-      $base_themes = [];
-    }
-    else {
-      // Add list of enabled sub-themes.
-      $sub_themes = !empty($file->enabled_sub_themes) ? $file->enabled_sub_themes : [];
-      // Add list of base themes.
-      $base_themes = !empty($file->base_themes) ? $file->base_themes : [];
-    }
-    if (!isset($projects[$project_name])) {
-      // Only process this if we haven't done this project, since a single
-      // project can have multiple modules or themes.
-      $projects[$project_name] = array(
-        'name' => $project_name,
-        // Only save attributes from the .info file we care about so we do not
-        // bloat our RAM usage needlessly.
-        'info' => update_filter_project_info($file->info),
-        'datestamp' => $file->info['datestamp'],
-        'includes' => array($file->name => $file->info['name']),
-        'project_type' => $project_display_type,
-        'project_status' => $status,
-        'sub_themes' => $sub_themes,
-        'base_themes' => $base_themes,
-      );
-    }
-    elseif ($projects[$project_name]['project_type'] == $project_display_type) {
-      // Only add the file we're processing to the 'includes' array for this
-      // project if it is of the same type and status (which is encoded in the
-      // $project_display_type). This prevents listing all the disabled
-      // modules included with an enabled project if we happen to be checking
-      // for disabled modules, too.
-      $projects[$project_name]['includes'][$file->name] = $file->info['name'];
-      $projects[$project_name]['info']['_info_file_ctime'] = max($projects[$project_name]['info']['_info_file_ctime'], $file->info['_info_file_ctime']);
-      $projects[$project_name]['datestamp'] = max($projects[$project_name]['datestamp'], $file->info['datestamp']);
-      if (!empty($sub_themes)) {
-        $projects[$project_name]['sub_themes'] += $sub_themes;
-      }
-      if (!empty($base_themes)) {
-        $projects[$project_name]['base_themes'] += $base_themes;
-      }
-    }
-    elseif (empty($status)) {
-      // If we have a project_name that matches, but the project_display_type
-      // does not, it means we're processing a disabled module or theme that
-      // belongs to a project that has some enabled code. In this case, we add
-      // the disabled thing into a separate array for separate display.
-      $projects[$project_name]['disabled'][$file->name] = $file->info['name'];
-    }
-  }
-}
-
-/**
- * Determines what project a given file object belongs to.
- *
- * @param $file
- *   A file object as returned by system_get_files_database().
- *
- * @return
- *   The canonical project short name.
- *
- * @see system_get_files_database()
- */
-function update_get_project_name($file) {
-  $project_name = '';
-  if (isset($file->info['project'])) {
-    $project_name = $file->info['project'];
-  }
-  elseif (isset($file->info['package']) && (strpos($file->info['package'], 'Core') === 0)) {
-    $project_name = 'drupal';
-  }
-  return $project_name;
-}
+use Drupal\update\UpdateFetcherInterface;
+use Drupal\update\UpdateManagerInterface;
+use Drupal\update\ModuleVersion;
+use Drupal\update\ProjectCoreCompatibility;
 
 /**
  * Determines version and type information for currently installed projects.
@@ -271,7 +18,8 @@ function update_get_project_name($file) {
  * compare against the available releases to produce the status report.
  *
  * @param $projects
- *   Array of project information from update_get_projects().
+ *   Array of project information from
+ *   \Drupal\update\UpdateManager::getProjects().
  */
 function update_process_project_info(&$projects) {
   foreach ($projects as $key => $project) {
@@ -296,7 +44,7 @@ function update_process_project_info(&$projects) {
       elseif (!isset($info['major'])) {
         // This would only happen for version strings that don't follow the
         // drupal.org convention. We let contribs define "major" in their
-        // .info in this case, and only if that's missing would we hit this.
+        // .info.yml in this case, and only if that's missing would we hit this.
         $info['major'] = -1;
       }
     }
@@ -319,13 +67,12 @@ function update_process_project_info(&$projects) {
  *
  * The results of this function are expensive to compute, especially on sites
  * with lots of modules or themes, since it involves a lot of comparisons and
- * other operations. Therefore, we cache the results into the {cache_update}
- * table using the 'update_project_data' cache ID. However, since this is not
+ * other operations. Therefore, we store the results. However, since this is not
  * the data about available updates fetched from the network, it is ok to
  * invalidate it somewhat quickly. If we keep this data for very long, site
  * administrators are more likely to see incorrect results if they upgrade to a
  * newer version of a module or theme but do not visit certain pages that
- * automatically clear this cache.
+ * automatically clear this.
  *
  * @param array $available
  *   Data about available project releases.
@@ -334,36 +81,60 @@ function update_process_project_info(&$projects) {
  *   An array of installed projects with current update status information.
  *
  * @see update_get_available()
- * @see update_get_projects()
+ * @see \Drupal\update\UpdateManager::getProjects()
  * @see update_process_project_info()
- * @see update_project_cache()
+ * @see \Drupal\update\UpdateManagerInterface::projectStorage()
+ * @see \Drupal\update\ProjectCoreCompatibility::setReleaseMessage()
  */
 function update_calculate_project_data($available) {
-  // Retrieve the projects from cache, if present.
-  $projects = update_project_cache('update_project_data');
-  // If $projects is empty, then the cache must be rebuilt.
-  // Otherwise, return the cached data and skip the rest of the function.
+  // Retrieve the projects from storage, if present.
+  $projects = \Drupal::service('update.manager')->projectStorage('update_project_data');
+  // If $projects is empty, then the data must be rebuilt.
+  // Otherwise, return the data and skip the rest of the function.
   if (!empty($projects)) {
     return $projects;
   }
-  $projects = update_get_projects();
+  $projects = \Drupal::service('update.manager')->getProjects();
   update_process_project_info($projects);
+  if (isset($projects['drupal']) && !empty($available['drupal'])) {
+    // Calculate core status first so that it is complete before
+    // \Drupal\update\ProjectCoreCompatibility::setReleaseMessage() is called
+    // for each module below.
+    update_calculate_project_update_status($projects['drupal'], $available['drupal']);
+    if (isset($available['drupal']['releases'])) {
+      $project_core_compatibility = new ProjectCoreCompatibility($projects['drupal'], $available['drupal']['releases']);
+    }
+  }
+
   foreach ($projects as $project => $project_info) {
     if (isset($available[$project])) {
-      update_calculate_project_update_status($project, $projects[$project], $available[$project]);
+      if ($project === 'drupal') {
+        continue;
+      }
+      update_calculate_project_update_status($projects[$project], $available[$project]);
+      // Inject the list of compatible core versions to show administrator(s)
+      // which versions of core a given available update can be installed with.
+      // Since individual releases of a project can be compatible with different
+      // versions of core, and even multiple major versions of core (for
+      // example, 8.9.x and 9.0.x), this list will hopefully help
+      // administrator(s) know which available updates they can upgrade a given
+      // project to.
+      if (isset($project_core_compatibility)) {
+        $project_core_compatibility->setReleaseMessage($projects[$project]);
+      }
     }
     else {
-      $projects[$project]['status'] = UPDATE_UNKNOWN;
+      $projects[$project]['status'] = UpdateFetcherInterface::UNKNOWN;
       $projects[$project]['reason'] = t('No available releases found');
     }
   }
   // Give other modules a chance to alter the status (for example, to allow a
   // contrib module to provide fine-grained settings to ignore specific
   // projects or releases).
-  drupal_alter('update_status', $projects);
+  \Drupal::moduleHandler()->alter('update_status', $projects);
 
-  // Cache the site's update status for at most 1 hour.
-  _update_cache_set('update_project_data', $projects, REQUEST_TIME + 3600);
+  // Store the site's update status for at most 1 hour.
+  \Drupal::keyValueExpirable('update')->setWithExpire('update_project_data', $projects, 3600);
   return $projects;
 }
 
@@ -377,12 +148,14 @@ function update_calculate_project_data($available) {
  * with an error and the next project is considered.
  *
  * If the project itself is valid, the function decides what major release
- * series to consider. The project defines what the currently supported major
- * versions are for each version of core, so the first step is to make sure the
- * current version is still supported. If so, that's the target version. If the
- * current version is unsupported, the project maintainer's recommended major
- * version is used. There's also a check to make sure that this function never
- * recommends an earlier release than the currently installed major version.
+ * series to consider. The project defines its currently supported branches in
+ * its Drupal.org for the project, so the first step is to make sure the
+ * development branch of the current version is still supported. If so, then the
+ * major version of the current version is used. If the current version is not
+ * in a supported branch, the next supported branch is used to determine the
+ * major version to use. There's also a check to make sure that this function
+ * never recommends an earlier release than the currently installed major
+ * version.
  *
  * Given a target major version, the available releases are scanned looking for
  * the specific release to recommend (avoiding beta releases and development
@@ -423,16 +196,16 @@ function update_calculate_project_data($available) {
  * version (e.g., 5.x-1.5-beta1, 5.x-1.5-beta2, and 5.x-1.5). Development
  * snapshots for a given major version are always listed last.
  *
- * @param $unused
- *   Input is not being used, but remains in function for API compatibility
- *   reasons.
+ * NOTE: This function *must* set a value for $project_data['status'] before
+ * returning, or the rest of the Update Manager will break in unexpected ways.
+ *
  * @param $project_data
  *   An array containing information about a specific project.
  * @param $available
  *   Data about available project releases of a specific project.
  */
-function update_calculate_project_update_status($unused, &$project_data, $available) {
-  foreach (array('title', 'link') as $attribute) {
+function update_calculate_project_update_status(&$project_data, $available) {
+  foreach (['title', 'link'] as $attribute) {
     if (!isset($project_data[$attribute]) && isset($available[$attribute])) {
       $project_data[$attribute] = $available[$attribute];
     }
@@ -443,41 +216,41 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
   if (isset($available['project_status'])) {
     switch ($available['project_status']) {
       case 'insecure':
-        $project_data['status'] = UPDATE_NOT_SECURE;
+        $project_data['status'] = UpdateManagerInterface::NOT_SECURE;
         if (empty($project_data['extra'])) {
           $project_data['extra'] = [];
         }
-        $project_data['extra'][] = array(
-          'class' => array('project-not-secure'),
+        $project_data['extra'][] = [
           'label' => t('Project not secure'),
           'data' => t('This project has been labeled insecure by the Drupal security team, and is no longer available for download. Immediately disabling everything included by this project is strongly recommended!'),
-        );
+        ];
         break;
+
       case 'unpublished':
       case 'revoked':
-        $project_data['status'] = UPDATE_REVOKED;
+        $project_data['status'] = UpdateManagerInterface::REVOKED;
         if (empty($project_data['extra'])) {
           $project_data['extra'] = [];
         }
-        $project_data['extra'][] = array(
-          'class' => array('project-revoked'),
+        $project_data['extra'][] = [
           'label' => t('Project revoked'),
           'data' => t('This project has been revoked, and is no longer available for download. Disabling everything included by this project is strongly recommended!'),
-        );
+        ];
         break;
+
       case 'unsupported':
-        $project_data['status'] = UPDATE_NOT_SUPPORTED;
+        $project_data['status'] = UpdateManagerInterface::NOT_SUPPORTED;
         if (empty($project_data['extra'])) {
           $project_data['extra'] = [];
         }
-        $project_data['extra'][] = array(
-          'class' => array('project-not-supported'),
+        $project_data['extra'][] = [
           'label' => t('Project not supported'),
           'data' => t('This project is no longer supported, and is no longer available for download. Disabling everything included by this project is strongly recommended!'),
-        );
+        ];
         break;
+
       case 'not-fetched':
-        $project_data['status'] = UPDATE_NOT_FETCHED;
+        $project_data['status'] = UpdateFetcherInterface::NOT_FETCHED;
         $project_data['reason'] = t('Failed to get available update data.');
         break;
 
@@ -496,35 +269,60 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
   }
 
   // Figure out the target major version.
-  $existing_major = $project_data['existing_major'];
-  $supported_majors = [];
-  if (isset($available['supported_majors'])) {
-    $supported_majors = explode(',', $available['supported_majors']);
+  // Off Drupal.org, '0' could be a valid version string, so don't use empty().
+  if (!isset($project_data['existing_version']) || $project_data['existing_version'] === '') {
+    $project_data['status'] = UpdateFetcherInterface::UNKNOWN;
+    $project_data['reason'] = t('Empty version');
+    return;
   }
-  elseif (isset($available['default_major'])) {
-    // Older release history XML file without supported or recommended.
-    $supported_majors[] = $available['default_major'];
+  try {
+    $existing_major = ModuleVersion::createFromVersionString($project_data['existing_version'])->getMajorVersion();
+  }
+  catch (UnexpectedValueException $exception) {
+    // If the version has an unexpected value we can't determine updates.
+    $project_data['status'] = UpdateFetcherInterface::UNKNOWN;
+    $project_data['reason'] = t('Invalid version: @existing_version', ['@existing_version' => $project_data['existing_version']]);
+    return;
+  }
+  $supported_branches = [];
+  if (isset($available['supported_branches'])) {
+    $supported_branches = explode(',', $available['supported_branches']);
   }
 
-  if (in_array($existing_major, $supported_majors)) {
+  $is_in_supported_branch = function ($version) use ($supported_branches) {
+    foreach ($supported_branches as $supported_branch) {
+      if (strpos($version, $supported_branch) === 0) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  };
+  if ($is_in_supported_branch($project_data['existing_version'])) {
     // Still supported, stay at the current major version.
     $target_major = $existing_major;
   }
-  elseif (isset($available['recommended_major'])) {
-    // Since 'recommended_major' is defined, we know this is the new XML
-    // format. Therefore, we know the current release is unsupported since
-    // its major version was not in the 'supported_majors' list. We should
-    // find the best release from the recommended major version.
-    $target_major = $available['recommended_major'];
-    $project_data['status'] = UPDATE_NOT_SUPPORTED;
-  }
-  elseif (isset($available['default_major'])) {
-    // Older release history XML file without recommended, so recommend
-    // the currently defined "default_major" version.
-    $target_major = $available['default_major'];
+  elseif ($supported_branches) {
+    // We know the current release is unsupported since it is not in
+    // 'supported_branches' list. We should use the next valid supported
+    // branch for the target major version.
+    $project_data['status'] = UpdateManagerInterface::NOT_SUPPORTED;
+    foreach ($supported_branches as $supported_branch) {
+      try {
+        $target_major = ModuleVersion::createFromSupportBranch($supported_branch)->getMajorVersion();
+
+      }
+      catch (UnexpectedValueException $exception) {
+        continue;
+      }
+    }
+    if (!isset($target_major)) {
+      // If there are no valid support branches, use the current major.
+      $target_major = $existing_major;
+    }
+
   }
   else {
-    // Malformed XML file? Stick with the current version.
+    // Malformed XML file? Stick with the current branch.
     $target_major = $existing_major;
   }
 
@@ -537,15 +335,12 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
   // what they have is unsupported and let them figure it out.
   $target_major = max($existing_major, $target_major);
 
-  $release_patch_changed = '';
-  $patch = '';
-
-  // If the project is marked as UPDATE_FETCH_PENDING, it means that the
-  // data we currently have (if any) is stale, and we've got a task queued
-  // up to (re)fetch the data. In that case, we mark it as such, merge in
-  // whatever data we have (e.g. project title and link), and move on.
-  if (!empty($available['fetch_status']) && $available['fetch_status'] == UPDATE_FETCH_PENDING) {
-    $project_data['status'] = UPDATE_FETCH_PENDING;
+  // If the project is marked as UpdateFetcherInterface::FETCH_PENDING, it
+  // means that the data we currently have (if any) is stale, and we've got a
+  // task queued up to (re)fetch the data. In that case, we mark it as such,
+  // merge in whatever data we have (e.g. project title and link), and move on.
+  if (!empty($available['fetch_status']) && $available['fetch_status'] == UpdateFetcherInterface::FETCH_PENDING) {
+    $project_data['status'] = UpdateFetcherInterface::FETCH_PENDING;
     $project_data['reason'] = t('No available update data');
     $project_data['fetch_status'] = $available['fetch_status'];
     return;
@@ -553,64 +348,72 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
 
   // Defend ourselves from XML history files that contain no releases.
   if (empty($available['releases'])) {
-    $project_data['status'] = UPDATE_UNKNOWN;
+    $project_data['status'] = UpdateFetcherInterface::UNKNOWN;
     $project_data['reason'] = t('No available releases found');
     return;
   }
+
+  $recommended_version_without_extra = '';
+  $recommended_release = NULL;
+
   foreach ($available['releases'] as $version => $release) {
+    try {
+      $release_module_version = ModuleVersion::createFromVersionString($release['version']);
+    }
+    catch (UnexpectedValueException $exception) {
+      continue;
+    }
     // First, if this is the existing release, check a few conditions.
     if ($project_data['existing_version'] === $version) {
       if (isset($release['terms']['Release type']) &&
           in_array('Insecure', $release['terms']['Release type'])) {
-        $project_data['status'] = UPDATE_NOT_SECURE;
+        $project_data['status'] = UpdateManagerInterface::NOT_SECURE;
       }
       elseif ($release['status'] == 'unpublished') {
-        $project_data['status'] = UPDATE_REVOKED;
+        $project_data['status'] = UpdateManagerInterface::REVOKED;
         if (empty($project_data['extra'])) {
           $project_data['extra'] = [];
         }
-        $project_data['extra'][] = array(
-          'class' => array('release-revoked'),
+        $project_data['extra'][] = [
+          'class' => ['release-revoked'],
           'label' => t('Release revoked'),
           'data' => t('Your currently installed release has been revoked, and is no longer available for download. Disabling everything included in this release or upgrading is strongly recommended!'),
-        );
+        ];
       }
       elseif (isset($release['terms']['Release type']) &&
               in_array('Unsupported', $release['terms']['Release type'])) {
-        $project_data['status'] = UPDATE_NOT_SUPPORTED;
+        $project_data['status'] = UpdateManagerInterface::NOT_SUPPORTED;
         if (empty($project_data['extra'])) {
           $project_data['extra'] = [];
         }
-        $project_data['extra'][] = array(
-          'class' => array('release-not-supported'),
+        $project_data['extra'][] = [
+          'class' => ['release-not-supported'],
           'label' => t('Release not supported'),
           'data' => t('Your currently installed release is now unsupported, and is no longer available for download. Disabling everything included in this release or upgrading is strongly recommended!'),
-        );
+        ];
       }
     }
-
-    // Otherwise, ignore unpublished, insecure, or unsupported releases.
-    if ($release['status'] == 'unpublished' ||
-        (isset($release['terms']['Release type']) &&
-         (in_array('Insecure', $release['terms']['Release type']) ||
-          in_array('Unsupported', $release['terms']['Release type'])))) {
+    // Other than the currently installed release, ignore unpublished, insecure,
+    // or unsupported updates.
+    elseif ($release['status'] == 'unpublished' ||
+            !$is_in_supported_branch($release['version']) ||
+            (isset($release['terms']['Release type']) &&
+             (in_array('Insecure', $release['terms']['Release type']) ||
+              in_array('Unsupported', $release['terms']['Release type'])))
+    ) {
       continue;
     }
 
+    $release_major_version = $release_module_version->getMajorVersion();
     // See if this is a higher major version than our target and yet still
     // supported. If so, record it as an "Also available" release.
-    // Note: some projects have a HEAD release from CVS days, which could
-    // be one of those being compared. They would not have version_major
-    // set, so we must call isset first.
-    if (isset($release['version_major']) && $release['version_major'] > $target_major) {
-      if (in_array($release['version_major'], $supported_majors)) {
-        if (!isset($project_data['also'])) {
-          $project_data['also'] = [];
-        }
-        if (!isset($project_data['also'][$release['version_major']])) {
-          $project_data['also'][$release['version_major']] = $version;
-          $project_data['releases'][$version] = $release;
-        }
+    if ($release_major_version > $target_major) {
+      if (!isset($project_data['also'])) {
+        $project_data['also'] = [];
+      }
+      if (!isset($project_data['also'][$release_major_version])) {
+        $project_data['also'][$release_major_version] = $version;
+        $project_data['releases'][$version] = $release;
       }
       // Otherwise, this release can't matter to us, since it's neither
       // from the release series we're currently using nor the recommended
@@ -625,32 +428,37 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
     // Look for the 'latest version' if we haven't found it yet. Latest is
     // defined as the most recent version for the target major version.
     if (!isset($project_data['latest_version'])
-        && $release['version_major'] == $target_major) {
+        && $release_major_version == $target_major) {
       $project_data['latest_version'] = $version;
       $project_data['releases'][$version] = $release;
     }
 
     // Look for the development snapshot release for this branch.
     if (!isset($project_data['dev_version'])
-        && $release['version_major'] == $target_major
-        && isset($release['version_extra'])
-        && $release['version_extra'] == 'dev') {
+        && $release_major_version == $target_major
+        && $release_module_version->getVersionExtra() === 'dev') {
       $project_data['dev_version'] = $version;
       $project_data['releases'][$version] = $release;
+    }
+
+    if ($release_module_version->getVersionExtra()) {
+      $release_version_without_extra = str_replace('-' . $release_module_version->getVersionExtra(), '', $release['version']);
+    }
+    else {
+      $release_version_without_extra = $release['version'];
     }
 
     // Look for the 'recommended' version if we haven't found it yet (see
     // phpdoc at the top of this function for the definition).
     if (!isset($project_data['recommended'])
-        && $release['version_major'] == $target_major
-        && isset($release['version_patch'])) {
-      if ($patch != $release['version_patch']) {
-        $patch = $release['version_patch'];
-        $release_patch_changed = $release;
+        && $release_major_version == $target_major) {
+      if ($recommended_version_without_extra !== $release_version_without_extra) {
+        $recommended_version_without_extra = $release_version_without_extra;
+        $recommended_release = $release;
       }
-      if (empty($release['version_extra']) && $patch == $release['version_patch']) {
-        $project_data['recommended'] = $release_patch_changed['version'];
-        $project_data['releases'][$release_patch_changed['version']] = $release_patch_changed;
+      if ($release_module_version->getVersionExtra() === NULL) {
+        $project_data['recommended'] = $recommended_release['version'];
+        $project_data['releases'][$recommended_release['version']] = $recommended_release;
       }
     }
 
@@ -662,7 +470,7 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
     // If we're running a dev snapshot and have a timestamp, stop
     // searching for security updates once we hit an official release
     // older than what we've got. Allow 100 seconds of leeway to handle
-    // differences between the datestamp in the .info file and the
+    // differences between the datestamp in the .info.yml file and the
     // timestamp of the tarball itself (which are usually off by 1 or 2
     // seconds) so that we don't flag that as a new release.
     if ($project_data['install_type'] == 'dev') {
@@ -689,15 +497,6 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
     $project_data['recommended'] = $project_data['latest_version'];
   }
 
-  //
-  // Check to see if we need an update or not.
-  //
-
-  if (!empty($project_data['security updates'])) {
-    // If we found security updates, that always trumps any other status.
-    $project_data['status'] = UPDATE_NOT_SECURE;
-  }
-
   if (isset($project_data['status'])) {
     // If we already know the status, we're done.
     return;
@@ -706,7 +505,7 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
   // If we don't know what to recommend, there's nothing we can report.
   // Bail out early.
   if (!isset($project_data['recommended'])) {
-    $project_data['status'] = UPDATE_UNKNOWN;
+    $project_data['status'] = UpdateFetcherInterface::UNKNOWN;
     $project_data['reason'] = t('No available releases found');
     return;
   }
@@ -728,111 +527,29 @@ function update_calculate_project_update_status($unused, &$project_data, $availa
   switch ($project_data['install_type']) {
     case 'official':
       if ($project_data['existing_version'] === $project_data['recommended'] || $project_data['existing_version'] === $project_data['latest_version']) {
-        $project_data['status'] = UPDATE_CURRENT;
+        $project_data['status'] = UpdateManagerInterface::CURRENT;
       }
       else {
-        $project_data['status'] = UPDATE_NOT_CURRENT;
+        $project_data['status'] = UpdateManagerInterface::NOT_CURRENT;
       }
       break;
 
     case 'dev':
       $latest = $available['releases'][$project_data['latest_dev']];
       if (empty($project_data['datestamp'])) {
-        $project_data['status'] = UPDATE_NOT_CHECKED;
+        $project_data['status'] = UpdateFetcherInterface::NOT_CHECKED;
         $project_data['reason'] = t('Unknown release date');
       }
       elseif (($project_data['datestamp'] + 100 > $latest['date'])) {
-        $project_data['status'] = UPDATE_CURRENT;
+        $project_data['status'] = UpdateManagerInterface::CURRENT;
       }
       else {
-        $project_data['status'] = UPDATE_NOT_CURRENT;
+        $project_data['status'] = UpdateManagerInterface::NOT_CURRENT;
       }
       break;
 
     default:
-      $project_data['status'] = UPDATE_UNKNOWN;
+      $project_data['status'] = UpdateFetcherInterface::UNKNOWN;
       $project_data['reason'] = t('Invalid info');
   }
-}
-
-/**
- * Retrieves data from {cache_update} or empties the cache when necessary.
- *
- * Two very expensive arrays computed by this module are the list of all
- * installed modules and themes (and .info data, project associations, etc), and
- * the current status of the site relative to the currently available releases.
- * These two arrays are cached in the {cache_update} table and used whenever
- * possible. The cache is cleared whenever the administrator visits the status
- * report, available updates report, or the module or theme administration
- * pages, since we should always recompute the most current values on any of
- * those pages.
- *
- * Note: while both of these arrays are expensive to compute (in terms of disk
- * I/O and some fairly heavy CPU processing), neither of these is the actual
- * data about available updates that we have to fetch over the network from
- * updates.drupal.org. That information is stored with the
- * 'update_available_releases' cache ID -- it needs to persist longer than 1
- * hour and never get invalidated just by visiting a page on the site.
- *
- * @param $cid
- *   The cache ID of data to return from the cache. Valid options are
- *   'update_project_data' and 'update_project_projects'.
- *
- * @return
- *   The cached value of the $projects array generated by
- *   update_calculate_project_data() or update_get_projects(), or an empty array
- *   when the cache is cleared.
- */
-function update_project_cache($cid) {
-  $projects = [];
-
-  // On certain paths, we should clear the cache and recompute the projects for
-  // update status of the site to avoid presenting stale information.
-  $q = $_GET['q'];
-  $paths = array(
-    'admin/modules',
-    'admin/modules/update',
-    'admin/appearance',
-    'admin/appearance/update',
-    'admin/reports',
-    'admin/reports/updates',
-    'admin/reports/updates/update',
-    'admin/reports/status',
-    'admin/reports/updates/check',
-  );
-  if (in_array($q, $paths)) {
-    _update_cache_clear($cid);
-  }
-  else {
-    $cache = _update_cache_get($cid);
-    if (!empty($cache->data) && $cache->expire > REQUEST_TIME) {
-      $projects = $cache->data;
-    }
-  }
-  return $projects;
-}
-
-/**
- * Filters the project .info data to only save attributes we need.
- *
- * @param array $info
- *   Array of .info file data as returned by drupal_parse_info_file().
- *
- * @return
- *   Array of .info file data we need for the update manager.
- *
- * @see _update_process_info_list()
- */
-function update_filter_project_info($info) {
-  $whitelist = array(
-    '_info_file_ctime',
-    'datestamp',
-    'major',
-    'name',
-    'package',
-    'project',
-    'project status url',
-    'version',
-  );
-  return array_intersect_key($info, drupal_map_assoc($whitelist));
 }

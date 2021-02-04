@@ -1,0 +1,9 @@
+name: 'Migrate events test'
+type: module
+package: Testing
+# version: VERSION
+
+# Information added by Drupal.org packaging script on 2021-02-03
+version: '9.1.4'
+project: 'drupal'
+datestamp: 1612380999

@@ -5,145 +5,152 @@
  * Builds placeholder replacement tokens for taxonomy terms and vocabularies.
  */
 
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\taxonomy\Entity\Vocabulary;
+
 /**
  * Implements hook_token_info().
  */
 function taxonomy_token_info() {
-  $types['term'] = array(
+  $types['term'] = [
     'name' => t("Taxonomy terms"),
     'description' => t("Tokens related to taxonomy terms."),
     'needs-data' => 'term',
-  );
-  $types['vocabulary'] = array(
+  ];
+  $types['vocabulary'] = [
     'name' => t("Vocabularies"),
     'description' => t("Tokens related to taxonomy vocabularies."),
     'needs-data' => 'vocabulary',
-  );
+  ];
 
   // Taxonomy term related variables.
-  $term['tid'] = array(
+  $term['tid'] = [
     'name' => t("Term ID"),
     'description' => t("The unique ID of the taxonomy term."),
-  );
-  $term['name'] = array(
+  ];
+  $term['name'] = [
     'name' => t("Name"),
     'description' => t("The name of the taxonomy term."),
-  );
-  $term['description'] = array(
+  ];
+  $term['description'] = [
     'name' => t("Description"),
     'description' => t("The optional description of the taxonomy term."),
-  );
-  $term['node-count'] = array(
+  ];
+  $term['node-count'] = [
     'name' => t("Node count"),
     'description' => t("The number of nodes tagged with the taxonomy term."),
-  );
-  $term['url'] = array(
+  ];
+  $term['url'] = [
     'name' => t("URL"),
     'description' => t("The URL of the taxonomy term."),
-  );
+  ];
 
   // Taxonomy vocabulary related variables.
-  $vocabulary['vid'] = array(
+  $vocabulary['vid'] = [
     'name' => t("Vocabulary ID"),
     'description' => t("The unique ID of the taxonomy vocabulary."),
-  );
-  $vocabulary['name'] = array(
+  ];
+  $vocabulary['name'] = [
     'name' => t("Name"),
     'description' => t("The name of the taxonomy vocabulary."),
-  );
-  $vocabulary['description'] = array(
+  ];
+  $vocabulary['description'] = [
     'name' => t("Description"),
     'description' => t("The optional description of the taxonomy vocabulary."),
-  );
-  $vocabulary['node-count'] = array(
+  ];
+  $vocabulary['node-count'] = [
     'name' => t("Node count"),
     'description' => t("The number of nodes tagged with terms belonging to the taxonomy vocabulary."),
-  );
-  $vocabulary['term-count'] = array(
+  ];
+  $vocabulary['term-count'] = [
     'name' => t("Term count"),
     'description' => t("The number of terms belonging to the taxonomy vocabulary."),
-  );
+  ];
 
   // Chained tokens for taxonomies
-  $term['vocabulary'] = array(
+  $term['vocabulary'] = [
     'name' => t("Vocabulary"),
     'description' => t("The vocabulary the taxonomy term belongs to."),
     'type' => 'vocabulary',
-  );
-  $term['parent'] = array(
+  ];
+  $term['parent'] = [
     'name' => t("Parent term"),
     'description' => t("The parent term of the taxonomy term, if one exists."),
     'type' => 'term',
-  );
+  ];
 
-  return array(
+  return [
     'types' => $types,
-    'tokens' => array(
+    'tokens' => [
       'term' => $term,
       'vocabulary' => $vocabulary,
-    ),
-  );
+    ],
+  ];
 }
 
 /**
  * Implements hook_tokens().
  */
-function taxonomy_tokens($type, $tokens, array $data = [], array $options = []) {
-  $replacements = [];
-  $sanitize = !empty($options['sanitize']);
+function taxonomy_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
+  $token_service = \Drupal::token();
 
+  $replacements = [];
+  $taxonomy_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
   if ($type == 'term' && !empty($data['term'])) {
     $term = $data['term'];
 
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'tid':
-          $replacements[$original] = $term->tid;
+          $replacements[$original] = $term->id();
           break;
 
         case 'name':
-          $replacements[$original] = $sanitize ? check_plain($term->name) : $term->name;
+          $replacements[$original] = $term->getName();
           break;
 
         case 'description':
-          $replacements[$original] = $sanitize ? check_markup($term->description, $term->format, '', TRUE) : $term->description;
+          // "processed" returns a \Drupal\Component\Render\MarkupInterface via
+          // check_markup().
+          $replacements[$original] = $term->description->processed;
           break;
 
         case 'url':
-          $uri = entity_uri('taxonomy_term', $term);
-          $replacements[$original] = url($uri['path'], array_merge($uri['options'], array('absolute' => TRUE)));
+          $replacements[$original] = $term->toUrl('canonical', ['absolute' => TRUE])->toString();
           break;
 
         case 'node-count':
-          $query = db_select('taxonomy_index');
-          $query->condition('tid', $term->tid);
+          $query = \Drupal::database()->select('taxonomy_index');
+          $query->condition('tid', $term->id());
           $query->addTag('term_node_count');
           $count = $query->countQuery()->execute()->fetchField();
           $replacements[$original] = $count;
           break;
 
         case 'vocabulary':
-          $vocabulary = taxonomy_vocabulary_load($term->vid);
-          $replacements[$original] = check_plain($vocabulary->name);
+          $vocabulary = Vocabulary::load($term->bundle());
+          $bubbleable_metadata->addCacheableDependency($vocabulary);
+          $replacements[$original] = $vocabulary->label();
           break;
 
         case 'parent':
-          if ($parents = taxonomy_get_parents($term->tid)) {
+          if ($parents = $taxonomy_storage->loadParents($term->id())) {
             $parent = array_pop($parents);
-            $replacements[$original] = check_plain($parent->name);
+            $bubbleable_metadata->addCacheableDependency($parent);
+            $replacements[$original] = $parent->getName();
           }
           break;
       }
     }
 
-    if ($vocabulary_tokens = token_find_with_prefix($tokens, 'vocabulary')) {
-      $vocabulary = taxonomy_vocabulary_load($term->vid);
-      $replacements += token_generate('vocabulary', $vocabulary_tokens, array('vocabulary' => $vocabulary), $options);
+    if ($vocabulary_tokens = $token_service->findWithPrefix($tokens, 'vocabulary')) {
+      $vocabulary = Vocabulary::load($term->bundle());
+      $replacements += $token_service->generate('vocabulary', $vocabulary_tokens, ['vocabulary' => $vocabulary], $options, $bubbleable_metadata);
     }
 
-    if (($vocabulary_tokens = token_find_with_prefix($tokens, 'parent')) && $parents = taxonomy_get_parents($term->tid)) {
+    if (($vocabulary_tokens = $token_service->findWithPrefix($tokens, 'parent')) && $parents = $taxonomy_storage->loadParents($term->id())) {
       $parent = array_pop($parents);
-      $replacements += token_generate('term', $vocabulary_tokens, array('term' => $parent), $options);
+      $replacements += $token_service->generate('term', $vocabulary_tokens, ['term' => $parent], $options, $bubbleable_metadata);
     }
   }
 
@@ -153,33 +160,29 @@ function taxonomy_tokens($type, $tokens, array $data = [], array $options = []) 
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'vid':
-          $replacements[$original] = $vocabulary->vid;
+          $replacements[$original] = $vocabulary->id();
           break;
 
         case 'name':
-          $replacements[$original] = $sanitize ? check_plain($vocabulary->name) : $vocabulary->name;
+          $replacements[$original] = $vocabulary->label();
           break;
 
         case 'description':
-          $replacements[$original] = $sanitize ? filter_xss($vocabulary->description) : $vocabulary->description;
+          $build = ['#markup' => $vocabulary->getDescription()];
+          // @todo Fix in https://www.drupal.org/node/2577827
+          $replacements[$original] = \Drupal::service('renderer')->renderPlain($build);
           break;
 
         case 'term-count':
-          $query = db_select('taxonomy_term_data');
-          $query->condition('vid', $vocabulary->vid);
-          $query->addTag('vocabulary_term_count');
-          $count = $query->countQuery()->execute()->fetchField();
-          $replacements[$original] = $count;
+          $replacements[$original] = \Drupal::entityQuery('taxonomy_term')
+            ->condition('vid', $vocabulary->id())
+            ->addTag('vocabulary_term_count')
+            ->count()
+            ->execute();
           break;
 
         case 'node-count':
-          $query = db_select('taxonomy_index', 'ti');
-          $query->addExpression('COUNT(DISTINCT ti.nid)');
-          $query->leftJoin('taxonomy_term_data', 'td', 'ti.tid = td.tid');
-          $query->condition('td.vid', $vocabulary->vid);
-          $query->addTag('vocabulary_node_count');
-          $count = $query->execute()->fetchField();
-          $replacements[$original] = $count;
+          $replacements[$original] = $taxonomy_storage->nodeCount($vocabulary->id());
           break;
       }
     }
